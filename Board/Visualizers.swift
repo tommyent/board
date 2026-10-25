@@ -167,7 +167,8 @@ final class PassivePanel: NSPanel {
             RunLoop.main.add(timer!,forMode:.common)
         }
     }
-    func hide() { dismissal?.cancel(); comboExpiry?.cancel(); timer?.invalidate(); timer = nil; panel.orderOut(nil) }
+    // Cancelling the dismissal skips its pill cleanup, so clear the labels here (a Space change would otherwise carry them over).
+    func hide() { dismissal?.cancel(); comboExpiry?.cancel(); timer?.invalidate(); timer = nil; panel.orderOut(nil); app.pills.removeAll() }
     private func updatePosition() {
         guard let screen else { return }
         let settings = app.settings.visualizer

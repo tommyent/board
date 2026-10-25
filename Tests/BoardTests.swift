@@ -81,6 +81,14 @@ final class BoardTests: XCTestCase {
         XCTAssertEqual(app.settings.sound.volume,1); XCTAssertEqual(app.settings.sound.pitch,-12); XCTAssertEqual(app.settings.sound.tone,1); XCTAssertEqual(app.settings.sound.width,2)
         XCTAssertEqual(app.settings.sound.overrides[0],KeyOverride(tone:1,pitch:12,volume:0))
     }
+    @MainActor func testSpaceChangeClearsKeystrokeLabels() {
+        let app = AppState(defaults:UserDefaults(suiteName:"com.tommyent.Board.tests.space")!), overlay = OverlayController(app:app)
+        app.pills = ["⌘ S"]
+        NSWorkspace.shared.notificationCenter.post(name:NSWorkspace.activeSpaceDidChangeNotification,object:nil)
+        RunLoop.main.run(until:Date()+0.1)
+        XCTAssertEqual(app.pills,[])
+        withExtendedLifetime(overlay) {}
+    }
     func testAppIconColors() throws {
         var settings = AppSettings(); settings.iconColor = "Sage"
         var json = try XCTUnwrap(JSONSerialization.jsonObject(with:JSONEncoder().encode(settings)) as? [String:Any])
