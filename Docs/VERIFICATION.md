@@ -30,11 +30,13 @@ The app builds in Debug and Release. The native XCTest target passes **seven tes
 6. Offline spatial left/right energy separation, finite output and peak protection with 32 simultaneous voices.
 7. App icon colors: settings saved before the picker still load, unknown colors are cleared, and all five bundled icons load.
 
+2026-10-25: after the audit fixes the suite has eleven tests, adding a decoded-size bound, import copies (source swapped after copying, failed second copy), clamped saved presets, and keystroke labels cleared on a Space change. All eleven passed on the test Mac m1 (macOS 26.5.1). Because m1 has no Xcode, they ran as logic tests under Xcode 27's `xctest`, built from the same sources with SwiftPM; the app-hosted `Scripts/test.sh` run was not repeated. The Xcode test target compiles (`build-for-testing`). Against the pre-fix code, the new decoded-size, preset and Space tests fail.
+
 Run `bash Scripts/test.sh`. Full result bundle: `build/DerivedData/Logs/Test/` (path in `Docs/test-results.txt`); concise exported results: `Docs/test-results.txt`.
 
 Build and bundle evidence: `Docs/build-results.txt`. The final packaged executable is arm64; all 121 shipped source clips and other manifest-listed bundle resources passed SHA-256 comparison.
 
-Signing, updated 2026-10-24: `Scripts/build.sh` signs `dist/Board.app` with the keychain's Developer ID Application identity, hardened runtime and a secure timestamp. When it has to fall back to the local `NotAHotDog Signing` identity or an ad-hoc signature, it prints a warning. A 2026-10-24 check found the installed 0.3.0 app Developer ID-signed with a timestamp but not notarized. `bash Scripts/build.sh --notarize` adds notarization, stapling and the Gatekeeper check (see the README); it has not been run against Apple yet. The 2026-09-10 package was ad-hoc signed; `codesign --verify --deep --strict` reported it **valid on disk** and **satisfies its Designated Requirement**.
+Signing, updated 2026-10-24: `Scripts/build.sh` signs `dist/Board.app` with the keychain's Developer ID Application identity, hardened runtime and a secure timestamp. When it has to fall back to the local `NotAHotDog Signing` identity or an ad-hoc signature, it prints a warning. A 2026-10-24 check found the installed 0.3.0 app Developer ID-signed with a timestamp but not notarized. `bash Scripts/build.sh --notarize` adds notarization, stapling and the Gatekeeper check (see the README); it has not been run against Apple yet. The 2026-10-25 package built from this checkout (`dist/Board.app`) is Developer ID-signed with hardened runtime and a secure timestamp (`codesign -dvv`). The 2026-09-10 package was ad-hoc signed; `codesign --verify --deep --strict` reported it **valid on disk** and **satisfies its Designated Requirement**.
 
 ## Live checks performed
 
