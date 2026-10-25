@@ -7,7 +7,7 @@ import AppKit
         let destination = root.appendingPathComponent("Assets/ThemePreviews")
         try FileManager.default.createDirectory(at:destination,withIntermediateDirectories:true)
         for theme in ["Dark","Light","Glass Dark","Glass Clear"] {
-            let view = KeyboardView(layout:"ANSI",held:[0,1,2,3,38],theme:theme).padding(12).frame(width:600,height:252).background(theme.contains("Dark") ? Color(white:0.18) : Color(white:0.9))
+            let view = KeyboardView(layout:"ANSI",held:[0,1,2,3,38],theme:theme,accent:Accent(nil)).padding(12).frame(width:600,height:252).background(theme.contains("Dark") ? Color(white:0.18) : Color(white:0.9))
             let renderer = ImageRenderer(content:view); renderer.scale = 2
             if let cg = renderer.cgImage { let rep = NSBitmapImageRep(cgImage:cg); try rep.representation(using:.png,properties:[:])!.write(to:destination.appendingPathComponent(theme.replacingOccurrences(of:" ",with:"-")+".png")) }
         }
