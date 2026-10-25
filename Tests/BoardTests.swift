@@ -114,6 +114,19 @@ final class BoardTests: XCTestCase {
         XCTAssertNil(association.release(key:49))
         association.remember(anotherBank,key:0); association.clear(); XCTAssertNil(association.release(key:0))
     }
+    func testDecodedSizeIsBoundedBeforeAllocation() throws {
+        // 29 s of eight-channel 96 kHz Apple Lossless silence: about 120 KB on disk, 85 MB once decoded.
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString+".caf")
+        defer { try? FileManager.default.removeItem(at:url) }
+        let layout = AVAudioChannelLayout(layoutTag:kAudioChannelLayoutTag_DiscreteInOrder | 8)!
+        let file = try AVAudioFile(forWriting:url,settings:[AVFormatIDKey:kAudioFormatAppleLossless,AVSampleRateKey:96000,AVNumberOfChannelsKey:8,AVEncoderBitDepthHintKey:16,AVChannelLayoutKey:Data(bytes:layout.layout,count:MemoryLayout<AudioChannelLayout>.size)])
+        let second = AVAudioPCMBuffer(pcmFormat:AVAudioFormat(standardFormatWithSampleRate:96000,channelLayout:layout),frameCapacity:96000)!
+        second.frameLength = second.frameCapacity
+        for _ in 0..<29 { try file.write(from:second) }
+        file.close()
+        XCTAssertLessThan(try XCTUnwrap(url.resourceValues(forKeys:[.fileSizeKey]).fileSize),AudioFiles.maxFileSize)
+        XCTAssertThrowsError(try AudioFiles.decode(url,imported:true)) { XCTAssertEqual(($0 as? AudioValidationError)?.message,"Audio is too large once decoded (64 MB limit).") }
+    }
     func testImportsAreValidatedBeforeReplacement() throws {
         let temp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at:temp,withIntermediateDirectories:true)

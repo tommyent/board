@@ -7,13 +7,17 @@ struct AudioValidationError: LocalizedError {
 
 enum AudioFiles {
     static let format = AVAudioFormat(standardFormatWithSampleRate:48000,channels:1)!
+    static let maxFileSize = 25 * 1024 * 1024
+    static let maxDecodedSize: Int64 = 64 * 1024 * 1024
     static func decode(_ url: URL, imported: Bool = false) throws -> AVAudioPCMBuffer {
         let size = try url.resourceValues(forKeys:[.fileSizeKey]).fileSize ?? 0
-        guard size > 0, size <= 25 * 1024 * 1024 else { throw AudioValidationError(message:"Audio must be nonempty and no larger than 25 MB.") }
+        guard size > 0, size <= maxFileSize else { throw AudioValidationError(message:"Audio must be nonempty and no larger than 25 MB.") }
         if imported, !["wav","aiff","aif","caf","m4a","mp3"].contains(url.pathExtension.lowercased()) { throw AudioValidationError(message:"Choose WAV, AIFF, CAF, M4A, or MP3 audio.") }
         let file = try AVAudioFile(forReading:url)
         let duration = Double(file.length)/file.processingFormat.sampleRate
         guard duration.isFinite, duration > 0, duration <= 30, file.processingFormat.channelCount <= 8 else { throw AudioValidationError(message:"Audio must contain 0–30 seconds and at most eight channels.") }
+        // A small compressed file can decode to a huge high-rate multichannel buffer; bound the Float32 frames before allocating.
+        guard file.length <= maxDecodedSize / 4 / Int64(max(1,file.processingFormat.channelCount)) else { throw AudioValidationError(message:"Audio is too large once decoded (64 MB limit).") }
         guard let source = AVAudioPCMBuffer(pcmFormat:file.processingFormat,frameCapacity:AVAudioFrameCount(file.length)) else { throw AudioValidationError(message:"Cannot allocate audio buffer.") }
         try file.read(into:source)
         guard let channels = source.floatChannelData else { throw AudioValidationError(message:"Cannot decode floating-point audio.") }
