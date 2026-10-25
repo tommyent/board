@@ -34,6 +34,14 @@ run Tests/Fixtures/hook-edit.json
 expected="$(printf 'if name.isEmpty { return "Hi" }\n\treturn "Hello" // é ✓')"
 [ "$(cat "$queue"/*.txt)" = "$expected" ] || fail "Edit text differs: $(cat "$queue"/*.txt)"
 rm -f "$queue"/*.txt
+# Codex: apply_patch's added lines arrive (its input contains nulls, which plutil couldn't read).
+run Tests/Fixtures/hook-codex-patch.json
+expected="$(printf 'def hello():\n    return "hi"\n    print(hello())')"
+[ "$(cat "$queue"/*.txt)" = "$expected" ] || fail "Codex patch text differs: $(cat "$queue"/*.txt)"
+rm -f "$queue"/*.txt
+printf '{"tool_name":"Bash","tool_input":{"command":"ls -la"},"transcript_path":null}' > "$work/bash.json"
+run "$work/bash.json"
+[ "$(queued)" = 0 ] || fail "queued a shell command as code"
 
 # Large text is capped at 4 KB; input without text, or that isn't JSON, writes nothing.
 big="$(head -c 10000 /dev/zero | tr '\0' 'x')"
