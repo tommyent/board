@@ -1,0 +1,16 @@
+#!/bin/bash
+# Claude Code PostToolUse hook (matcher Write|Edit, async): hands the new text to Board's AI mode on this Mac.
+# Board writes its PID to "listening" only while AI mode is on, so this does nothing unless Board is running with it.
+# The text goes into Board's own folder, capped at 4 KB; Board reads and deletes it at once. Nothing is logged or sent.
+dir="$HOME/Library/Application Support/Board/AI Queue"
+pid="$(head -c 16 "$dir/listening" 2>/dev/null)" || exit 0
+case "$pid" in ''|*[!0-9]*) exit 0 ;; esac
+comm="$(ps -p "$pid" -o comm= 2>/dev/null)" || exit 0
+[ "${comm##*/}" = Board ] || exit 0
+input="$(head -c 1048576)"
+# Write sends tool_input.content, Edit sends tool_input.new_string.
+text="$(plutil -extract tool_input.content raw -o - - <<<"$input" 2>/dev/null || plutil -extract tool_input.new_string raw -o - - <<<"$input" 2>/dev/null)" || exit 0
+[ -n "$text" ] || exit 0
+umask 077
+tmp="$dir/.$$.tmp"
+printf '%s' "$text" | head -c 4096 > "$tmp" && mv -f "$tmp" "$dir/$(date +%s)-$$.txt"
