@@ -9,6 +9,11 @@ case "${1:-}" in
 esac
 xcodebuild -project Board.xcodeproj -scheme Board -configuration Release -derivedDataPath build/DerivedData build
 python3 Scripts/package_app.py
+# Board only listens, AI mode included: fail if the app links any API that posts events into other apps.
+if nm -u dist/Board.app/Contents/MacOS/Board | grep -E '^_(CGEventPost|CGEventPostToPid|CGEventPostToPSN|CGEventTapPostEvent|CGPostKeyboardEvent|CGPostMouseEvent|AXUIElementPostKeyboardEvent)$'; then
+  echo "error: Board links an event-posting API" >&2
+  exit 1
+fi
 
 # Ad-hoc signatures change CDHash every build, so Input Monitoring grants
 # do not survive a reinstall. Prefer Developer ID, then a stable local identity.
