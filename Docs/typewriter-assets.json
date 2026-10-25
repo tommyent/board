@@ -1,0 +1,58 @@
+[
+  {
+    "path": "Board/Resources/Audio/typewriter/press/GENERIC_1.wav",
+    "source": "https://opengameart.org/sites/default/files/typewriter1.wav",
+    "sourcePage": "https://opengameart.org/content/typewriter-sounds",
+    "author": "Cassie-OrbitGames",
+    "license": "CC0 1.0",
+    "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "published": "2025-09-06",
+    "retrieved": "2026-09-10",
+    "sha256": "ab6a0df5f352441a5f2e06df226ac488e8081805e0fa942d27a5d0475d4bb6d3",
+    "processing": "Leading silence trimmed by 130 frames, retaining 2 ms before the 1%-peak onset and the full decay. Complete keystroke plays on press only. Runtime mono PCM conversion, DC removal, and 1 ms boundary fades.",
+    "originalPath": "Docs/References/typewriter/GENERIC_1.wav",
+    "originalSHA256": "f860766aa7922afbf1523ea1a41504c64f3f6362fa03a60b6497c75c1d0d0344"
+  },
+  {
+    "path": "Board/Resources/Audio/typewriter/press/GENERIC_2.wav",
+    "source": "https://opengameart.org/sites/default/files/typewriter2.wav",
+    "sourcePage": "https://opengameart.org/content/typewriter-sounds",
+    "author": "Cassie-OrbitGames",
+    "license": "CC0 1.0",
+    "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "published": "2025-09-06",
+    "retrieved": "2026-09-10",
+    "sha256": "b40c17fe45c9e3a6ad8a617f7831da5ccb3c8baab1fa0eb368f8ba3ade52c8a4",
+    "processing": "Leading silence trimmed by 0 frames, retaining 2 ms before the 1%-peak onset and the full decay. Complete keystroke plays on press only. Runtime mono PCM conversion, DC removal, and 1 ms boundary fades.",
+    "originalPath": "Docs/References/typewriter/GENERIC_2.wav",
+    "originalSHA256": "b40c17fe45c9e3a6ad8a617f7831da5ccb3c8baab1fa0eb368f8ba3ade52c8a4"
+  },
+  {
+    "path": "Board/Resources/Audio/typewriter/press/GENERIC_3.wav",
+    "source": "https://opengameart.org/sites/default/files/typewriter3.wav",
+    "sourcePage": "https://opengameart.org/content/typewriter-sounds",
+    "author": "Cassie-OrbitGames",
+    "license": "CC0 1.0",
+    "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "published": "2025-09-06",
+    "retrieved": "2026-09-10",
+    "sha256": "2e8ec43859cef25462b30b24b984b8397fe3658177158a7f5b92d0e98e44f895",
+    "processing": "Leading silence trimmed by 1190 frames, retaining 2 ms before the 1%-peak onset and the full decay. Complete keystroke plays on press only. Runtime mono PCM conversion, DC removal, and 1 ms boundary fades.",
+    "originalPath": "Docs/References/typewriter/GENERIC_3.wav",
+    "originalSHA256": "c9bb2c6245bdd60b996fe39f2fb74c810309ee03bbe2d8ae1ee6715888df9c69"
+  },
+  {
+    "path": "Board/Resources/Audio/typewriter/press/GENERIC_4.wav",
+    "source": "https://opengameart.org/sites/default/files/typewriter4.wav",
+    "sourcePage": "https://opengameart.org/content/typewriter-sounds",
+    "author": "Cassie-OrbitGames",
+    "license": "CC0 1.0",
+    "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "published": "2025-09-06",
+    "retrieved": "2026-09-10",
+    "sha256": "6a5cc2819a66542aa13e11d4e88b9439381c6a7595fbc1be43e2d2eedd9b0f64",
+    "processing": "Leading silence trimmed by 782 frames, retaining 2 ms before the 1%-peak onset and the full decay. Complete keystroke plays on press only. Runtime mono PCM conversion, DC removal, and 1 ms boundary fades.",
+    "originalPath": "Docs/References/typewriter/GENERIC_4.wav",
+    "originalSHA256": "28d4c07732fbd6f324f257c27a92d8a3c14ea5c26517972295b288bb75d5a2c3"
+  }
+]

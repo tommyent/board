@@ -1,0 +1,6 @@
+2026-09-10
+Temporary diagnostic used the production KeyboardAudio source with a main-mixer output tap. No individual key events or audio were stored.
+MacBook Air Speakers, 44100 Hz, 128-frame hardware buffer.
+Two previews (six samples each), separated by idle suspension, both produced nonzero rendered output.
+Peak amplitude: 0.080559276
+This checks the shared playback path; physical keyboard response still needs user confirmation.

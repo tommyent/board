@@ -1,0 +1,11 @@
+2026-10-10
+** BUILD SUCCEEDED **
+dist/Board.app: valid on disk
+dist/Board.app: satisfies its Designated Requirement
+Bundle: com.tommyent.Board
+Signature: Developer ID Application, team NMM3956F6W, hardened runtime, secure timestamp
+Architecture: arm64
+Minimum macOS: 15.0
+Executable SHA-256: 188af2f60504cd22f2e4212d81061f6beb59e97dcc5e868a26831bfd79193cfc
+Shipped MP3 clips: 121
+All 130 shipped manifest resources match recorded SHA-256 hashes.

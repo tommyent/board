@@ -1,0 +1,12 @@
+2026-10-11 · Xcode 27.0 Build version 27A5252f · arm64 macOS host
+Result bundle: build/DerivedData/Logs/Test/Test-Board-2026.10.11_11-55-49--0400.xcresult
+
+Test Case '-[BoardTests.BoardTests testAppIconColors]' passed (0.009 seconds).
+Test Case '-[BoardTests.BoardTests testEveryAcquiredBankAndTone]' passed (0.505 seconds).
+Test Case '-[BoardTests.BoardTests testGeometryMappingsAndTiming]' passed (0.002 seconds).
+Test Case '-[BoardTests.BoardTests testImportsAreValidatedBeforeReplacement]' passed (0.019 seconds).
+Test Case '-[BoardTests.BoardTests testOfflineSpatialOutputAndProtection]' passed (0.147 seconds).
+Test Case '-[BoardTests.BoardTests testPersistenceAndValidation]' passed (0.001 seconds).
+Test Case '-[BoardTests.BoardTests testPhysicalTransitionsAndShortcut]' passed (0.001 seconds).
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.684 (0.686) seconds
+** TEST SUCCEEDED **

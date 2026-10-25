@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-10",
+  "scenario": "Release app idle; overlays off; settings visible; input permission not granted",
+  "wallSeconds": 30.326169874999323,
+  "cpuSeconds": 0.020000000000000018,
+  "averageCPUPercent": 0.06594964046708672,
+  "peakRSS_MB": 117.21875,
+  "notes": "Cumulative process CPU divided by wall time. This does not establish active typing performance or audible latency."
+}

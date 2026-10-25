@@ -1,0 +1,256 @@
+import Foundation
+import CoreGraphics
+
+struct PhysicalInputEvent: Equatable {
+    enum Transition: String, Codable { case press, release }
+    let key: Int
+    let transition: Transition
+    let modifiers: UInt64
+    let timestamp: TimeInterval
+    var isMouse: Bool { (1000..<1100).contains(key) }
+}
+
+struct InputNormalizer {
+    private(set) var held = Set<Int>()
+    mutating func accept(key: Int, down: Bool, repeatEvent: Bool = false, modifiers: UInt64 = 0, time: TimeInterval) -> PhysicalInputEvent? {
+        guard !repeatEvent else { return nil }
+        if down { guard held.insert(key).inserted else { return nil } }
+        else { guard held.remove(key) != nil else { return nil } }
+        return PhysicalInputEvent(key: key, transition: down ? .press : .release, modifiers: modifiers, timestamp: time)
+    }
+    mutating func clear() { held.removeAll() }
+}
+
+struct KeyGeometry: Identifiable {
+    var id: Int
+    var label: String
+    var x: Double
+    var row: Int
+    var width: Double = 1
+    var height: Double = 1
+    private static let layouts = ["ANSI":buildKeys("ANSI"),"ISO":buildKeys("ISO"),"JIS":buildKeys("JIS")]
+    static func keys(_ layout:String = "ANSI") -> [KeyGeometry] { layouts[layout] ?? layouts["ANSI"]! }
+    private static func buildKeys(_ layout: String) -> [KeyGeometry] {
+        let rows: [[(Int, String, Double)]] = [
+            [(53,"esc",1),(122,"F1",1),(120,"F2",1),(99,"F3",1),(118,"F4",1),(96,"F5",1),(97,"F6",1),(98,"F7",1),(100,"F8",1),(101,"F9",1),(109,"F10",1),(103,"F11",1),(111,"F12",1),(117,"del",2)],
+            [(50,"`",1),(18,"1",1),(19,"2",1),(20,"3",1),(21,"4",1),(23,"5",1),(22,"6",1),(26,"7",1),(28,"8",1),(25,"9",1),(29,"0",1),(27,"−",1),(24,"=",1),(51,"⌫",2)],
+            [(48,"⇥",1.5),(12,"Q",1),(13,"W",1),(14,"E",1),(15,"R",1),(17,"T",1),(16,"Y",1),(32,"U",1),(34,"I",1),(31,"O",1),(35,"P",1),(33,"[",1),(30,"]",1),(42,"\\",1.5)],
+            [(57,"⇪",1.75),(0,"A",1),(1,"S",1),(2,"D",1),(3,"F",1),(5,"G",1),(4,"H",1),(38,"J",1),(40,"K",1),(37,"L",1),(41,";",1),(39,"'",1),(36,"↩",2.25)],
+            [(56,"⇧",2.25),(6,"Z",1),(7,"X",1),(8,"C",1),(9,"V",1),(11,"B",1),(45,"N",1),(46,"M",1),(43,",",1),(47,".",1),(44,"/",1),(60,"⇧",1.75),(126,"↑",1)],
+            [(63,"fn",1),(59,"⌃",1),(58,"⌥",1),(55,"⌘",1.5),(49,"space",4.5),(54,"⌘",1.5),(61,"⌥",1.5),(123,"←",1),(125,"↓",1),(124,"→",1)]
+        ]
+        var result = rows.enumerated().flatMap { row, keys -> [KeyGeometry] in
+            var x = 0.0
+            return keys.map { id, label, width in
+                defer { x += width }
+                return KeyGeometry(id: id, label: label, x: x, row: row, width: width)
+            }
+        }
+        if layout == "ISO" {
+            result.removeAll { $0.id == 42 }
+            if let i = result.firstIndex(where: { $0.id == 36 }) { result[i].x = 13.5; result[i].row = 2; result[i].width = 1.5; result[i].height = 2 }
+            if let i = result.firstIndex(where: { $0.id == 56 }) { result[i].width = 1.25 }
+            result.append(KeyGeometry(id: 10, label: "§", x: 1.25, row: 4))
+            result.append(KeyGeometry(id: 42, label: "\\", x: 12.75, row: 3, width: 0.75))
+        }
+        if layout == "JIS" {
+            if let i = result.firstIndex(where: { $0.id == 51 }) { result[i].width = 1; result[i].x = 14 }
+            result.append(KeyGeometry(id: 93, label: "¥", x: 13, row: 1))
+            if let i = result.firstIndex(where: { $0.id == 60 }) { result[i].width = 0.75; result[i].x = 13.25 }
+            result.append(KeyGeometry(id: 94, label: "_", x: 12.25, row: 4))
+            if let i = result.firstIndex(where: { $0.id == 49 }) { result[i].x = 5.5; result[i].width = 2.5 }
+            result.append(KeyGeometry(id: 102, label: "英数", x: 4.5, row: 5))
+            result.append(KeyGeometry(id: 104, label: "かな", x: 8, row: 5))
+        }
+        return result
+    }
+    static let home: Set<Int> = [0,1,2,3,38,40,37,41]
+    static let modifierKeys: Set<Int> = [54,55,56,57,58,59,60,61,62,63]
+    static func label(_ key: Int) -> String {
+        if key >= 2000 { return [2000:"Volume +",2001:"Volume −",2007:"Mute",2016:"Play",2017:"Next",2018:"Previous",2002:"Brightness +",2003:"Brightness −"][key] ?? "Media \(key-2000)" }
+        if key >= 1000 { return [1000:"Left click",1001:"Right click",1002:"Middle click"][key] ?? "Mouse \(key-999)" }
+        return keys("JIS").first { $0.id == key }?.label ?? [10:"§",62:"⌃",76:"⌤",71:"clear",81:"=",67:"×",75:"/",78:"−",69:"+",65:".",82:"0",83:"1",84:"2",85:"3",86:"4",87:"5",88:"6",89:"7",91:"8",92:"9"][key] ?? "Key \(key)"
+    }
+    static func position(_ key: Int, layout: String) -> Double {
+        let geometry = keys(layout).first { $0.id == key }
+        return geometry.map { (($0.x + $0.width/2) / 15 * 2 - 1) } ?? 0
+    }
+    static func sampleName(_ key: Int, down: Bool) -> String {
+        if key == 49 { return "SPACE" }
+        if key == 36 || key == 76 { return "ENTER" }
+        if key == 51 || key == 117 { return "BACKSPACE" }
+        guard down else { return "GENERIC" }
+        // R0–R4 are physical rows, not five interchangeable recordings.
+        let row = keys().first { $0.id == key }?.row ?? 3
+        return "GENERIC_R\(min(4, max(0, row - 1)))"
+    }
+    static func chord(_ event: PhysicalInputEvent) -> String {
+        let flags = CGEventFlags(rawValue: event.modifiers)
+        if modifierKeys.contains(event.key) { return label(event.key) }
+        let prefix = [(CGEventFlags.maskControl,"⌃"),(.maskAlternate,"⌥"),(.maskShift,"⇧"),(.maskCommand,"⌘")].filter { flags.contains($0.0) }.map { $0.1 }.joined()
+        return prefix.isEmpty ? label(event.key) : prefix + " " + label(event.key)
+    }
+}
+
+struct SoundProfile: Identifiable, Codable, Hashable {
+    let id: String
+    let manufacturer: String
+    let name: String
+    let color: String
+    var hasReleaseSamples = true
+    var title: String { manufacturer + " · " + name }
+    static let catalog: [SoundProfile] = [
+        .init(id:"typewriter",manufacturer:"Classic",name:"Typewriter",color:"BAA58B",hasReleaseSamples:false),
+        .init(id:"alpaca",manufacturer:"Durock",name:"Alpaca",color:"E5A4B1"),
+        .init(id:"blackink",manufacturer:"Gateron",name:"Ink Black",color:"42434C"),
+        .init(id:"redink",manufacturer:"Gateron",name:"Ink Red",color:"CD5051"),
+        .init(id:"turquoise",manufacturer:"Gateron",name:"Turquoise Tealios",color:"65C9C6"),
+        .init(id:"cream",manufacturer:"NovelKeys",name:"Cream",color:"EEDBB2"),
+        .init(id:"holypanda",manufacturer:"Drop",name:"Holy Panda",color:"ECAE5B"),
+        .init(id:"boxnavy",manufacturer:"Kailh",name:"Box Navy",color:"5371A0"),
+        .init(id:"buckling",manufacturer:"IBM",name:"Buckling Spring",color:"A7A5A0"),
+        .init(id:"topre",manufacturer:"Topre",name:"Classic",color:"9C85BD"),
+        .init(id:"bluealps",manufacturer:"Alps",name:"SKCM Blue",color:"6FA8D5"),
+    ]
+    static func find(_ id: String) -> SoundProfile? { catalog.first { $0.id == id } }
+}
+
+struct KeyOverride: Codable, Equatable {
+    var profile: String? = nil
+    var tone: Double? = nil
+    var pitch: Double? = nil
+    var volume: Double? = nil
+}
+struct ImportedSound: Codable, Equatable, Identifiable {
+    var id: String
+    var name: String
+    var press: String
+    var release: String?
+}
+struct SoundConfiguration: Codable, Equatable {
+    var profile = "alpaca"
+    var volume = 0.35
+    var mouseVolume = 0.25
+    var enterVolume = 0.35
+    var mouse = "default"
+    var enter = "none"
+    var tone = 0.0
+    var pitch = 0.0
+    var variation = true
+    var homeSoftness = 0.2
+    var normalization = true
+    var spatial = true
+    var width = 1.0
+    var headTracking = false
+    var orbit = false
+    var overrides: [Int: KeyOverride] = [:]
+    mutating func validateProfiles() {
+        if SoundProfile.find(profile) == nil { profile = "alpaca" }
+        for (key,var value) in overrides {
+            if let id = value.profile, SoundProfile.find(id) == nil { value.profile = nil; overrides[key] = value }
+        }
+    }
+}
+struct SoundPreset: Identifiable, Codable, Equatable {
+    var id = UUID()
+    var name: String
+    var sound: SoundConfiguration
+}
+struct VisualizerSettings: Codable, Equatable {
+    var enabled = false
+    var style = "Keyboard"
+    var placement = "Follow Cursor"
+    var pin = "Bottom Center"
+    var offset = 35.0
+    var scale = 1.0
+    var dismiss = 1.0
+    var theme = "Dark"
+    var comboTheme = "Amber"
+    var motion = "Pop"
+    var flow = "Row"
+    var shuffleEvery = 5
+    var comboReset = 2.0
+    var preserveCombo = false
+    var keepComboVisible = false
+}
+struct AppSettings: Codable, Equatable {
+    var version = 1
+    var enabled = true
+    var muted = false
+    var sound = SoundConfiguration()
+    var visualizer = VisualizerSettings()
+    var layout = "ANSI"
+    var outputUID = ""
+    var outputKind = "Auto"
+    var pauseOnHeadphones = false
+    var showDock = false
+    var showMenu = true
+    var toggleCues = true
+    var shortcutKey = 40
+    var shortcutModifiers: UInt64 = CGEventFlags.maskControl.rawValue | CGEventFlags.maskAlternate.rawValue | CGEventFlags.maskCommand.rawValue
+    var gestureTaps = 1
+    var presets: [SoundPreset] = []
+    var imports: [ImportedSound] = []
+    var onboardingComplete = false
+    // nil is Porcelain, the bundled primary icon. Optional so settings saved before this field still decode.
+    var iconColor: String?
+    static let iconColors = ["Porcelain","Sage","Blue","Lilac","Graphite"]
+    mutating func validate() {
+        if let color = iconColor, color == "Porcelain" || !Self.iconColors.contains(color) { iconColor = nil }
+        sound.validateProfiles()
+        for index in presets.indices { presets[index].sound.validateProfiles() }
+        func clamp(_ x: Double, _ range: ClosedRange<Double>, fallback: Double = 0) -> Double { x.isFinite ? min(range.upperBound,max(range.lowerBound,x)) : fallback }
+        sound.volume = clamp(sound.volume,0...1); sound.mouseVolume = clamp(sound.mouseVolume,0...1); sound.enterVolume = clamp(sound.enterVolume,0...1)
+        sound.tone = clamp(sound.tone,-1...1); sound.pitch = clamp(sound.pitch,-12...12)
+        sound.homeSoftness = clamp(sound.homeSoftness,0...1); sound.width = clamp(sound.width,0...2)
+        visualizer.scale = clamp(visualizer.scale,0.5...2,fallback:1)
+        visualizer.dismiss = clamp(visualizer.dismiss,0.3...5,fallback:1)
+        visualizer.comboReset = clamp(visualizer.comboReset,0.3...10,fallback:2)
+        visualizer.offset = clamp(visualizer.offset,0...200)
+        visualizer.shuffleEvery = min(100,max(1,visualizer.shuffleEvery))
+        gestureTaps = min(5,max(1,gestureTaps)); presets = Array(presets.prefix(6))
+        for (key, var override) in sound.overrides {
+            if let value = override.volume { override.volume = clamp(value,0...1) }
+            if let value = override.tone { override.tone = clamp(value,-1...1) }
+            if let value = override.pitch { override.pitch = clamp(value,-12...12) }
+            sound.overrides[key] = override
+        }
+    }
+}
+
+struct ComboState {
+    private(set) var count = 0
+    private(set) var totalPresses = 0
+    private(set) var lastPress: TimeInterval?
+    mutating func press(at time: TimeInterval, settings: VisualizerSettings) -> Bool {
+        if let lastPress, time-lastPress >= settings.comboReset, !settings.preserveCombo { count = 0 }
+        count += 1; totalPresses += 1; lastPress = time
+        return totalPresses == 1 || totalPresses % settings.shuffleEvery == 0
+    }
+    mutating func expire(at time:TimeInterval,settings:VisualizerSettings) {
+        if let lastPress, !settings.preserveCombo, time-lastPress >= settings.comboReset { count = 0 }
+    }
+    func visible(at time: TimeInterval, settings: VisualizerSettings) -> Bool {
+        guard let lastPress else { return false }
+        return (settings.style == "Combo" && settings.keepComboVisible) || time-lastPress < settings.dismiss
+    }
+    mutating func clear() { self = ComboState() }
+}
+struct ShortcutState {
+    private var taps = 0
+    private var last: TimeInterval = 0
+    mutating func matches(_ event: PhysicalInputEvent, settings: AppSettings) -> Bool {
+        guard event.transition == .press else { return false }
+        let mask = CGEventFlags.maskCommand.rawValue | CGEventFlags.maskControl.rawValue | CGEventFlags.maskAlternate.rawValue | CGEventFlags.maskShift.rawValue
+        guard event.key == settings.shortcutKey, event.modifiers & mask == settings.shortcutModifiers & mask else { if !KeyGeometry.modifierKeys.contains(event.key) { taps = 0 }; return false }
+        taps = event.timestamp-last <= 0.6 ? taps+1 : 1; last = event.timestamp
+        if taps >= settings.gestureTaps { taps = 0; return true }; return false
+    }
+}
+
+struct PressReleaseStore<Value> {
+    private var values: [Int:Value] = [:]
+    mutating func remember(_ value: Value, key: Int) { values[key] = value }
+    mutating func release(key: Int) -> Value? { values.removeValue(forKey:key) }
+    mutating func clear() { values.removeAll() }
+}

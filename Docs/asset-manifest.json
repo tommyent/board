@@ -1,0 +1,1421 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "path": "Board/Resources/Audio/alpaca/press/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/press/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "bcbe69320a16639ebbf487615af4844d98c1431f4ed48e3115aae91931244a94",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/press/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/press/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "c0dea75600a9fe288bada040ccfcfd60c9ae0e1563c73e59163f073eef68cf75",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/press/GENERIC_R0.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/press/GENERIC_R0.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "a9c99a85e884c567c5480ec1fbb74ec4b3874766f36a994ef327a7f046066e17",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/press/GENERIC_R1.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/press/GENERIC_R1.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "4d6ea7c764cd652e2841795630027a6e862fd6a23749f0a48192e8f61c02afe9",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/press/GENERIC_R2.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/press/GENERIC_R2.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "ee2d4f2c47c256f11aabbf3284e1ba7f1d70e12ec211b1c7a7c48d58584fbacc",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/press/GENERIC_R3.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/press/GENERIC_R3.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "57e29520a382bb45a37f76ba38adb7cfd006b760c98c8d7dba2380efa75777d7",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/press/GENERIC_R4.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/press/GENERIC_R4.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "21f13df227df7360dceb168d8b571e3af6cfa310c56a388c068a1b9c0e959775",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/press/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/press/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "48e48452cad30f7aeaecebe19a7314e77d7cb28fd471b6c30cf81a899542ea7f",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/release/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/release/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "d06aa6a2dd02a2621a74e14cd23235c142fa31c2ed81ecaac3f09d7084447d44",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/release/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/release/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "f18e83f468aaba6daa88ae418e4ad60bf3b0b4be2f56d30901278acf417a3851",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/release/GENERIC.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/release/GENERIC.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "2585ceae9f0aac668bc67c6c3c5ec11e64cf3f8cd6dc6486d8de31bde6751eb6",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/alpaca/release/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/alpaca/release/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "79a95ffc290b935b00e441bebd81d4a05a863a244bca643254144d919b97aedd",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/press/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/press/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "9e956add9665d10364505517cdfa664af0eac19b748648067092e83e1fbecf6f",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/press/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/press/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "deabdc71c306a94e684f166f0a90c20dc61483c3d8b5a87a681890195b076d37",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/press/GENERIC_R0.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/press/GENERIC_R0.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "4a50e78bb7502423f1ef8ba7c6fa235f9bf51f59bb3d5581b666074d7d9cc211",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/press/GENERIC_R1.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/press/GENERIC_R1.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "66a3876ba178f41c8cf41333df8c616ac530138830df5349e8945c462a102ead",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/press/GENERIC_R2.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/press/GENERIC_R2.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "e00b6d20cb56995025632a197124f37f1ef191acd2a562e967712e19505a79be",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/press/GENERIC_R3.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/press/GENERIC_R3.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "e00b6d20cb56995025632a197124f37f1ef191acd2a562e967712e19505a79be",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/press/GENERIC_R4.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/press/GENERIC_R4.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "26aebf55daa50e98c254e73b3ea4a824aaa232c33e9187d09aa1441cc1435363",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/press/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/press/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "9d8dbd1e65503e67d7dfa384bb3f696624ac641ad589b1f92d6a1ebc1450d3cd",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/release/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/release/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "74d8fd0811ac70043a81ee7c6f4a3956450c096556ccc86de29b57e5ef723c59",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/release/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/release/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "d4b3ebbe0fe7d10849ddaab71893328fda345d3d5b4332c53df4e16f92cc8dd4",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/release/GENERIC.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/release/GENERIC.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "cc45a0954eb9f3925f66dc874b38954416b96128d3eacd7e76ee0ee211b8c66a",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/blackink/release/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/blackink/release/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "6a2070501972ae9baaee79bf44d7ede6689c648d3649deefde656ca3df16b996",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/press/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/press/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "3b05076b2a4d9b1b6403b8bc1a8081593c07a68d16ea0fbf5f46fd1bb07d7ca9",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/press/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/press/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "b308519bc66c53b09c118ea7325cf4dafd1232f8a66d0d8395d7bf077f4217e6",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/press/GENERIC_R0.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/press/GENERIC_R0.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "89e002b10aae3a77aac88598e820cf166e9b6dd412a54055d24de49cedcbfb17",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/press/GENERIC_R1.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/press/GENERIC_R1.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "45664b5e43be09c31f321738735b13a9e3b7c4f2d08e47a41b8ee81c136a39b2",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/press/GENERIC_R2.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/press/GENERIC_R2.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "0669b6b0fce41ec679ad52c412dc603f2f03c8e8178c979ab694db1dd093daf9",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/press/GENERIC_R3.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/press/GENERIC_R3.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "c799c08596894a1b6aa7887147576a177a87296ada4928c0b7593682e0a4d448",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/press/GENERIC_R4.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/press/GENERIC_R4.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "04f02f87d6e9b53a2001832668fb1b985eb9a6573475e8c4608f5a51b4930eb0",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/press/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/press/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "71ade35f9efda36fd9364e505d842955e49943c1e3bd806d2458ce7eb1b8dfe4",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/release/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/release/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "5766598d9b2c8fbde22fc830657b8c890b6a5a21bd0b2b129ded9052e8e6506c",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/release/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/release/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "7c39eb92bca0242c19b76fcada685887d0665e0805b33bcae467834ddce2c83a",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/release/GENERIC.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/release/GENERIC.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "a0c45cad739e1db02e2dbe9ace2207da233f8860d5af6059c3c92b74231ff83a",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/release/GENERIC_long.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/release/GENERIC_long.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "ba9865db9e15f1c87d92f3968cda9a89997b5bc511718f1aa28c799351a9bcf8",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/bluealps/release/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/bluealps/release/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "1af77aedf4d2b4a2b71501dc0db6a08bb9482e5383c00f7a6ffd79987d213c12",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/press/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/press/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "55ea605789316cf93a38a8ee91a58d80f87bdc3660669fb0b251f7f8632578c3",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/press/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/press/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "4af30083ecba8f88b0a4899a245221d91fbc0e83672020b30ebf5be3134916bb",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/press/GENERIC_R0.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/press/GENERIC_R0.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "6b5bc813e28e3a6033d6d1f78708beddfa0316c34a28931a331e0d48f8881384",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/press/GENERIC_R1.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/press/GENERIC_R1.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "aa06cf30fd1d07ca596b6c121197cb7e1f87e863ba154b871fb55ca14409c00b",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/press/GENERIC_R2.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/press/GENERIC_R2.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "46f158f5fe4d42d92bb65da292a789cbdfd547512f9a40da52bbf693fe861d8f",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/press/GENERIC_R3.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/press/GENERIC_R3.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "e04c92c2a828ca3cb41fd8b00b885bb9774fb66e91bee55d1e8826924dadbed6",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/press/GENERIC_R4.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/press/GENERIC_R4.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "1767006a74c888863e85524e87dd28e212ab6804b9d3e86525c763b272af8214",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/press/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/press/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "d0fd3687fc20e6f5c41230faab49c357d6424763223a650b5f9ec51a4186314f",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/release/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/release/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "f353c9053eb474eb193d1fd4aa61ee6d77ba12020923d3153f4a5b1cc34678a6",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/release/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/release/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "85120e10bbf88ec47fc11558122860892d4220e6cc9d19bba0b0a4cb184e1347",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/release/GENERIC.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/release/GENERIC.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "960426e10dd1a9013fe86b8d853428eb75fca3f201c5b0a02bd8301b7e334d22",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/boxnavy/release/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/boxnavy/release/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "ac626b52ea9e6003c2d49e131275aacf1e4d577c46f1bd3978d39f146acad78e",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/press/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/press/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "466e5550d7493b48480e9852b2ba282c962294512a0df359d5f4d92c2abea3ae",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/press/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/press/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "a37cb75240d81c9d5e28870da3bd450f6fff9ae131f9f9f89fd63ef50c056b98",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/press/GENERIC_R0.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/press/GENERIC_R0.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "b97d221980d81247f2831d4cc343d78d57652f2fabf38dc857802f1bc2829874",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/press/GENERIC_R1.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/press/GENERIC_R1.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "ff28ea62d1868f56781efc1eb9dd4cdc3198bdbb629875e18b5b7635d82d20d7",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/press/GENERIC_R2.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/press/GENERIC_R2.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "c3cb73b029aee81bc661227de4fabf7e245e4dbddd76ec3657c6e30c257b2212",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/press/GENERIC_R3.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/press/GENERIC_R3.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "144b197ea8bb2571ea33edb1b212f6c51555603de4bcbee1be756d07b66fd8fa",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/press/GENERIC_R4.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/press/GENERIC_R4.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "ea1b98b076e812654ca57de75fa45ce75d7aa4564c3ce10cf57050495978fde4",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/press/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/press/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "ed0ffe61be4c95bc2402e4b861d3ee00bfbae878a76d1ab114d8cf7dd712f827",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/release/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/release/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "e17a16ff051c7f725fff488d91013dc45683125926db91ed55e63a4a87902157",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/release/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/release/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "c2f5cde84b881c400052fc2048c0b0afa4c3ed1fc9dc0887793d6af37cf6e0e8",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/release/GENERIC.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/release/GENERIC.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "87dcaa7624962a6fc43004772544420e7da243bdf4766d541e779557a9a08f38",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/buckling/release/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/buckling/release/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "db003861bf8389e4db5f2aed43cef66fb2f8d4083e549d9a3d6e0cde48ebe8bc",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/press/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/press/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "cb9512dd65874137874469ae3efaddf37ab2a0b1c66815217cc263a9ba201305",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/press/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/press/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "78947470c4f3c7577b2df3dacc3d1ec414545b4b7ffe19fd0fe208bf6787aeb1",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/press/GENERIC_R0.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/press/GENERIC_R0.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "8e3256ddb5a1aed42960a68ba632b3badecce0d60ff3ae61a1ac85e45e343451",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/press/GENERIC_R1.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/press/GENERIC_R1.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "a45a8f73ce8698705205c80f531e87360737084746b95cb0e47c980e0f86a0b9",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/press/GENERIC_R2.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/press/GENERIC_R2.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "9a54ada9209a4ecabd38616421de1a495df04bee3f0ec7b5247e2d8a507ac70f",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/press/GENERIC_R3.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/press/GENERIC_R3.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "b7100272f9a80f7016c10da021e45550f3fcd817c21c172236f6e392881d0c93",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/press/GENERIC_R4.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/press/GENERIC_R4.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "5472497fae5cd4ca1a70e7861ba990296a708dbd2402a1fab5e1f0f5e8ab92bf",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/press/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/press/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "72f7101819fbd08cef4e2623e41e4979a7923ed15f94467796f92612eda4db7b",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/release/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/release/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "331c4a71da8fbdb8f7c08362270350fc4fc7dbff5f97b0d2901c5b08c59cd1e7",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/release/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/release/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "610aa949f67fb72bb86364c11d6a78b5fff75ca8e859dfc2c57b4a3ca728877f",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/release/GENERIC.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/release/GENERIC.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "cbf79b16855fc3461ca1ff9a9e9a4134bcc09d093f7d98c5f6fdb3a2e0a94fad",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/cream/release/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/cream/release/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "5a680831d4d67f8d36d459c0fd1ce00e1e3e2b2126de8481851f847133a3ed91",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/press/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/press/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "293a4fb1ab19605348018c2e8fea805ef9454963aa69e2d26a06ed7217636889",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/press/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/press/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "56d78f9b2b662ddd07255e2e130410536a0e877bdc639fef7e205edfd73558a1",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/press/GENERIC_R0.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/press/GENERIC_R0.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "79b2811f3061c406ac9dcf802ae83d68f5fac78f8ed588a515e2550d2fcd05df",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/press/GENERIC_R1.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/press/GENERIC_R1.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "cb9aefe55a81c48d6680d2ab8960220c20439e31ba1e32fd570106ed15c7fd40",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/press/GENERIC_R2.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/press/GENERIC_R2.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "d346d76ef4c32f09be58556ccce843d7a88199214f9ebfdbf8b95226faf7ba3e",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/press/GENERIC_R3.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/press/GENERIC_R3.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "4141524713fc19942166866c093777351f6f122acb9d79c7503981a5b906c7dc",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/press/GENERIC_R4.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/press/GENERIC_R4.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "60ac51060cc0f1880016be2dffa05d3e3cf928290df37be998fb081bdf1ea66f",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/press/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/press/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "bcba046d707877095ff2fc6d031091348515f9a6f724ee73c029831d105b71a6",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/release/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/release/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "dd092c78c99322f3bf9c45c2095a91e6a91450889f2a0976fb9858397b360c06",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/release/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/release/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "be0f86e85d17dce47a607960c37eb54240ff1648b8eb54b6293cb8beb38c17ed",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/release/GENERIC.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/release/GENERIC.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "9b0859c4ccb2adabdd9e9447aa0684f3ba12f59551aaf1a4d867d458d4ca56b1",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/holypanda/release/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/holypanda/release/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "980bfca97b89f2dc114f23cdb440c956a62137430d5e22682e011d16d43f2153",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/press/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/press/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "282c675e8d86efce6adc018cf57980d0dc63c580c5b219e8a98e89fb320d768b",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/press/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/press/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "1d696fee93c33e96892cd6f5f3a68e0858c33053830286196d4284173a76d19e",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/press/GENERIC_R0.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/press/GENERIC_R0.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "18b28ca6cb7325fa1aa657ae6dcc385dbec1da6cd43049b5010320fed8e98850",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/press/GENERIC_R1.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/press/GENERIC_R1.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "1628e42cd7d2058b4b8f6f673c775703367f994441c6d9848be8770432bc3c2a",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/press/GENERIC_R2.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/press/GENERIC_R2.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "058b2dca1f44764b490ca3616f24c2494d95f6a0268224616c5fd913bcc773bf",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/press/GENERIC_R3.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/press/GENERIC_R3.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "b717b3a1357ca60ada345bd9d5f3db4805fca8b909c5ae93c27c3c4a56350cd8",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/press/GENERIC_R4.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/press/GENERIC_R4.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "80884fb1aa62d0c4176a41a0d85575b94dffb2bfc24448d84fdf222b26089179",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/press/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/press/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "b9aa24d955e1f6ffc111879aa16dcd0d68d2e3afb5624a9d2541e145cb1220f6",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/release/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/release/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "6ceeb3c576297439fe9c989ee153787921b3b32102e6353ff76416377970d12d",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/release/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/release/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "5bd81905d20614e2ec1772db01b8bd3b3c0c705a583fb1a2a8d1e98b1a83605e",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/release/GENERIC.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/release/GENERIC.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "4d6b61a1530bb220c298c7257855ab9892146e515cfce8cf7e03cb3bb1fcc4e5",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/redink/release/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/redink/release/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "d2f0e6f959854fd8328e984ed950d0c0ca5b23738cdece35e617e0cde2c505e9",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/press/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/press/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "00db5edca14dc41ca89ed22ffc063d2bb30d5a5dfb829b014cc1fdfa88891c82",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/press/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/press/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "ebc1ae71ea8097cdde7e6e57732a24761cfaf94ed78a66e3da83d2ab1df0054d",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/press/GENERIC_R0.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/press/GENERIC_R0.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "a61130c11937d615179cdda1dc31497ed64138dae1dc931c331be74a82c62451",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/press/GENERIC_R1.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/press/GENERIC_R1.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "7848f347aa76b850095ff03f98e04c325de28d6d30ed24b4451bd4bfcd73ecea",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/press/GENERIC_R2.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/press/GENERIC_R2.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "3009e146a2f17e9eb98faf34050cf534bed24be2d2295b69a0cff28e5bc43f77",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/press/GENERIC_R3.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/press/GENERIC_R3.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "f5b3b49d4f85c228b4be3fd1cf9c11a7aebee005a127b16d3cbd81dba9bb8003",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/press/GENERIC_R4.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/press/GENERIC_R4.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "6553b1182524edca8342dcdbc7a92eab9c5791bb9cf516c5494629d672425164",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/press/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/press/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "1fd27ffd614b7f18205df601b0daf339d4dd5217663165a99667625a6c0b0311",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/release/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/release/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "a52a3b72613388739bdc46b5ed18960382465dcadded4501a755ab478eb4be91",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/release/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/release/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "17eb8334ed0907eec01e83ca4ab9f9ad7d9fe7bf4d273e95c747d272b6a568d8",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/release/GENERIC.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/release/GENERIC.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "0e8030c4e3c32bde47ec4873d30e2700611cea71de0ad9c5f0c48e5200b8a3cd",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/topre/release/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/topre/release/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "07f21da1b02cf10b8ffe35f5d14bcc94feb57c9bc2a241ace3f429b443fbbe3a",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/press/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/press/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "c1c81bc9abf87914467220d556d985c3b740d86ff1e865d1f26bdd29d19e2f87",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/press/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/press/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "de635098bee3f1145491dbd667412a276b320e8183bf28b5626aab2fb50fd985",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/press/GENERIC_R0.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/press/GENERIC_R0.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "4f08f0862685d5b3f536daefcfa98c9cccae14df4831274cdc415aa8876df330",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/press/GENERIC_R1.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/press/GENERIC_R1.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "5e4d3bdd956760fd6831519549302db42aacf5b7abf162a6271b3032898276b3",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/press/GENERIC_R2.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/press/GENERIC_R2.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "06ab4c0ffc7f37ed08a4d1abd5ad583b997a81427d52a0099e3f41cc5b7d6509",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/press/GENERIC_R3.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/press/GENERIC_R3.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "b310eaff87450c28415459075c60dd1f817d84d38bf1e5602311edc072f8ba09",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/press/GENERIC_R4.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/press/GENERIC_R4.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "a745cc55cc453c74f0f372ccce82dd9d2823ce96ff31d36a4bed13147858ccd4",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/press/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/press/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "cc122ddcfb66fb1af5b2f6e42c1ac8a98d2a21b202ad270435df797ef9e16ef3",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/release/BACKSPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/release/BACKSPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "2415a4c37fab40e12bcc715bac69313299dd30fc731021513a9c599c9cd827ab",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/release/ENTER.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/release/ENTER.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "7a916fca4c1a27dd8a616f74eaabc97640c0f580bbf4b99b07200ff109f8142b",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/release/GENERIC.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/release/GENERIC.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "086fbb780ab02f2dd214d8718b9a2420097be58af3a47ac5aa592873bf075817",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/turquoise/release/SPACE.mp3",
+      "source": "https://github.com/tplai/kbsim/blob/ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4/src/assets/audio/turquoise/release/SPACE.mp3",
+      "author": "tplai/kbsim contributors; see preserved README and notices",
+      "license": "MIT (repository notice)",
+      "revision": "ba103f3b0afa9dab80447aa2e7e2ed80b6bd80e4",
+      "sha256": "f08384868eadc73475bb3dc7a5cf6175f8a249d3dfbed9b5f3672319f5492833",
+      "processing": "Unmodified source file"
+    },
+    {
+      "path": "Board/Resources/Audio/typewriter/press/GENERIC_1.wav",
+      "source": "https://opengameart.org/sites/default/files/typewriter1.wav",
+      "sourcePage": "https://opengameart.org/content/typewriter-sounds",
+      "author": "Cassie-OrbitGames",
+      "license": "CC0 1.0",
+      "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "published": "2025-09-06",
+      "retrieved": "2026-09-10",
+      "sha256": "ab6a0df5f352441a5f2e06df226ac488e8081805e0fa942d27a5d0475d4bb6d3",
+      "processing": "Leading silence trimmed by 130 frames, retaining 2 ms before the 1%-peak onset and the full decay. Complete keystroke plays on press only. Runtime mono PCM conversion, DC removal, and 1 ms boundary fades.",
+      "originalPath": "Docs/References/typewriter/GENERIC_1.wav",
+      "originalSHA256": "f860766aa7922afbf1523ea1a41504c64f3f6362fa03a60b6497c75c1d0d0344"
+    },
+    {
+      "path": "Board/Resources/Audio/typewriter/press/GENERIC_2.wav",
+      "source": "https://opengameart.org/sites/default/files/typewriter2.wav",
+      "sourcePage": "https://opengameart.org/content/typewriter-sounds",
+      "author": "Cassie-OrbitGames",
+      "license": "CC0 1.0",
+      "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "published": "2025-09-06",
+      "retrieved": "2026-09-10",
+      "sha256": "b40c17fe45c9e3a6ad8a617f7831da5ccb3c8baab1fa0eb368f8ba3ade52c8a4",
+      "processing": "Leading silence trimmed by 0 frames, retaining 2 ms before the 1%-peak onset and the full decay. Complete keystroke plays on press only. Runtime mono PCM conversion, DC removal, and 1 ms boundary fades.",
+      "originalPath": "Docs/References/typewriter/GENERIC_2.wav",
+      "originalSHA256": "b40c17fe45c9e3a6ad8a617f7831da5ccb3c8baab1fa0eb368f8ba3ade52c8a4"
+    },
+    {
+      "path": "Board/Resources/Audio/typewriter/press/GENERIC_3.wav",
+      "source": "https://opengameart.org/sites/default/files/typewriter3.wav",
+      "sourcePage": "https://opengameart.org/content/typewriter-sounds",
+      "author": "Cassie-OrbitGames",
+      "license": "CC0 1.0",
+      "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "published": "2025-09-06",
+      "retrieved": "2026-09-10",
+      "sha256": "2e8ec43859cef25462b30b24b984b8397fe3658177158a7f5b92d0e98e44f895",
+      "processing": "Leading silence trimmed by 1190 frames, retaining 2 ms before the 1%-peak onset and the full decay. Complete keystroke plays on press only. Runtime mono PCM conversion, DC removal, and 1 ms boundary fades.",
+      "originalPath": "Docs/References/typewriter/GENERIC_3.wav",
+      "originalSHA256": "c9bb2c6245bdd60b996fe39f2fb74c810309ee03bbe2d8ae1ee6715888df9c69"
+    },
+    {
+      "path": "Board/Resources/Audio/typewriter/press/GENERIC_4.wav",
+      "source": "https://opengameart.org/sites/default/files/typewriter4.wav",
+      "sourcePage": "https://opengameart.org/content/typewriter-sounds",
+      "author": "Cassie-OrbitGames",
+      "license": "CC0 1.0",
+      "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "published": "2025-09-06",
+      "retrieved": "2026-09-10",
+      "sha256": "6a5cc2819a66542aa13e11d4e88b9439381c6a7595fbc1be43e2d2eedd9b0f64",
+      "processing": "Leading silence trimmed by 782 frames, retaining 2 ms before the 1%-peak onset and the full decay. Complete keystroke plays on press only. Runtime mono PCM conversion, DC removal, and 1 ms boundary fades.",
+      "originalPath": "Docs/References/typewriter/GENERIC_4.wav",
+      "originalSHA256": "28d4c07732fbd6f324f257c27a92d8a3c14ea5c26517972295b288bb75d5a2c3"
+    },
+    {
+      "path": "Assets/Source/SwitchIllustration.svg",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "c0e98b81e6f6829234597e2a174030752efea9788f6126fcb2acf724f980a539"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/alpaca.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "fba56184c6f91c431354f57eea3cb60f604562a495a99a94370e4899f90bb89c"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/blackink.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "da9cbc892789b9758320bcfe55afcbea4fa2b33238d2d167f5003efa9ac9a15e"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/bluealps.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "7e405b4b5c162574d3dcf4c63c8097c3c4eebd6508485fae80ce6e0237d067b7"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/boxnavy.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "b2d698357891b24344349d1f8165c77b7ff398abe9a3d240db19411a4317c9a2"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/buckling.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "bf580caf399a1ffb4def0453e33a9586053b91220d1a004f3dfdbbc36ba35177"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/cream.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "9b82dbbbebb24248cce77551a64b162a41e70deb552dfb326457fd201a260235"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/holypanda.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "d57536d343455ca5c680f18b368f53fcfff544c3718c5b48caa68b73655cfdac"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/redink.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "7ef9090c4a3c844deb847bf67d9ec88beb5d9cb978c62834a93ed8f36f185c98"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/topre.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "c72040157a0d3aa2a2b37d231e2abd428e0aed4d4e7a77caba5a4a7f3855f64b"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/turquoise.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "8f385389bc351a8724c3fbb3d5d667742d46cb9f6d73820615c688390b7d452f"
+    },
+    {
+      "path": "Assets/SwitchThumbnails/typewriter.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "e58101a1ef8e1ab6d8ce9f97a8e96a05ad6063450112c35593766ec1196a5066"
+    },
+    {
+      "path": "Assets/ThemePreviews/Combo-Amber.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "cbb9ef6337889c50932a570149eabb9eb08b9096c554f5b6e37674a86da81f5d"
+    },
+    {
+      "path": "Assets/ThemePreviews/Combo-Monochrome.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "f845a335893b1cbb5f30dbcc3da7352ec228f960735ae55cb64571da435dd439"
+    },
+    {
+      "path": "Assets/ThemePreviews/Combo-Neon.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "b8cd263fed765b3223794fde08cde868b9c5d635801cda078c61f49f62bd7f23"
+    },
+    {
+      "path": "Assets/ThemePreviews/Dark.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "d0cc71e6fe2b318621f5beb63a2b80398dc58fe25f48f0196425aa60279393e6"
+    },
+    {
+      "path": "Assets/ThemePreviews/Glass-Clear.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "f0b0bf6adbdb303ba21164cf3cc80de560cf650672c1d2978338800e83a8ffce"
+    },
+    {
+      "path": "Assets/ThemePreviews/Glass-Dark.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "fcf5216f185cd8f3b82a93e3999a81f84a5c879b04522960efdf3a2ac481936a"
+    },
+    {
+      "path": "Assets/ThemePreviews/Light.png",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "74edbf194dd4d6ac68e7aa4b80c71ec1e12f8f9db76117ed87127f01de5f0268"
+    },
+    {
+      "path": "Board/Resources/Cues/disable.wav",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "ca5f0d23c1fa919336a7253b67be655103daaa3d8188017c80125b4edbc3e794"
+    },
+    {
+      "path": "Board/Resources/Cues/enable.wav",
+      "author": "Original project artwork / synthesis",
+      "source": "Scripts/render_previews.swift, prepare_manifest.py",
+      "date": "2026-09-10",
+      "license": "Original; available for personal use with this project",
+      "processing": "Procedural geometry / PCM synthesis; see editable sources",
+      "sha256": "fa49cb9cfbf7e51d61d916f7dce8a7481a920c525ab07aa3be6a6520fcf09d40"
+    },
+    {
+      "path": "Board/Resources/MenuIcon.pdf",
+      "author": "Board Keycap brand package",
+      "source": "Board-Keycap-Brand-Package.zip, menu-bar/BoardKeycapTemplate.pdf",
+      "date": "2026-10-11",
+      "license": "Project brand package; no separate license stated",
+      "processing": "Copied unchanged, renamed to MenuIcon.pdf",
+      "sha256": "d2d6bc0cb4005943b90d3b4cf142e63a05ae6579c16ccddf8db1343b8130b09c"
+    },
+    {
+      "path": "Board/BoardPorcelain.icon/Assets/02-Plate.svg",
+      "author": "Board Keycap brand package",
+      "source": "Board-Keycap-Brand-Package.zip, icons/native/BoardPorcelain.icon/Assets/02-Plate.svg",
+      "date": "2026-10-11",
+      "license": "Project brand package; no separate license stated",
+      "processing": "Copied unchanged",
+      "sha256": "1fe650ff3c83cba60772c09480f5e2ede1b2b252a4065acbe497a8d491fdece4"
+    },
+    {
+      "path": "Board/BoardPorcelain.icon/Assets/03-Expression.svg",
+      "author": "Board Keycap brand package",
+      "source": "Board-Keycap-Brand-Package.zip, icons/native/BoardPorcelain.icon/Assets/03-Expression.svg",
+      "date": "2026-10-11",
+      "license": "Project brand package; no separate license stated",
+      "processing": "Copied unchanged",
+      "sha256": "d8a4eb506ced36e254a8e906b9dac7e5c551f7da9c0c6b9faa967b75d80ac8b7"
+    },
+    {
+      "path": "Board/BoardPorcelain.icon/icon.json",
+      "author": "Board Keycap brand package",
+      "source": "Board-Keycap-Brand-Package.zip, icons/native/BoardPorcelain.icon/icon.json",
+      "date": "2026-10-11",
+      "license": "Project brand package; no separate license stated",
+      "processing": "Copied unchanged",
+      "sha256": "12d4b82a5fb57a0ae12ccf33634db872192d3b5c1eeb256062e506e0048dbdcd"
+    },
+    {
+      "path": "Board/Resources/AppIcons/Board-Blue.icns",
+      "author": "Board Keycap brand package",
+      "source": "Board-Keycap-Brand-Package.zip, Xcode/BoardDockIcons/Board-Blue.icns",
+      "date": "2026-10-11",
+      "license": "Project brand package; no separate license stated",
+      "processing": "Copied unchanged",
+      "sha256": "700ec103721847afb5c50164c6ae4aa3c8139166121b230e96583eebcbf92458"
+    },
+    {
+      "path": "Board/Resources/AppIcons/Board-Graphite.icns",
+      "author": "Board Keycap brand package",
+      "source": "Board-Keycap-Brand-Package.zip, Xcode/BoardDockIcons/Board-Graphite.icns",
+      "date": "2026-10-11",
+      "license": "Project brand package; no separate license stated",
+      "processing": "Copied unchanged",
+      "sha256": "b8e07506dbc376e3ce25ab940ff25d68b8ef1557c396ff8846cce8e38f5c9819"
+    },
+    {
+      "path": "Board/Resources/AppIcons/Board-Lilac.icns",
+      "author": "Board Keycap brand package",
+      "source": "Board-Keycap-Brand-Package.zip, Xcode/BoardDockIcons/Board-Lilac.icns",
+      "date": "2026-10-11",
+      "license": "Project brand package; no separate license stated",
+      "processing": "Copied unchanged",
+      "sha256": "fe7a3733e76222f1a5c28131ec37b344258cc9614f88706fbf8456c454f6ecdd"
+    },
+    {
+      "path": "Board/Resources/AppIcons/Board-Porcelain.icns",
+      "author": "Board Keycap brand package",
+      "source": "Board-Keycap-Brand-Package.zip, Xcode/BoardDockIcons/Board-Porcelain.icns",
+      "date": "2026-10-11",
+      "license": "Project brand package; no separate license stated",
+      "processing": "Copied unchanged",
+      "sha256": "2f4c0a34a10d8aabd2db66b908e6eef79ad42287fa8e43252560c2f7e72bc92a"
+    },
+    {
+      "path": "Board/Resources/AppIcons/Board-Sage.icns",
+      "author": "Board Keycap brand package",
+      "source": "Board-Keycap-Brand-Package.zip, Xcode/BoardDockIcons/Board-Sage.icns",
+      "date": "2026-10-11",
+      "license": "Project brand package; no separate license stated",
+      "processing": "Copied unchanged",
+      "sha256": "62827f2d99b4607e824844ccd2520f68a20a4cd4b81e5ae2723342ddb8f2cebc"
+    }
+  ],
+  "mapping": "GENERIC_R0 through R4 are physical rows; Space/Enter/Backspace have dedicated press/release; Tab/Shift/modifiers fall back to corresponding row press and generic release. bluealps/release/GENERIC_long.mp3 is preserved but unused, matching upstream."
+}

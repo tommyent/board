@@ -1,0 +1,62 @@
+{
+  "fill": {
+    "automatic-gradient": "extended-srgb:0.72549,0.69804,0.65490,1.00000"
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "glass": false,
+          "image-name": "03-Expression.svg",
+          "name": "Smile",
+          "fill-specializations": [
+            {
+              "appearance": "tinted",
+              "value": "system-dark"
+            }
+          ]
+        }
+      ],
+      "name": "Expression",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0
+      },
+      "specular": false,
+      "translucency": {
+        "enabled": false,
+        "value": 0
+      }
+    },
+    {
+      "layers": [
+        {
+          "glass": true,
+          "image-name": "02-Plate.svg",
+          "name": "Keycap",
+          "fill-specializations": [
+            {
+              "appearance": "tinted",
+              "value": "system-light"
+            }
+          ]
+        }
+      ],
+      "name": "Keycap surface",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "specular": true,
+      "translucency": {
+        "enabled": true,
+        "value": 0.1
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": [
+      "macOS"
+    ]
+  }
+}
