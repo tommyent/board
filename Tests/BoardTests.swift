@@ -73,7 +73,9 @@ final class BoardTests: XCTestCase {
         var broken = SoundConfiguration(); broken.volume = 40; broken.pitch = -99; broken.tone = 3; broken.width = 9
         broken.overrides[0] = KeyOverride(tone:3,pitch:50,volume:-2)
         var saved = AppSettings(); saved.presets = [SoundPreset(name:"Broken",sound:broken)]
-        let suite = "com.tommyent.Board.tests.\(UUID().uuidString)", defaults = try XCTUnwrap(UserDefaults(suiteName:suite))
+        // One fixed suite: removePersistentDomain empties it but leaves its plist, so a per-run name would leave one file per run.
+        let suite = "com.tommyent.Board.tests", defaults = try XCTUnwrap(UserDefaults(suiteName:suite))
+        defaults.removePersistentDomain(forName:suite)
         defer { defaults.removePersistentDomain(forName:suite) }
         defaults.set(try JSONEncoder().encode(saved),forKey:"appSettings.v1")
         let app = AppState(defaults:defaults)
