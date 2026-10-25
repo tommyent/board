@@ -193,6 +193,74 @@ final class BoardTests: XCTestCase {
         XCTAssertThrowsError(try AudioFiles.importPair(press:valid,release:huge,name:"Pair",root:imports))
         XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath:imports.path),[kept.press])
     }
+    func testAIKeyMappingShiftReturnAndIndent() {
+        // Capitals and symbols hold Shift; a new line is Return; four leading spaces are one Tab.
+        let downs = AITyping.plan("Hi(\n    x)",speed:1,flourish:false).filter(\.down)
+        XCTAssertEqual(downs.map(\.key),[56,4,34,56,25,36,48,7,56,29])
+        XCTAssertEqual(downs.map { $0.modifiers & CGEventFlags.maskShift.rawValue != 0 },[true,true,false,true,true,false,false,false,true,true])
+        XCTAssertEqual(AITyping.keyText("      a\r\n\tb"),"\t  a\n\tb")
+        let printable = String((32...126).map { Character(UnicodeScalar($0)!) })
+        XCTAssertTrue(printable.allSatisfy { AITyping.keys[$0] != nil })
+        let all = AITyping.plan(printable,speed:1,cap:100,flourish:false)
+        XCTAssertEqual(all.filter(\.down).count,all.filter { !$0.down }.count) // every press is released
+    }
+    func testAIPacingAndEditCap() {
+        var rng = SeededRandom(state:7)
+        let text = "word next, more.\nline", gap = AITyping.gap(0.5)
+        let downs = AITyping.plan(text,speed:0.5,flourish:false,using:&rng).filter(\.down)
+        XCTAssertEqual(downs.count,text.count)
+        let previous = [Character("x")] + Array(text.dropLast())
+        func leads(_ after: (Character) -> Bool) -> [Double] { zip(previous,downs).filter { after($0.0) }.map { $0.1.delay/gap } }
+        let inWord = leads { $0.isLetter }, word = leads { $0 == " " }, punctuation = leads { ",.".contains($0) }, line = leads { $0 == "\n" }
+        XCTAssertGreaterThanOrEqual(inWord.min()!,0.6)
+        XCTAssertLessThan(inWord.max()!,word.min()!); XCTAssertLessThan(word.max()!,punctuation.min()!); XCTAssertLessThan(punctuation.max()!,line.min()!)
+        // A long edit stops inside the 10 s cap and still ends with ⌘S; a faster speed types more of it.
+        let long = String(repeating:"let value = compute(input) // keep going\n",count:200)
+        for speed in [0.0,0.5,1.0] {
+            let strokes = AITyping.plan(long,speed:speed,using:&rng), total = strokes.reduce(0) { $0+$1.delay }
+            XCTAssertLessThanOrEqual(total,10); XCTAssertGreaterThan(total,8.5)
+            XCTAssertEqual(strokes.suffix(4).map(\.key),[55,1,1,55])
+        }
+        XCTAssertGreaterThan(AITyping.plan(long,speed:1,using:&rng).filter(\.down).count,AITyping.plan(long,speed:0,using:&rng).filter(\.down).count*3)
+        XCTAssertEqual(AITyping.plan("ok",speed:0.5,using:&rng).filter(\.down).map(\.key),[31,40,55,1]) // a short edit is typed whole
+    }
+    func testAIQueueKeepsOrderAndOnlyTheNewest() {
+        var queue = AIQueue()
+        for text in ["one","two","three","four"] { queue.push(text) }
+        XCTAssertEqual([queue.pop(),queue.pop(),queue.pop(),queue.pop()],["two","three","four",nil])
+    }
+    func testAIModeCannotPostEvents() throws {
+        // AI mode only feeds Board's own pipeline. The image holding its code (the app, Debug's Board.debug.dylib, or a
+        // logic-test bundle) must import no API that posts events into other apps.
+        let image = try XCTUnwrap(class_getImageName(AIMode.self).map { String(cString:$0) })
+        let nm = Process(), out = Pipe()
+        nm.executableURL = URL(fileURLWithPath:"/usr/bin/nm"); nm.arguments = ["-u",image]; nm.standardOutput = out
+        try nm.run()
+        let symbols = String(decoding:out.fileHandleForReading.readDataToEndOfFile(),as:UTF8.self).split(separator:"\n").map(String.init)
+        nm.waitUntilExit()
+        XCTAssertTrue(symbols.contains("_CGEventTapCreate"),"nm listed no imports for \(image)") // Board's listen-only tap
+        let posting: Set = ["_CGEventPost","_CGEventPostToPid","_CGEventPostToPSN","_CGEventTapPostEvent","_CGPostKeyboardEvent","_CGPostMouseEvent","_AXUIElementPostKeyboardEvent"]
+        XCTAssertEqual(symbols.filter(posting.contains),[])
+    }
+    @MainActor func testAIModeTypesAQueuedEditOnce() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString), marker = directory.appendingPathComponent("listening")
+        defer { try? FileManager.default.removeItem(at:directory) }
+        let ai = AIMode(directory:directory,watchAgents:false), saved = expectation(description:"the edit ends with ⌘S")
+        var downs: [Int] = []
+        ai.onEvent = { event in
+            guard event.transition == .press else { return }
+            downs.append(event.key)
+            if event.key == 1, event.modifiers & CGEventFlags.maskCommand.rawValue != 0 { saved.fulfill() }
+        }
+        ai.configure(enabled:true,speed:1,folder:nil)
+        XCTAssertEqual(try String(contentsOf:marker,encoding:.utf8),String(getpid()))
+        try Data("ok".utf8).write(to:directory.appendingPathComponent("1-1.txt")) // what board-ai-hook drops in
+        wait(for:[saved],timeout:5)
+        XCTAssertEqual(downs,[31,40,55,1])
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath:directory.path),["listening"]) // read once, then deleted
+        ai.stop()
+        XCTAssertFalse(FileManager.default.fileExists(atPath:marker.path))
+    }
     func testOfflineSpatialOutputAndProtection() throws {
         let left = try render(x:-1), right = try render(x:1), crowded = try render(x:0,voices:32)
         XCTAssertGreaterThan(left.0,left.1*1.2)
@@ -218,5 +286,15 @@ final class BoardTests: XCTestCase {
             for channel in 0..<2 { for i in 0..<Int(buffer.frameLength) { let value = buffer.floatChannelData![channel][i]; XCTAssertTrue(value.isFinite); peak = max(peak,abs(value)); energies[channel] += Double(value*value) } }
         }
         return (energies[0],energies[1],peak)
+    }
+}
+
+/// SplitMix64, so pacing checks are repeatable.
+private struct SeededRandom: RandomNumberGenerator {
+    var state: UInt64
+    mutating func next() -> UInt64 {
+        state &+= 0x9E3779B97F4A7C15
+        var z = state; z = (z ^ (z >> 30)) &* 0xBF58476D1CE4E5B9; z = (z ^ (z >> 27)) &* 0x94D049BB133111EB
+        return z ^ (z >> 31)
     }
 }

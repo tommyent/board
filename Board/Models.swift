@@ -203,6 +203,10 @@ struct AppSettings: Codable, Equatable {
     var onboardingComplete = false
     // nil is Porcelain, the bundled primary icon. Optional so settings saved before this field still decode.
     var iconColor: String?
+    // AI mode, optional for the same reason. A nil folder codes along from Board's own sources.
+    var aiMode: Bool?
+    var aiSpeed: Double?
+    var aiFolder: String?
     static let iconColors = ["Porcelain","Sage","Blue","Lilac","Graphite"]
     mutating func validate() {
         if let color = iconColor, color == "Porcelain" || !Self.iconColors.contains(color) { iconColor = nil }
@@ -214,6 +218,7 @@ struct AppSettings: Codable, Equatable {
         visualizer.offset = clamp(visualizer.offset,0...200)
         visualizer.shuffleEvery = min(100,max(1,visualizer.shuffleEvery))
         gestureTaps = min(5,max(1,gestureTaps)); presets = Array(presets.prefix(6))
+        if let speed = aiSpeed { aiSpeed = clamp(speed,0...1,fallback:0.35) }
     }
 }
 

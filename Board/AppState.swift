@@ -20,8 +20,11 @@ import UniformTypeIdentifiers
     @Published var selectedKey = 0
     @Published var recordingShortcut = false
     @Published var loginStatus = ""
+    @Published var aiStatus = "Off"
     let monitor = InputMonitor()
     let audio: KeyboardAudio
+    let ai = AIMode()
+    private var sessionActive = true
     let resources: URL
     lazy var iconImages: [String:NSImage] = Dictionary(uniqueKeysWithValues:AppSettings.iconColors.compactMap { color in NSImage(contentsOf:resources.appendingPathComponent("AppIcons/Board-\(color).icns")).map { (color,$0) } })
     var iconImage: NSImage { iconImages[settings.iconColor ?? "Porcelain"] ?? NSImage() }
@@ -60,13 +63,17 @@ import UniformTypeIdentifiers
             DispatchQueue.main.async { self?.receive(event) }
         }
         monitor.onReset = { [weak self] in engine.reset(); DispatchQueue.main.async { self?.clearVisuals() } }
-        audio.begin(); audio.configure(settings); monitor.begin(); refreshLogin()
+        // AI mode's keystrokes take the same path as physical ones, minus the toggle shortcut.
+        ai.onEvent = { [weak self] event in engine.handle(event); self?.visualize(event) }
+        ai.onStatus = { [weak self] value in self?.aiStatus = value }
+        ai.canPlay = { [weak self] in self.map { $0.settings.enabled && !$0.settings.muted && $0.sessionActive } ?? false }
+        audio.begin(); audio.configure(settings); configureAI(); monitor.begin(); refreshLogin()
         let workspace = NSWorkspace.shared.notificationCenter
         for name in [NSWorkspace.willSleepNotification,NSWorkspace.sessionDidResignActiveNotification] {
-            observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.monitor.setSuspended(true); self?.audio.reset(); self?.clearVisuals() } })
+            observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.sessionActive = false; self?.monitor.setSuspended(true); self?.audio.reset(); self?.clearVisuals() } })
         }
         for name in [NSWorkspace.didWakeNotification,NSWorkspace.sessionDidBecomeActiveNotification] {
-            observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.monitor.setSuspended(false); self?.audio.recover() } })
+            observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.sessionActive = true; self?.monitor.setSuspended(false); self?.audio.recover() } })
         }
         observers.append(NotificationCenter.default.addObserver(forName:NSApplication.didBecomeActiveNotification,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.monitor.refreshSoon(); self?.refreshLogin() } })
     }
@@ -74,10 +81,11 @@ import UniformTypeIdentifiers
         guard started else { return }
         do { defaults.set(try JSONEncoder().encode(settings),forKey:"appSettings.v1") }
         catch { self.error = "Settings could not be saved: \(error.localizedDescription)" }
-        audio.configure(settings)
+        audio.configure(settings); configureAI()
         if !settings.enabled || !settings.visualizer.enabled { clearVisuals() }
         onPreferences?()
     }
+    private func configureAI() { ai.configure(enabled:settings.aiMode ?? false,speed:settings.aiSpeed ?? 0.35,folder:settings.aiFolder) }
     private func receive(_ event: PhysicalInputEvent) {
         if recordingShortcut, event.transition == .press, !KeyGeometry.modifierKeys.contains(event.key), !event.isMouse {
             settings.shortcutKey = event.key
@@ -86,6 +94,9 @@ import UniformTypeIdentifiers
             recordingShortcut = false; return
         }
         if shortcut.matches(event,settings:settings) { toggle(); clearVisuals(); return }
+        visualize(event)
+    }
+    private func visualize(_ event: PhysicalInputEvent) {
         guard settings.enabled, settings.visualizer.enabled else { return }
         if event.transition == .release { heldKeys.remove(event.key); return }
         guard !event.isMouse else { return }
@@ -153,6 +164,10 @@ import UniformTypeIdentifiers
                 }
             } catch { DispatchQueue.main.async { self.error = error.localizedDescription } }
         }
+    }
+    func chooseAIFolder() {
+        let panel = NSOpenPanel(); panel.title = "Choose a folder of code to type along from"; panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = false
+        if panel.runModal() == .OK, let url = panel.url { settings.aiFolder = url.path }
     }
     func demoVisualizer() {
         settings.visualizer.enabled = true

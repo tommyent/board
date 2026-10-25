@@ -37,7 +37,7 @@ final class ActionMenuItem: NSMenuItem {
     }
     func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows:Bool) -> Bool { showSettings(); return true }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication) -> Bool { false }
-    func applicationWillTerminate(_ notification:Notification) { state.audio.reset() }
+    func applicationWillTerminate(_ notification:Notification) { state.audio.reset(); state.ai.stop() }
     func applyPreferences() {
         if previousDock != state.settings.showDock { NSApp.setActivationPolicy(state.settings.showDock ? .regular : .accessory); previousDock = state.settings.showDock; appliedIcon = nil }
         // applicationIconImage only overrides the running app's Dock tile; nil restores the bundled Porcelain icon.
