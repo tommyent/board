@@ -20,7 +20,6 @@ struct Accent {
     func fill(light: Bool) -> Color { light ? strong : pale }
     func text(light: Bool) -> Color { light ? .white : face }
     var tint: Color { dynamic(strong,pale) }
-    var onTint: Color { dynamic(.white,face) }
     private func dynamic(_ light: Color,_ dark: Color) -> Color { Color(nsColor:NSColor(name:nil) { $0.bestMatch(from:[.aqua,.darkAqua]) == .darkAqua ? NSColor(dark) : NSColor(light) }) }
 }
 struct SwitchMark: View {
@@ -29,54 +28,47 @@ struct SwitchMark: View {
 }
 struct SettingsView: View {
     @ObservedObject var app: AppState
-    private var section: SettingsSection? { app.selectedSettingsSection }
+    private var section: SettingsSection { app.selectedSettingsSection ?? .general }
     var body: some View {
-        HStack(spacing:0) {
-            VStack(alignment:.leading,spacing:18) {
+        // Standard macOS sidebar and grouped form: native selection, focus, arrow keys, VoiceOver and the system accent color.
+        NavigationSplitView {
+            // Clicking empty sidebar space would clear the selection; keep the current section instead.
+            List(selection:Binding(get:{app.selectedSettingsSection},set:{ if let item = $0 { app.selectedSettingsSection = item } })) {
+                ForEach(SettingsSection.allCases) { Label($0.rawValue,systemImage:$0.icon).tag($0) }
+            }
+            .safeAreaInset(edge:.top) {
                 HStack(spacing:10) {
                     Image(nsImage:app.iconImage).resizable().frame(width:46,height:46)
                     VStack(alignment:.leading,spacing:3) { Text("Board").font(.headline); Text("A little joy in every key.").font(.caption).foregroundStyle(.secondary) }
-                }.padding(.horizontal,14).padding(.top,20)
-                // Rows draw their own selection: a sidebar List's selection always uses the macOS accent and ignores tint.
-                List(SettingsSection.allCases) { item in
-                    let selected = (section ?? .general) == item
-                    Button { app.selectedSettingsSection = item } label: { Label(item.rawValue,systemImage:item.icon).padding(.vertical,5).frame(maxWidth:.infinity,alignment:.leading).contentShape(Rectangle()) }
-                        .buttonStyle(.plain).foregroundStyle(selected ? app.accent.onTint : .primary).listItemTint(.fixed(selected ? app.accent.onTint : app.accent.tint))
-                        .listRowBackground(RoundedRectangle(cornerRadius:8).fill(selected ? app.accent.tint : .clear).padding(.horizontal,10))
-                        .accessibilityAddTraits(selected ? .isSelected : [])
-                }.listStyle(.sidebar).focusable().onKeyPress(keys:[.upArrow,.downArrow]) { press in
-                    let all = SettingsSection.allCases, index = all.firstIndex(of:section ?? .general)! + (press.key == .downArrow ? 1 : -1)
-                    if all.indices.contains(index) { app.selectedSettingsSection = all[index] }
-                    return .handled
-                }
-                Label("On this Mac. Offline.",systemImage:"lock.shield").font(.caption).foregroundStyle(.secondary).padding(18)
-            }.frame(width:210).background(.ultraThinMaterial)
-            Divider()
-            VStack(alignment:.leading,spacing:0) {
+                }.frame(maxWidth:.infinity,alignment:.leading).padding(.horizontal,14).padding(.vertical,12)
+            }
+            .safeAreaInset(edge:.bottom) { Label("On this Mac. Offline.",systemImage:"lock.shield").font(.caption).foregroundStyle(.secondary).frame(maxWidth:.infinity,alignment:.leading).padding(14) }
+            .toolbar(removing:.sidebarToggle) // the sidebar always shows
+            .navigationSplitViewColumnWidth(min:210,ideal:210,max:280)
+        } detail: {
+            VStack(spacing:0) {
                 HStack {
-                    VStack(alignment:.leading,spacing:4) { Text((section ?? .general).rawValue).font(.system(size:25,weight:.bold)); Text(subtitle).font(.callout).foregroundStyle(.secondary) }
+                    VStack(alignment:.leading,spacing:4) { Text(section.rawValue).font(.system(size:25,weight:.bold)); Text(subtitle).font(.callout).foregroundStyle(.secondary) }
                     Spacer()
                     Toggle("Board",isOn:Binding(get:{app.settings.enabled},set:{_ in app.toggle()})).toggleStyle(.switch).fixedSize()
-                }.padding(24)
+                }.padding(.horizontal,24).padding(.vertical,16)
                 Divider()
-                ScrollView {
-                    VStack(alignment:.leading,spacing:18) {
-                        switch section ?? .general {
-                        case .general: GeneralSettings(app:app)
-                        case .sound: SoundSettings(app:app)
-                        case .keyboard: KeyboardSettings(app:app)
-                        case .visualizer: VisualizerPreferences(app:app)
-                        case .extras: ExtrasSettings(app:app)
-                        case .about: AboutSettings(app:app)
-                        }
-                    }.padding(24).frame(maxWidth:.infinity,alignment:.leading)
-                }
-            }.background(Color(nsColor:.windowBackgroundColor))
-        }.tint(app.accent.tint).frame(minWidth:850,minHeight:650)
+                Form {
+                    switch section {
+                    case .general: GeneralSettings(app:app)
+                    case .sound: SoundSettings(app:app)
+                    case .keyboard: KeyboardSettings(app:app)
+                    case .visualizer: VisualizerPreferences(app:app)
+                    case .extras: ExtrasSettings(app:app)
+                    case .about: AboutSettings(app:app)
+                    }
+                }.formStyle(.grouped)
+            }
+        }.frame(minWidth:850,minHeight:650)
             .alert("Board",isPresented:Binding(get:{app.error != nil},set:{if !$0 { app.error = nil }})) { Button("OK") { app.error = nil } } message: { Text(app.error ?? "") }
     }
     var subtitle: String {
-        switch section ?? .general {
+        switch section {
         case .general:"Make yourself at home."
         case .sound:"Find your favorite thock."
         case .keyboard:"Every key can have its own character."
@@ -89,9 +81,7 @@ struct SettingsView: View {
 struct SettingsCard<Content: View>: View {
     let title: String
     @ViewBuilder var content: Content
-    var body: some View {
-        VStack(alignment:.leading,spacing:14) { Text(title.uppercased()).font(.system(size:10,weight:.semibold)).tracking(1.2).foregroundStyle(.secondary); content }.padding(18).frame(maxWidth:.infinity,alignment:.leading).background(.background,in:RoundedRectangle(cornerRadius:12)).overlay(RoundedRectangle(cornerRadius:12).stroke(.primary.opacity(0.06)))
-    }
+    var body: some View { Section(title) { content } }
 }
 struct LabeledSlider: View {
     var title: String
@@ -122,7 +112,6 @@ struct GeneralSettings: View {
             Toggle("Launch at login",isOn:Binding(get:{app.loginEnabled},set:{app.setLogin($0)}))
             Text(app.loginStatus).font(.caption).foregroundStyle(.secondary)
             if app.loginStatus.hasPrefix("Approval") { Button("Open Login Items") { SMAppService.openSystemSettingsLoginItems() } }
-            Divider()
             Toggle("Show in Dock and Command–Tab",isOn:$app.settings.showDock)
             Toggle("Show menu bar icon",isOn:$app.settings.showMenu)
             Text("Reopen Board from Finder or Spotlight to reveal Settings, even when both icons are hidden.").font(.caption).foregroundStyle(.secondary)
@@ -134,8 +123,8 @@ struct GeneralSettings: View {
                     Button { app.settings.iconColor = color == "Porcelain" ? nil : color } label: {
                         VStack(spacing:6) {
                             Image(nsImage:app.iconImages[color] ?? NSImage()).resizable().frame(width:56,height:56).padding(4)
-                                .overlay(RoundedRectangle(cornerRadius:16).stroke(selected ? app.accent.tint : .clear,lineWidth:2))
-                                .overlay(alignment:.topTrailing) { if selected { Image(systemName:"checkmark.circle.fill").foregroundStyle(app.accent.onTint,app.accent.tint) } }
+                                .overlay(RoundedRectangle(cornerRadius:16).stroke(selected ? Color.accentColor : .clear,lineWidth:2))
+                                .overlay(alignment:.topTrailing) { if selected { Image(systemName:"checkmark.circle.fill").foregroundStyle(.white,Color.accentColor) } }
                             Text(color).font(.caption)
                         }
                     }.buttonStyle(.plain).accessibilityLabel("\(color) app icon").accessibilityAddTraits(selected ? .isSelected : [])
@@ -145,7 +134,7 @@ struct GeneralSettings: View {
         }
         SettingsCard(title:"Toggle shortcut") {
             HStack { Text(app.shortcutLabel).font(.system(.body,design:.monospaced)).padding(8).background(.quaternary,in:RoundedRectangle(cornerRadius:7)); Spacer(); Button(app.recordingShortcut ? "Cancel recording" : "Record shortcut") { app.recordingShortcut.toggle() } }
-            if app.recordingShortcut { Text("Press a physical key combination. Input Monitoring must be granted.").font(.caption).foregroundStyle(app.accent.tint) }
+            if app.recordingShortcut { Text("Press a physical key combination. Input Monitoring must be granted.").font(.caption).foregroundStyle(.tint) }
             Stepper("Repeated-key gesture: \(app.settings.gestureTaps) tap(s)",value:$app.settings.gestureTaps,in:1...5)
             Text("Repeat the same combination within 0.6 seconds. Key repeats are ignored.").font(.caption).foregroundStyle(.secondary)
         }
@@ -169,7 +158,7 @@ struct SoundSettings: View {
             LabeledSlider(title:"Home-row softness",value:$app.settings.sound.homeSoftness)
         }
         SettingsCard(title:"Tone & pitch") {
-            TonePad(tone:$app.settings.sound.tone,pitch:$app.settings.sound.pitch,color:app.accent.tint)
+            TonePad(tone:$app.settings.sound.tone,pitch:$app.settings.sound.pitch,color:.accentColor)
             LabeledSlider(title:"Tone · thock to clack",value:$app.settings.sound.tone,range:-1...1,suffix:"")
             LabeledSlider(title:"Pitch",value:$app.settings.sound.pitch,range:-12...12,suffix:" st")
             HStack { Button("Reset to Middle") { app.settings.sound.tone = 0; app.settings.sound.pitch = 0 }; Spacer(); Text(app.audioStatus).font(.caption).foregroundStyle(.secondary) }
@@ -260,7 +249,7 @@ struct VisualizerPreferences: View {
         SettingsCard(title:"Display") {
             Toggle("Show visualizer",isOn:$app.settings.visualizer.enabled)
             Picker("Style",selection:$app.settings.visualizer.style) { ForEach(["Keyboard","Keystrokes","Combo","Bezel"],id:\.self) { Text($0) } }.onChange(of:app.settings.visualizer.style) { app.settings.visualizer.enabled = true }
-            HStack { ForEach(["Dark","Light","Glass Dark","Glass Clear"],id:\.self) { theme in Button { app.settings.visualizer.theme = theme } label: { VStack { KeyboardView(layout:app.settings.layout,held:[0,1,2,3],theme:theme,accent:app.accent).frame(width:92,height:40); Text(theme).font(.caption2) }.padding(5).background(app.settings.visualizer.theme == theme ? app.accent.tint.opacity(0.18) : .clear,in:RoundedRectangle(cornerRadius:8)) }.buttonStyle(.plain).accessibilityLabel("\(theme) keyboard theme") } }
+            HStack { ForEach(["Dark","Light","Glass Dark","Glass Clear"],id:\.self) { theme in Button { app.settings.visualizer.theme = theme } label: { VStack { KeyboardView(layout:app.settings.layout,held:[0,1,2,3],theme:theme,accent:app.accent).frame(width:92,height:40); Text(theme).font(.caption2) }.padding(5).background(app.settings.visualizer.theme == theme ? Color.accentColor.opacity(0.18) : .clear,in:RoundedRectangle(cornerRadius:8)) }.buttonStyle(.plain).accessibilityLabel("\(theme) keyboard theme") } }
             Picker("Combo theme",selection:$app.settings.visualizer.comboTheme) { ForEach(["Monochrome","Amber","Neon"],id:\.self) { Text($0) } }
             Picker("Keystroke flow",selection:$app.settings.visualizer.flow) { ForEach(["Row","Column"],id:\.self) { Text($0) } }
             LabeledSlider(title:"Scale",value:$app.settings.visualizer.scale,range:0.5...2)

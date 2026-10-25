@@ -47,7 +47,7 @@ Choose **Sound → Switch → Classic · Typewriter** to use the new sound. The 
 - 32 preloaded playback voices, authentic down/up samples, native spatial output, limiter, offline tone preparation, gain/pitch variation and home-row softness.
 - Per-key overrides, six favorites, validated native audio imports, device UID preferences, output-kind override, optional motion tracking and an eight-second orbit mode.
 - Keyboard, keystroke pills, combo and bezel visualizers; ANSI/ISO/JIS layouts, position/scale/theme/timing controls, six pins and random placement.
-- Five app icon colors from the Board Keycap brand package: Porcelain (the bundled icon), Sage, Blue, Lilac and Graphite. Settings › General › App icon changes Board's Dock icon while it runs; Finder and Launchpad keep Porcelain. Board's controls and visualizer highlights follow the chosen color: the brand's strong accent in light mode, the pale finish in dark mode.
+- Five app icon colors from the Board Keycap brand package: Porcelain (the bundled icon), Sage, Blue, Lilac and Graphite. Settings › General › App icon changes Board's Dock icon while it runs; Finder and Launchpad keep Porcelain. The visualizer's key highlights follow the chosen color: the brand's strong accent in light mode, the pale finish in dark mode. Settings uses the standard macOS sidebar, forms and controls, in your system accent color.
 - App icons and menu bar glyph from the Board Keycap brand package, theme previews, source/license manifests and a recording guide.
 
 The default profile is **Durock Alpaca**. Mouse and Enter sounds support None, the selected keyboard profile, or imported recordings.

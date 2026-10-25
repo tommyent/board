@@ -54,7 +54,10 @@ final class ActionMenuItem: NSMenuItem {
     }
     func showSettings() {
         if settingsWindow == nil {
-            let window = NSWindow(contentRect:NSRect(x:0,y:0,width:890,height:740),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
+            // Full-size content lets the sidebar run to the top with the window buttons inside it, like other Mac apps.
+            let window = NSWindow(contentRect:NSRect(x:0,y:0,width:890,height:740),styleMask:[.titled,.closable,.miniaturizable,.resizable,.fullSizeContentView],backing:.buffered,defer:false)
+            window.titlebarAppearsTransparent = true; window.titleVisibility = .hidden
+            window.toolbar = NSToolbar(identifier:"Settings"); window.toolbarStyle = .unified
             window.title = "Board — Settings"; window.contentView = NSHostingView(rootView:SettingsView(app:state)); window.isReleasedWhenClosed = false
             window.minSize = NSSize(width:850,height:650); settingsWindow = window
         }
