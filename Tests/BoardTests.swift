@@ -133,7 +133,7 @@ final class BoardTests: XCTestCase {
         let invalid = temp.appendingPathComponent("invalid.wav"); try Data("not audio".utf8).write(to:invalid)
         let source = root.appendingPathComponent("Audio/alpaca/press/SPACE.mp3")
         XCTAssertThrowsError(try AudioFiles.importPair(press:source,release:invalid,name:"bad",root:temp.appendingPathComponent("imports")))
-        XCTAssertFalse(FileManager.default.fileExists(atPath:temp.appendingPathComponent("imports").path))
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath:temp.appendingPathComponent("imports").path),[])
         let result = try AudioFiles.importPair(press:source,release:nil,name:"Space",root:temp)
         XCTAssertNotNil(try AudioFiles.decode(temp.appendingPathComponent(result.press)))
         let imported = try PreparedBank.imported(result,root:temp)
@@ -150,6 +150,25 @@ final class BoardTests: XCTestCase {
         buffer.frameLength = buffer.frameCapacity
         try file.write(from:buffer)
         XCTAssertThrowsError(try AudioFiles.decode(tooLong,imported:true))
+    }
+    func testImportKeepsOnlyTheValidatedCopies() throws {
+        let temp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString), imports = temp.appendingPathComponent("imports")
+        try FileManager.default.createDirectory(at:temp,withIntermediateDirectories:true)
+        defer { try? FileManager.default.removeItem(at:temp) }
+        let valid = root.appendingPathComponent("Audio/alpaca/press/SPACE.mp3"), source = temp.appendingPathComponent("swapped.mp3")
+        // Swapped for junk after the copy: the import keeps the valid bytes it checked.
+        try FileManager.default.copyItem(at:valid,to:source)
+        let kept = try AudioFiles.importPair(press:source,release:nil,name:"Swapped",root:imports) { try Data("not audio".utf8).write(to:source) }
+        XCTAssertEqual(try Data(contentsOf:imports.appendingPathComponent(kept.press)),try Data(contentsOf:valid))
+        // Swapped back to valid audio after the copy: the junk copy is what gets checked, so the import fails.
+        XCTAssertThrowsError(try AudioFiles.importPair(press:source,release:nil,name:"Swapped",root:imports) { try FileManager.default.removeItem(at:source); try FileManager.default.copyItem(at:valid,to:source) })
+        // The second copy fails (missing, then over 25 MB): the press copy goes too.
+        XCTAssertThrowsError(try AudioFiles.importPair(press:valid,release:temp.appendingPathComponent("missing.wav"),name:"Pair",root:imports))
+        let huge = temp.appendingPathComponent("huge.wav")
+        XCTAssertTrue(FileManager.default.createFile(atPath:huge.path,contents:nil))
+        let handle = try FileHandle(forWritingTo:huge); try handle.truncate(atOffset:UInt64(AudioFiles.maxFileSize+1)); try handle.close()
+        XCTAssertThrowsError(try AudioFiles.importPair(press:valid,release:huge,name:"Pair",root:imports))
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath:imports.path),[kept.press])
     }
     func testOfflineSpatialOutputAndProtection() throws {
         let left = try render(x:-1), right = try render(x:1), crowded = try render(x:0,voices:32)

@@ -46,17 +46,29 @@ enum AudioFiles {
         guard !name.isEmpty, name == URL(fileURLWithPath:name).lastPathComponent, !name.contains("..") else { throw AudioValidationError(message:"Invalid managed audio filename.") }
         return root.appendingPathComponent(name)
     }
-    static func importPair(press: URL, release: URL?, name: String, root: URL) throws -> ImportedSound {
-        // Validate both before creating files or replacing any previous configuration.
-        _ = try decode(press,imported:true)
-        if let release { _ = try decode(release,imported:true) }
+    /// `afterCopy` runs between copying and validating; tests use it to swap a source file.
+    static func importPair(press: URL, release: URL?, name: String, root: URL, afterCopy: () throws -> Void = {}) throws -> ImportedSound {
+        // Read each source once into a bounded copy and validate that copy, so a source changed mid-import can't slip through.
+        // Nothing references the copies until this returns, and any failure removes them all.
         let id = UUID().uuidString
-        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
-        let pressName = id + "-press." + press.pathExtension.lowercased()
-        let releaseName = release.map { id + "-release." + $0.pathExtension.lowercased() }
-        try Data(contentsOf:press).write(to:root.appendingPathComponent(pressName),options:.atomic)
-        if let release, let releaseName { try Data(contentsOf:release).write(to:root.appendingPathComponent(releaseName),options:.atomic) }
-        return ImportedSound(id:id,name:name,press:pressName,release:releaseName)
+        let sources = [("press",press)] + (release.map { [("release",$0)] } ?? [])
+        let copies = sources.map { role, source in root.appendingPathComponent(id + "-" + role + "." + source.pathExtension.lowercased()) }
+        do {
+            try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+            for ((_,source),copy) in zip(sources,copies) {
+                let handle = try FileHandle(forReadingFrom:source)
+                defer { try? handle.close() }
+                let data = try handle.read(upToCount:maxFileSize+1) ?? Data()
+                guard data.count <= maxFileSize else { throw AudioValidationError(message:"Audio must be nonempty and no larger than 25 MB.") }
+                try data.write(to:copy,options:.atomic)
+            }
+            try afterCopy()
+            for copy in copies { _ = try decode(copy,imported:true) }
+        } catch {
+            for copy in copies { try? FileManager.default.removeItem(at:copy) }
+            throw error
+        }
+        return ImportedSound(id:id,name:name,press:copies[0].lastPathComponent,release:release == nil ? nil : copies[1].lastPathComponent)
     }
 }
 
