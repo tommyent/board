@@ -261,6 +261,51 @@ final class BoardTests: XCTestCase {
         ai.stop()
         XCTAssertFalse(FileManager.default.fileExists(atPath:marker.path))
     }
+    func testAIHookInstallAndRemoveKeepEverythingElse() throws {
+        let temp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString), url = temp.appendingPathComponent(".claude/settings.json")
+        defer { try? FileManager.default.removeItem(at:temp) }
+        let script = "/Applications/Board.app/Contents/Resources/board-ai-hook"
+        let board: [String:Any] = ["matcher":"Write|Edit","hooks":[["type":"command","command":script,"args":[String](),"async":true]]]
+        // No settings file yet: installing creates one.
+        try AIHook.update(url) { try AIHook.installing(script,for:.claude,into:$0) }
+        XCTAssertEqual(AIHook.installed(in:try AIHook.read(url)),script)
+        // Settings with other hooks and keys: installing twice adds one entry and keeps the rest, the file's permissions, and a backup.
+        let other: [String:Any] = ["permissions":["allow":["Bash(ls)"]],"hooks":["PostToolUse":[["matcher":"","hooks":[["type":"command","command":"echo other","timeout":5]]]],"SessionEnd":[["hooks":[["type":"command","command":"echo end"]]]]]]
+        try JSONSerialization.data(withJSONObject:other).write(to:url)
+        try FileManager.default.setAttributes([.posixPermissions:0o600],ofItemAtPath:url.path)
+        for _ in 0..<2 { try AIHook.update(url) { try AIHook.installing(script,for:.claude,into:$0) } }
+        let post = try XCTUnwrap((try AIHook.read(url)["hooks"] as? [String:Any])?["PostToolUse"] as? [[String:Any]])
+        XCTAssertEqual(post.map { NSDictionary(dictionary:$0) },[NSDictionary(dictionary:((other["hooks"] as! [String:Any])["PostToolUse"] as! [[String:Any]])[0]),NSDictionary(dictionary:board)])
+        XCTAssertEqual(try FileManager.default.attributesOfItem(atPath:url.path)[.posixPermissions] as? NSNumber,0o600)
+        XCTAssertEqual(AIHook.installed(in:try AIHook.read(url.appendingPathExtension("bak-board"))),script)
+        // Removing gives back the original settings exactly.
+        try AIHook.update(url) { try AIHook.removing(from:$0) }
+        XCTAssertEqual(NSDictionary(dictionary:try AIHook.read(url)),NSDictionary(dictionary:other))
+        // A hook someone added to Board's entry by hand survives removal.
+        var shared = try AIHook.installing(script,for:.claude,into:other), hooks = shared["hooks"] as! [String:Any], entries = hooks["PostToolUse"] as! [[String:Any]]
+        entries[1]["hooks"] = (entries[1]["hooks"] as! [Any]) + [["type":"command","command":"echo also"]]
+        hooks["PostToolUse"] = entries; shared["hooks"] = hooks
+        let kept = try AIHook.removing(from:shared), keptEntries = (kept["hooks"] as! [String:Any])["PostToolUse"] as! [[String:Any]]
+        XCTAssertNil(AIHook.installed(in:kept))
+        XCTAssertEqual(((keptEntries[1]["hooks"] as! [[String:Any]]).map { $0["command"] as? String }),["echo also"])
+        // A file Board can't parse, or a hooks setting of another shape, is refused and left as it was.
+        try Data("{ not json".utf8).write(to:url)
+        XCTAssertThrowsError(try AIHook.update(url) { try AIHook.installing(script,for:.claude,into:$0) })
+        XCTAssertEqual(try String(contentsOf:url,encoding:.utf8),"{ not json")
+        XCTAssertThrowsError(try AIHook.installing(script,for:.claude,into:["hooks":["PostToolUse":"unexpected"]]))
+        // Codex: its hooks.json keeps its own hooks; Board's entry quotes the path because Codex runs commands through a shell.
+        let codex = temp.appendingPathComponent(".codex/hooks.json")
+        let codexOther: [String:Any] = ["hooks":["PreToolUse":[["matcher":"Bash","hooks":[["type":"command","command":"/usr/local/bin/guard"]]]]]]
+        try FileManager.default.createDirectory(at:codex.deletingLastPathComponent(),withIntermediateDirectories:true)
+        try JSONSerialization.data(withJSONObject:codexOther).write(to:codex)
+        try AIHook.update(codex) { try AIHook.installing(script,for:.codex,into:$0) }
+        let codexSettings = try AIHook.read(codex), codexPost = try XCTUnwrap((codexSettings["hooks"] as? [String:Any])?["PostToolUse"] as? [[String:Any]])
+        XCTAssertEqual(codexPost.map { NSDictionary(dictionary:$0) },[NSDictionary(dictionary:["matcher":"Write|Edit","hooks":[["type":"command","command":"'\(script)'","async":true,"timeout":10]]])])
+        XCTAssertTrue(AIHook.runs(AIHook.installed(in:codexSettings),script))
+        try AIHook.update(codex) { try AIHook.removing(from:$0) }
+        XCTAssertEqual(NSDictionary(dictionary:try AIHook.read(codex)),NSDictionary(dictionary:codexOther))
+        XCTAssertEqual(AIHook.quoted("/a/it's"),"'/a/it'\\''s'")
+    }
     func testOfflineSpatialOutputAndProtection() throws {
         let left = try render(x:-1), right = try render(x:1), crowded = try render(x:0,voices:32)
         XCTAssertGreaterThan(left.0,left.1*1.2)

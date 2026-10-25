@@ -280,6 +280,18 @@ struct ExtrasSettings: View {
         }
         SettingsCard(title:"AI mode") {
             Toggle("Type along with coding agents",isOn:Binding(get:{app.settings.aiMode ?? false},set:{app.settings.aiMode = $0}))
+            ForEach(AIHook.Agent.allCases,id:\.self) { agent in
+                let command = app.aiHookCommands[agent], current = AIHook.runs(command,AIHook.script?.path)
+                HStack {
+                    VStack(alignment:.leading,spacing:2) {
+                        Text("\(agent.rawValue) hook")
+                        Text(command == nil ? "Not installed." : current ? "Installed. \(agent.rawValue) sends Board each file it writes or edits." : "Installed for another copy of Board. Install to use this one.").font(.caption).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    if command != nil { Button("Remove") { app.removeAIHook(agent) } }
+                    if !current { Button("Install") { app.installAIHook(agent) }.disabled(AIHook.script == nil) }
+                }
+            }.onAppear { app.refreshAIHooks() }
             VStack(spacing:6) {
                 let speed = Binding(get:{app.settings.aiSpeed ?? 0.35},set:{app.settings.aiSpeed = $0})
                 HStack { Text("Typing speed"); Spacer(); Text("\(Int((1/AITyping.gap(speed.wrappedValue)).rounded())) keys a second").monospacedDigit().foregroundStyle(.secondary) }
@@ -292,7 +304,7 @@ struct ExtrasSettings: View {
                 if app.settings.aiFolder != nil { Button("Use Board's Code") { app.settings.aiFolder = nil } }
             }
             Text(app.aiStatus).font(.caption).foregroundStyle(.secondary)
-            Text("Plays key sounds and the visualizer only; Board never types into your apps. Claude Code's hook (Scripts/board-ai-hook) sends each edit it writes, capped at about ten seconds of typing and finished with ⌘S. While an agent works in Rex, Board codes along from real source files. Code stays on this Mac and isn't saved.").font(.caption).foregroundStyle(.secondary)
+            Text("Plays key sounds and the visualizer only; Board never types into your apps. With a hook installed, Board types the code your agent writes, up to about ten seconds per edit, finished with ⌘S. Without one, or between edits while an agent works in Rex, Board codes along from real source files, which isn't what the agent is writing. Install adds one entry to ~/.claude/settings.json or ~/.codex/hooks.json and keeps the previous file next to it as .bak-board; Codex asks you to review a new hook before it runs it. Code stays on this Mac and isn't saved.").font(.caption).foregroundStyle(.secondary)
         }
     }
 }

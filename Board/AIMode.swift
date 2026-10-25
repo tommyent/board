@@ -66,6 +66,75 @@ enum AITyping {
     }
 }
 
+/// Board's hook in a coding agent's user settings: a PostToolUse entry for Write|Edit running the board-ai-hook script bundled
+/// in Board.app (Codex matches its apply_patch edits to Write|Edit). Only that entry is ever added or removed.
+enum AIHook {
+    enum Agent: String, CaseIterable { case claude = "Claude Code", codex = "Codex" }
+    struct Problem: LocalizedError { var message: String; var errorDescription: String? { message } }
+    static let name = "board-ai-hook"
+    static var script: URL? { Bundle.main.url(forResource:name,withExtension:nil) }
+    static func settingsURL(_ agent: Agent) -> URL {
+        FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(agent == .claude ? ".claude/settings.json" : ".codex/hooks.json")
+    }
+    /// Claude Code runs exec form (args) with no shell; Codex runs the command through a shell, so the path is quoted there.
+    static func entry(_ script: String, for agent: Agent) -> [String:Any] {
+        let hook: [String:Any] = agent == .claude ? ["type":"command","command":script,"args":[String](),"async":true]
+                                                  : ["type":"command","command":quoted(script),"async":true,"timeout":10]
+        return ["matcher":"Write|Edit","hooks":[hook]]
+    }
+    static func quoted(_ path: String) -> String { "'" + path.replacingOccurrences(of:"'",with:"'\\''") + "'" }
+    /// Whether an installed command runs this copy's script.
+    static func runs(_ command: String?, _ script: String?) -> Bool { command != nil && script != nil && (command == script || command == quoted(script!)) }
+    private static func isBoards(_ hook: Any) -> Bool { ((hook as? [String:Any])?["command"] as? String)?.contains("/"+name) == true }
+    /// PostToolUse entries, refusing shapes Board doesn't recognise rather than overwriting them.
+    private static func entries(_ settings: [String:Any]) throws -> ([String:Any],[[String:Any]]) {
+        let unrecognised = Problem(message:"Its hooks setting has a shape Board doesn't recognise, so Board left the file alone.")
+        var hooks: [String:Any] = [:]
+        if let value = settings["hooks"] { guard let found = value as? [String:Any] else { throw unrecognised }; hooks = found }
+        guard let value = hooks["PostToolUse"] else { return (hooks,[]) }
+        guard let post = value as? [[String:Any]] else { throw unrecognised }
+        return (hooks,post)
+    }
+    /// The command of Board's installed hook, if there is one.
+    static func installed(in settings: [String:Any]) -> String? {
+        let post = (try? entries(settings))?.1 ?? []
+        return post.flatMap { ($0["hooks"] as? [Any]) ?? [] }.first(where:isBoards).flatMap { ($0 as? [String:Any])?["command"] as? String }
+    }
+    static func removing(from settings: [String:Any]) throws -> [String:Any] {
+        var (hooks,post) = try entries(settings), settings = settings
+        post = post.compactMap { entry in
+            guard let list = entry["hooks"] as? [Any], list.contains(where:isBoards) else { return entry }
+            let rest = list.filter { !isBoards($0) }   // keep anyone else's hook that shares the entry
+            if rest.isEmpty { return nil }
+            var entry = entry; entry["hooks"] = rest; return entry
+        }
+        hooks["PostToolUse"] = post.isEmpty ? nil : post
+        settings["hooks"] = hooks.isEmpty ? nil : hooks
+        return settings
+    }
+    static func installing(_ script: String, for agent: Agent, into settings: [String:Any]) throws -> [String:Any] {
+        var settings = try removing(from:settings), (hooks,post) = try entries(settings)
+        post.append(entry(script,for:agent))
+        hooks["PostToolUse"] = post; settings["hooks"] = hooks
+        return settings
+    }
+    static func read(_ url: URL) throws -> [String:Any] {
+        guard FileManager.default.fileExists(atPath:url.path) else { return [:] }
+        guard let settings = try JSONSerialization.jsonObject(with:Data(contentsOf:url)) as? [String:Any] else { throw Problem(message:"It isn't a JSON object, so Board left it alone.") }
+        return settings
+    }
+    /// Rewrites the file with `change` applied, keeping the previous version as <name>.bak-board and the file's permissions.
+    static func update(_ url: URL, _ change: ([String:Any]) throws -> [String:Any]) throws {
+        let manager = FileManager.default, existing = manager.fileExists(atPath:url.path)
+        let updated = try JSONSerialization.data(withJSONObject:change(read(url)),options:[.prettyPrinted,.sortedKeys,.withoutEscapingSlashes])
+        let permissions = (try? manager.attributesOfItem(atPath:url.path))?[.posixPermissions] as? NSNumber ?? 0o600
+        if existing { try Data(contentsOf:url).write(to:url.appendingPathExtension("bak-board"),options:.atomic) }
+        else { try manager.createDirectory(at:url.deletingLastPathComponent(),withIntermediateDirectories:true) }
+        try updated.write(to:url,options:.atomic)
+        try manager.setAttributes([.posixPermissions:permissions],ofItemAtPath:url.path)
+    }
+}
+
 /// Edits waiting to be typed, oldest first. Only the newest few are kept so a burst of edits can't build a long backlog.
 struct AIQueue {
     private(set) var items: [String] = []
@@ -160,7 +229,7 @@ struct AIQueue {
     private func play(_ plan: [AIStroke], edit: Bool) {
         guard !plan.isEmpty else { next(); return }
         strokes = plan; index = 0; playing = true; typingEdit = edit; paused = false
-        onStatus?(edit ? "Typing an edit from Claude Code" : "Coding along while an agent works")
+        onStatus?(edit ? "Typing an edit from Claude Code" : "Coding along from source files while an agent works")
         schedule(plan[0].delay)
     }
     private func schedule(_ delay: TimeInterval) {
@@ -172,7 +241,7 @@ struct AIQueue {
             if !paused { paused = true; releaseHeld(); onStatus?("Paused while Board's sounds are paused") }
             schedule(0.5); return
         }
-        if paused { paused = false; onStatus?(typingEdit ? "Typing an edit from Claude Code" : "Coding along while an agent works") }
+        if paused { paused = false; onStatus?(typingEdit ? "Typing an edit from Claude Code" : "Coding along from source files while an agent works") }
         let stroke = strokes[index]; index += 1
         if stroke.down { held.insert(stroke.key) } else { held.remove(stroke.key) }
         emit(stroke.key,down:stroke.down,modifiers:stroke.modifiers)

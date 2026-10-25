@@ -57,22 +57,12 @@ The default profile is **Durock Alpaca**. Mouse and Enter sounds support None, t
 
 For vibe coders who aren't doing any typing themselves: turn on **Settings › Extras › AI mode** and Board plays the keys for the code your AI writes. It only plays key sounds and drives the visualizer. It never posts key events, so nothing is typed into your apps, and `Scripts/build.sh` fails if the app ever links an event-posting API.
 
-- **Real code from Claude Code.** `Scripts/board-ai-hook` is a `PostToolUse` hook for `Write|Edit`. When Board is running with AI mode on, the hook puts the new text, capped at 4 KB, in `~/Library/Application Support/Board/AI Queue/`. Board reads each file once and deletes it, then types up to about ten seconds of the text at the chosen speed and finishes with ⌘S. When Board isn't running or AI mode is off, the hook exits at once. Edits queue one after another, and only the newest three wait.
+- **Real code from Claude Code and Codex.** `Scripts/board-ai-hook`, bundled in the app, is a `PostToolUse` hook for `Write|Edit`. It takes Claude Code's new text, or the added lines of a Codex patch. When Board is running with AI mode on, the hook puts that text, capped at 4 KB, in `~/Library/Application Support/Board/AI Queue/`. Board reads each file once and deletes it, then types up to about ten seconds of the text at the chosen speed and finishes with ⌘S. When Board isn't running or AI mode is off, the hook exits at once. Edits queue one after another, and only the newest three wait.
 - **Joke mode.** While AI mode is on and a coding agent is working in Rex, Board codes along from real source files, with the odd typo. It uses a folder you choose, or Board's own sources by default. Board asks Rex with `--autostart=false`, so it never starts Rex; without Rex, no agent counts as working. Hook edits take priority over joke typing.
 - **Speed:** from Human (about 9 keys a second) to Machine gun (about 36), with bursts inside words and pauses at spaces, punctuation and line ends.
 - AI mode pauses whenever Board's sounds do: Board off, muted, Secure Input, or a locked or sleeping session.
 
-To connect Claude Code, add this to `~/.claude/settings.json`. If `PostToolUse` already exists there, add the inner object to its array.
-
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      { "matcher": "Write|Edit", "hooks": [{ "type": "command", "command": "/path/to/board/Scripts/board-ai-hook", "async": true }] }
-    ]
-  }
-}
-```
+To connect your agents, use the **Claude Code hook** and **Codex hook** rows in the AI mode card. **Install** adds one `PostToolUse` entry for `Write|Edit` that runs the hook bundled at `Board.app/Contents/Resources/board-ai-hook` in the background. For Claude Code it goes in `~/.claude/settings.json`; for Codex it goes in `~/.codex/hooks.json`, where Codex matches its `apply_patch` edits to `Write|Edit`. Board leaves every other setting as it was and keeps the previous file next to it as `.bak-board`. **Remove** takes out only Board's entry. If a file isn't valid JSON, or its hooks have a shape Board doesn't recognise, Board leaves it alone and says so. Codex asks you to review a new hook before it runs it. Without a hook, AI mode can only code along from source files, which isn't what your agent is writing.
 
 Code text stays on this Mac: the hook and Board never log it or send it anywhere.
 

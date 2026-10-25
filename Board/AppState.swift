@@ -21,6 +21,7 @@ import UniformTypeIdentifiers
     @Published var recordingShortcut = false
     @Published var loginStatus = ""
     @Published var aiStatus = "Off"
+    @Published var aiHookCommands: [AIHook.Agent:String] = [:]   // Board's hook command in each agent's settings, if installed
     let monitor = InputMonitor()
     let audio: KeyboardAudio
     let ai = AIMode()
@@ -164,6 +165,20 @@ import UniformTypeIdentifiers
                 }
             } catch { DispatchQueue.main.async { self.error = error.localizedDescription } }
         }
+    }
+    func refreshAIHooks() {
+        aiHookCommands = Dictionary(uniqueKeysWithValues:AIHook.Agent.allCases.compactMap { agent in (try? AIHook.read(AIHook.settingsURL(agent))).flatMap(AIHook.installed).map { (agent,$0) } })
+    }
+    func installAIHook(_ agent: AIHook.Agent) {
+        guard let script = AIHook.script?.path else { error = "This copy of Board doesn't include the hook."; return }
+        do { try AIHook.update(AIHook.settingsURL(agent)) { try AIHook.installing(script,for:agent,into:$0) } }
+        catch { self.error = "Couldn't install the \(agent.rawValue) hook in \(AIHook.settingsURL(agent).path): \(error.localizedDescription)" }
+        refreshAIHooks()
+    }
+    func removeAIHook(_ agent: AIHook.Agent) {
+        do { try AIHook.update(AIHook.settingsURL(agent)) { try AIHook.removing(from:$0) } }
+        catch { self.error = "Couldn't remove the \(agent.rawValue) hook from \(AIHook.settingsURL(agent).path): \(error.localizedDescription)" }
+        refreshAIHooks()
     }
     func chooseAIFolder() {
         let panel = NSOpenPanel(); panel.title = "Choose a folder of code to type along from"; panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = false
