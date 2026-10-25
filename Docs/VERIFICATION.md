@@ -34,7 +34,7 @@ Run `bash Scripts/test.sh`. Full result bundle: `build/DerivedData/Logs/Test/` (
 
 Build and bundle evidence: `Docs/build-results.txt`. The final packaged executable is arm64; all 121 shipped source clips and other manifest-listed bundle resources passed SHA-256 comparison.
 
-The delivered `.app` is ad-hoc signed. `codesign --verify --deep --strict` reports **valid on disk** and **satisfies its Designated Requirement**. It is a local build, not a notarized distribution package.
+Signing, updated 2026-10-24: `Scripts/build.sh` signs `dist/Board.app` with the keychain's Developer ID Application identity, hardened runtime and a secure timestamp. When it has to fall back to the local `NotAHotDog Signing` identity or an ad-hoc signature, it prints a warning. A 2026-10-24 check found the installed 0.3.0 app Developer ID-signed with a timestamp but not notarized. `bash Scripts/build.sh --notarize` adds notarization, stapling and the Gatekeeper check (see the README); it has not been run against Apple yet. The 2026-09-10 package was ad-hoc signed; `codesign --verify --deep --strict` reported it **valid on disk** and **satisfies its Designated Requirement**.
 
 ## Live checks performed
 

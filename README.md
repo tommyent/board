@@ -6,7 +6,7 @@ A native, offline macOS app that plays mechanical keyboard and typewriter sounds
 
 ## Build and run
 
-Open `Board.xcodeproj`, select the **Board** scheme and **My Mac**, then Run. The project has one app target and one XCTest target, uses only Apple frameworks, and signs locally with an ad-hoc signature.
+Open `Board.xcodeproj`, select the **Board** scheme and **My Mac**, then Run. The project has one app target and one XCTest target and uses only Apple frameworks. Xcode's own builds are ad-hoc signed.
 
 From this checkout:
 
@@ -15,6 +15,24 @@ bash Scripts/build.sh
 ```
 
 The packaged app is `dist/Board.app`. Build output and previous packages stay inside `build/`. Nothing installs into `/Applications`, registers login items, grants permissions, or changes developer settings during the build.
+
+`Scripts/build.sh` signs the package with the keychain's **Developer ID Application** identity, hardened runtime and a secure timestamp. If there is none, it falls back to the local `NotAHotDog Signing` identity, then to an ad-hoc signature, and prints a warning: such a build runs only on this Mac. To choose an identity, set `BOARD_CODESIGN_IDENTITY` to its SHA-1 hash or full name.
+
+### Notarize for other Macs
+
+```sh
+bash Scripts/build.sh --notarize
+```
+
+This requires the Developer ID identity. It uploads a ZIP of `dist/Board.app` to Apple's notary service and waits up to an hour. If Apple rejects it, the script prints Apple's log and stops. If Apple accepts it, the script staples the ticket to `dist/Board.app` and checks the result with `stapler validate` and `spctl -a -vvv -t exec`. Builds without `--notarize` never contact Apple.
+
+One-time setup: store notarytool credentials in the keychain under the profile name `board-notary` (or set `BOARD_NOTARY_PROFILE` to another name):
+
+```sh
+xcrun notarytool store-credentials board-notary --apple-id <your Apple ID email> --team-id <TEAM_ID>
+```
+
+`<TEAM_ID>` is the ten characters in parentheses after the Developer ID Application name in `security find-identity -v -p codesigning`. notarytool then asks for an app-specific password; Apple explains how to create one in [Sign in to apps with your Apple Account using app-specific passwords](https://support.apple.com/en-us/102654). By default, notarytool checks the credentials with Apple before saving them.
 
 For a stable permission identity, keep the final `.app` at a stable location. Launch it, choose **Request Input Monitoring**, and enable Board in macOS System Settings if you want system-wide sounds. macOS offers the request prompt only once; after that the button opens the Input Monitoring settings instead. After turning Board on, choose **Quit & Reopen** when macOS asks. Local previews work without permission.
 
@@ -42,7 +60,7 @@ bash Scripts/test.sh
 
 Tests cover input transitions and shortcuts, keyboard geometry, sample selection/held-release association, versioned settings, import validation, visualizer timing, and offline stereo/limiter output. Results, measured idle CPU, remaining hardware checks, and known limitations are in [Docs/VERIFICATION.md](Docs/VERIFICATION.md).
 
-Settings use `UserDefaults` under `com.tommyent.Board`; imports are copied to `~/Library/Application Support/Board/Imported Audio/`. No key-event history is persisted. No application code creates a network connection. The build is a local personal app, not notarized distribution.
+Settings use `UserDefaults` under `com.tommyent.Board`; imports are copied to `~/Library/Application Support/Board/Imported Audio/`. No key-event history is persisted. No application code creates a network connection. Only `bash Scripts/build.sh --notarize` uploads anything, and only the built app, to Apple's notary service.
 
 ## Assets and provenance
 
