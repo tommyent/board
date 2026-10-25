@@ -144,13 +144,22 @@ struct SoundConfiguration: Codable, Equatable {
     var headTracking = false
     var orbit = false
     var overrides: [Int: KeyOverride] = [:]
-    mutating func validateProfiles() {
+    // Applied to the active sound and to every saved preset, since selecting a preset copies it straight into the active sound.
+    mutating func validate() {
         if SoundProfile.find(profile) == nil { profile = "alpaca" }
+        volume = clamp(volume,0...1); mouseVolume = clamp(mouseVolume,0...1); enterVolume = clamp(enterVolume,0...1)
+        tone = clamp(tone,-1...1); pitch = clamp(pitch,-12...12)
+        homeSoftness = clamp(homeSoftness,0...1); width = clamp(width,0...2)
         for (key,var value) in overrides {
-            if let id = value.profile, SoundProfile.find(id) == nil { value.profile = nil; overrides[key] = value }
+            if let id = value.profile, SoundProfile.find(id) == nil { value.profile = nil }
+            if let x = value.volume { value.volume = clamp(x,0...1) }
+            if let x = value.tone { value.tone = clamp(x,-1...1) }
+            if let x = value.pitch { value.pitch = clamp(x,-12...12) }
+            overrides[key] = value
         }
     }
 }
+private func clamp(_ x: Double, _ range: ClosedRange<Double>, fallback: Double = 0) -> Double { x.isFinite ? min(range.upperBound,max(range.lowerBound,x)) : fallback }
 struct SoundPreset: Identifiable, Codable, Equatable {
     var id = UUID()
     var name: String
@@ -197,24 +206,14 @@ struct AppSettings: Codable, Equatable {
     static let iconColors = ["Porcelain","Sage","Blue","Lilac","Graphite"]
     mutating func validate() {
         if let color = iconColor, color == "Porcelain" || !Self.iconColors.contains(color) { iconColor = nil }
-        sound.validateProfiles()
-        for index in presets.indices { presets[index].sound.validateProfiles() }
-        func clamp(_ x: Double, _ range: ClosedRange<Double>, fallback: Double = 0) -> Double { x.isFinite ? min(range.upperBound,max(range.lowerBound,x)) : fallback }
-        sound.volume = clamp(sound.volume,0...1); sound.mouseVolume = clamp(sound.mouseVolume,0...1); sound.enterVolume = clamp(sound.enterVolume,0...1)
-        sound.tone = clamp(sound.tone,-1...1); sound.pitch = clamp(sound.pitch,-12...12)
-        sound.homeSoftness = clamp(sound.homeSoftness,0...1); sound.width = clamp(sound.width,0...2)
+        sound.validate()
+        for index in presets.indices { presets[index].sound.validate() }
         visualizer.scale = clamp(visualizer.scale,0.5...2,fallback:1)
         visualizer.dismiss = clamp(visualizer.dismiss,0.3...5,fallback:1)
         visualizer.comboReset = clamp(visualizer.comboReset,0.3...10,fallback:2)
         visualizer.offset = clamp(visualizer.offset,0...200)
         visualizer.shuffleEvery = min(100,max(1,visualizer.shuffleEvery))
         gestureTaps = min(5,max(1,gestureTaps)); presets = Array(presets.prefix(6))
-        for (key, var override) in sound.overrides {
-            if let value = override.volume { override.volume = clamp(value,0...1) }
-            if let value = override.tone { override.tone = clamp(value,-1...1) }
-            if let value = override.pitch { override.pitch = clamp(value,-12...12) }
-            sound.overrides[key] = override
-        }
     }
 }
 

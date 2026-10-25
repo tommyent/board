@@ -68,6 +68,19 @@ final class BoardTests: XCTestCase {
         XCTAssertNil(settings.presets[0].sound.overrides[0]?.profile)
         XCTAssertThrowsError(try AudioFiles.managedURL("../../secret.wav",root:URL(fileURLWithPath:"/tmp")))
     }
+    @MainActor func testInvalidSavedPresetIsClampedOnLoad() throws {
+        // An older or hand-edited preference: choosing this favorite must not bring back out-of-range values.
+        var broken = SoundConfiguration(); broken.volume = 40; broken.pitch = -99; broken.tone = 3; broken.width = 9
+        broken.overrides[0] = KeyOverride(tone:3,pitch:50,volume:-2)
+        var saved = AppSettings(); saved.presets = [SoundPreset(name:"Broken",sound:broken)]
+        let suite = "com.tommyent.Board.tests.\(UUID().uuidString)", defaults = try XCTUnwrap(UserDefaults(suiteName:suite))
+        defer { defaults.removePersistentDomain(forName:suite) }
+        defaults.set(try JSONEncoder().encode(saved),forKey:"appSettings.v1")
+        let app = AppState(defaults:defaults)
+        app.settings.sound = app.settings.presets[0].sound // what choosing the favorite does
+        XCTAssertEqual(app.settings.sound.volume,1); XCTAssertEqual(app.settings.sound.pitch,-12); XCTAssertEqual(app.settings.sound.tone,1); XCTAssertEqual(app.settings.sound.width,2)
+        XCTAssertEqual(app.settings.sound.overrides[0],KeyOverride(tone:1,pitch:12,volume:0))
+    }
     func testAppIconColors() throws {
         var settings = AppSettings(); settings.iconColor = "Sage"
         var json = try XCTUnwrap(JSONSerialization.jsonObject(with:JSONEncoder().encode(settings)) as? [String:Any])
