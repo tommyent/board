@@ -1,0 +1,2 @@
+# Reference files are hashed in Docs/imported-assets.json; store them byte-for-byte.
+Docs/References/** -text
