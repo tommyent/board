@@ -10,6 +10,7 @@ Settings › Extras › AI mode now explains AI mode as a sound cue for your age
 
 - `bash Scripts/test.sh` on this MacBook Air (macOS 27.2, Xcode 27.2 27B52), app-hosted: **16 tests, 0 failures**. New: `testAIModeSaysWhenItNeedsRex`. A stand-in `rex` that exits 4 gives a nil snapshot, and one that lists no sessions gives an empty one. The status line follows Rex's reachability.
 - `bash Scripts/build.sh`: succeeded. `dist/Board.app` is 0.4.3 (7), Developer ID-signed with a timestamp, `codesign --verify --deep --strict` valid, with no posting APIs. The binary contains the full Settings text and both status lines.
+- Installed on this MacBook Air at 17:20. 0.4.2 was backed up, quit through Vitals with the owner's OK, and replaced: old bundle trashed, then copied with `ditto`. `/Applications/Board.app` is 0.4.3 (7); its binary is byte-identical to `dist/` and contains the full Settings text and the "Needs Rex" line. It runs from `/Applications/Board.app/Contents/MacOS/Board` as the only Board process, with its `rex --autostart=false events` stream as a child. tccd allowed its Input Monitoring preflight (`authValue=2`). No crash report. The text was read from the binary, not the screen.
 
 ## Board 0.4.2 (build 6) — AI mode without agent hooks, 2026-11-01
 
