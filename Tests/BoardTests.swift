@@ -244,6 +244,29 @@ final class BoardTests: XCTestCase {
         XCTAssertEqual(presses,stopped) // nothing typed after AI mode is off
         XCTAssertEqual(statuses.last,"Off")
     }
+    @MainActor func testAIModeSaysWhenItNeedsRex() throws {
+        // A stand-in rex: the real one exits 4 when no server runs and --autostart=false; a running Rex lists its sessions.
+        let temp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at:temp,withIntermediateDirectories:true)
+        defer { try? FileManager.default.removeItem(at:temp) }
+        func rex(_ body: String) throws -> URL {
+            let url = temp.appendingPathComponent(UUID().uuidString)
+            try Data("#!/bin/sh\n\(body)\n".utf8).write(to:url)
+            try FileManager.default.setAttributes([.posixPermissions:0o755],ofItemAtPath:url.path)
+            return url
+        }
+        XCTAssertNil(AgentWatch.snapshot(try rex("exit 4")))
+        XCTAssertEqual(AgentWatch.snapshot(try rex("echo '{\"sessions\":[]}'")),[])
+        // The status line tells "no agent working" from "can't see agents".
+        let ai = AIMode(watchAgents:false)
+        var statuses: [String] = []
+        ai.onStatus = { statuses.append($0) }
+        ai.configure(enabled:true,speed:0.35,folder:nil)
+        ai.agents.rexReachable = false
+        ai.agents.rexReachable = true
+        ai.stop()
+        XCTAssertEqual(statuses,["Waiting for a coding agent to work in Rex","Needs Rex to see when your agents are working","Waiting for a coding agent to work in Rex","Off"])
+    }
     func testAIModeCannotPostEvents() throws {
         // AI mode only feeds Board's own pipeline. The image holding its code (the app, Debug's Board.debug.dylib, or a
         // logic-test bundle) must import no API that posts events into other apps.

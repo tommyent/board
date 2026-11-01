@@ -47,7 +47,7 @@ Choose **Sound → Switch → Classic · Typewriter** to use the new sound. The 
 - 32 preloaded playback voices, authentic down/up samples, native spatial output, limiter, offline tone preparation, gain/pitch variation and home-row softness.
 - Per-key overrides, six favorites, validated native audio imports, device UID preferences, output-kind override, optional motion tracking and an eight-second orbit mode.
 - Keyboard, keystroke pills, combo and bezel visualizers; ANSI/ISO/JIS layouts, position/scale/theme/timing controls, six pins and random placement.
-- AI mode: while a coding agent works in Rex, Board codes along from real source files, with sounds and the visualizer only. See [AI mode](#ai-mode).
+- AI mode: a sound cue for your coding agents. While one works, Board types along, with sounds and the visualizer only; Rex tells Board when an agent is working. See [AI mode](#ai-mode).
 - Five app icon colors from the Board Keycap brand package: Porcelain (the bundled icon), Sage, Blue, Lilac and Graphite. Settings › General › App icon changes Board's Dock icon while it runs; Finder and Launchpad keep Porcelain. The visualizer's key highlights follow the chosen color: the brand's strong accent in light mode, the pale finish in dark mode. Settings uses the standard macOS sidebar, forms and controls, in your system accent color.
 - App icons and menu bar glyph from the Board Keycap brand package, theme previews, source/license manifests and a recording guide.
 
@@ -55,9 +55,10 @@ The default profile is **Durock Alpaca**. Mouse and Enter sounds support None, t
 
 ## AI mode
 
-For vibe coders who aren't doing any typing themselves: turn on **Settings › Extras › AI mode**, and Board plays the keys while your coding agent works. It only plays key sounds and drives the visualizer. It never posts key events, so nothing is typed into your apps, and `Scripts/build.sh` fails if the app ever links an event-posting API.
+AI mode is a sound cue for your coding agents. Turn on **Settings › Extras › AI mode**, and while a coding agent works, Board types along, so you can hear when it's busy and when it stops. It only plays key sounds and drives the visualizer. It never posts key events, so nothing is typed into your apps, and `Scripts/build.sh` fails if the app ever links an event-posting API.
 
-- **What it plays.** While a coding agent is working in Rex, Board codes along from real source files, with the odd typo. It uses a folder you choose, or Board's own sources by default. It starts when Rex reports an agent working and stops when none is. Board asks Rex with `--autostart=false`, so it never starts Rex; without Rex, no agent counts as working and AI mode stays quiet.
+- **Rex provides the agent status.** Board learns whether an agent is working from Rex, the terminal your agents run in: it asks Rex which panes have Claude Code, Codex, Antigravity or Grok working, then follows Rex's events. Board asks with `--autostart=false`, so it never starts Rex. Without Rex, or when Board can't reach it, AI mode waits, and its status line says **Needs Rex to see when your agents are working**. If Rex is installed but not running, Board tries again every 30 seconds; if it isn't installed, Board looks again when AI mode is turned back on or Board restarts.
+- **What it types:** real source files from a folder you choose, or Board's own sources by default, with the odd typo, in bursts of up to about ten seconds. A burst finishes even if the agent stops partway through it.
 - **Speed:** from Human (about 9 keys a second) to Machine gun (about 36), with bursts inside words and pauses at spaces, punctuation and line ends.
 - AI mode pauses whenever Board's sounds do: Board off, muted, Secure Input, or a locked or sleeping session.
 

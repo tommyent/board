@@ -101,8 +101,10 @@ enum AITyping {
         if agents.working, let chunk = jokeChunk() {
             var plan = AITyping.plan(chunk,speed:speed,typos:true)
             if !plan.isEmpty { plan[0].delay += Double.random(in:1...3); play(plan) }
+        } else if agents.working {
+            onStatus?("An agent is working, but there's no source to code along from")
         } else {
-            onStatus?(agents.working ? "An agent is working, but there's no source to code along from" : "Waiting for a coding agent to work in Rex")
+            onStatus?(agents.rexReachable ? "Waiting for a coding agent to work in Rex" : "Needs Rex to see when your agents are working")
         }
     }
     private func play(_ plan: [AIStroke]) {
@@ -161,7 +163,10 @@ enum AITyping {
 /// `defaults write com.tommyent.Board simulateWorkingAgent -bool YES` stands in for a working agent when testing without Rex.
 @MainActor final class AgentWatch {
     var onChange: (() -> Void)?
-    var working = false { didSet { if working != oldValue { onChange?() } } }   // set only here, and by tests with watchAgents: false
+    // Both are set only here, and by tests with watchAgents: false.
+    var working = false { didSet { if working != oldValue { onChange?() } } }
+    /// False while Rex isn't installed, doesn't answer, or its event stream has ended (until the next try, 30 s later).
+    var rexReachable = true { didSet { if rexReachable != oldValue { onChange?() } } }
     private var blocks = Set<String>()
     private var stream: Process?
     private var generation = 0
@@ -169,14 +174,15 @@ enum AITyping {
     func start() {
         stop()
         if UserDefaults.standard.bool(forKey:"simulateWorkingAgent") { working = true; return }
-        guard let rex = Self.executable() else { return }
+        guard let rex = Self.executable() else { rexReachable = false; return }
         generation += 1
         let mine = generation
         Task.detached(priority:.utility) {
             let found = Self.snapshot(rex)
             await MainActor.run {
                 guard self.generation == mine else { return }
-                self.blocks = found; self.working = !found.isEmpty
+                self.rexReachable = found != nil
+                self.blocks = found ?? []; self.working = !self.blocks.isEmpty
                 self.follow(rex)
             }
         }
@@ -197,7 +203,7 @@ enum AITyping {
                 }
             } catch {}
             // The stream ended (Rex quit or isn't running): nothing is working; look again in 30 s.
-            await MainActor.run { guard generation == mine else { return }; blocks = []; working = false }
+            await MainActor.run { guard generation == mine else { return }; blocks = []; working = false; rexReachable = false }
             try? await Task.sleep(nanoseconds:30_000_000_000)
             await MainActor.run { guard generation == mine else { return }; start() }
         }
@@ -207,10 +213,11 @@ enum AITyping {
          home.appendingPathComponent("Library/Application Support/com.superlogical.rex/RexServer/Versions/Current/Rex Server.app/Contents/MacOS/rex")]
             .first { FileManager.default.isExecutableFile(atPath:$0.path) }
     }
-    /// Terminal panes whose agent reports "working" right now. Empty when Rex isn't running.
-    nonisolated static func snapshot(_ rex: URL) -> Set<String> {
+    /// Terminal panes whose agent reports "working" right now; nil when Rex doesn't answer (with --autostart=false, `rex`
+    /// exits non-zero when no server is running).
+    nonisolated static func snapshot(_ rex: URL) -> Set<String>? {
         guard let list = run(rex,["api","call","session.list"]),
-              let sessions = (try? JSONSerialization.jsonObject(with:list) as? [String:Any])?["sessions"] as? [[String:Any]] else { return [] }
+              let sessions = (try? JSONSerialization.jsonObject(with:list) as? [String:Any])?["sessions"] as? [[String:Any]] else { return nil }
         var found = Set<String>()
         for session in sessions.compactMap({ $0["session_id"] as? String }) {
             guard let ls = run(rex,["block","ls","-s",session,"--json"]),

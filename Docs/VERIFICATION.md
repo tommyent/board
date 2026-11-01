@@ -4,6 +4,13 @@ Date: **2026-09-10**. Host: Apple Silicon MacBook Air, Xcode 27.0 (27A5252f), Sw
 
 **Current scope: 11 bundled sound profiles.** The user removed unavailable sounds and recording dependencies from the requested app. Hardware, permission, and performance verification remains limited as detailed below; earlier catalog counts describe historical builds.
 
+## Board 0.4.3 (build 7) — AI mode as a sound cue, 2026-11-01
+
+Settings › Extras › AI mode now explains AI mode as a sound cue for your agents, with Rex as the source of the agent status. The status line says **Needs Rex to see when your agents are working** when Rex isn't installed, doesn't answer, or its event stream has ended. It keeps "Waiting for a coding agent to work in Rex" for when Rex answers and no agent is working. `AgentWatch.snapshot` now returns nil when `rex api call session.list` fails, instead of an empty set. With `--autostart=false` and no server, the real `rex` prints "no Rex server is running at …, and autostart is disabled" and exits 4 (checked against a socket path with no server behind it).
+
+- `bash Scripts/test.sh` on this MacBook Air (macOS 27.2, Xcode 27.2 27B52), app-hosted: **16 tests, 0 failures**. New: `testAIModeSaysWhenItNeedsRex`. A stand-in `rex` that exits 4 gives a nil snapshot, and one that lists no sessions gives an empty one. The status line follows Rex's reachability.
+- `bash Scripts/build.sh`: succeeded. `dist/Board.app` is 0.4.3 (7), Developer ID-signed with a timestamp, `codesign --verify --deep --strict` valid, with no posting APIs. The binary contains the full Settings text and both status lines.
+
 ## Board 0.4.2 (build 6) — AI mode without agent hooks, 2026-11-01
 
 AI mode now does one thing: while Rex reports a coding agent working, Board codes along from real source files (a chosen folder, or Board's own sources), at the chosen speed and with the odd typo. It isn't the code the agent is writing. The Claude Code and Codex hooks of 0.4.1 are gone: the hook script and its copy in the app, the Install/Remove rows, the folder reader and its `listening` marker, `Scripts/test-ai-hook.sh` and its fixtures, the ⌘S that ended a typed edit, and three tests (queue, queued edit, hook installer). The hooks only got an edit after it was written, so they couldn't follow the agent's pace. When it starts, Board 0.4.2 deletes the folder 0.4.1 used for them, `~/Library/Application Support/Board/AI Queue/`, and nothing else. The no-event-posting guarantee, its test and the `Scripts/build.sh` check are unchanged.

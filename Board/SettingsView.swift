@@ -292,7 +292,7 @@ struct ExtrasSettings: View {
                 if app.settings.aiFolder != nil { Button("Use Board's Code") { app.settings.aiFolder = nil } }
             }
             Text(app.aiStatus).font(.caption).foregroundStyle(.secondary)
-            Text("Plays key sounds and the visualizer only; Board never types into your apps. While a coding agent works in Rex, Board codes along from real source files, with the odd typo. It isn't the code the agent is writing. Code stays on this Mac and isn't saved.").font(.caption).foregroundStyle(.secondary)
+            Text("Board only plays key sounds and the visualizer; it never types into your apps. It's a sound cue for your agents: while a coding agent works, Board types along, so you can hear when it's busy and when it stops. Board learns whether an agent is working from Rex, the terminal your agents run in; without Rex, it waits. The typing comes from real source files in the folder you choose, with the odd typo; it isn't the code the agent is writing. Code stays on this Mac and isn't saved.").font(.caption).foregroundStyle(.secondary)
         }
     }
 }
