@@ -4,6 +4,13 @@ Date: **2026-09-10**. Host: Apple Silicon MacBook Air, Xcode 27.0 (27A5252f), Sw
 
 **Current scope: 11 bundled sound profiles.** The user removed unavailable sounds and recording dependencies from the requested app. Hardware, permission, and performance verification remains limited as detailed below; earlier catalog counts describe historical builds.
 
+## Board 0.4.4 (build 8) — the cue stops when the agent stops, 2026-11-01
+
+When Rex reports that the agent stopped, AI mode now drops the rest of the current burst at once. It releases every held key through the same path as physical keys, so nothing stays down in the sound engine or the visualizer. Before, the burst played out for up to about ten more seconds.
+
+- New `testJokeTypingStopsTheMomentTheAgentStops`. It cuts in while a key is down, delivered on the main queue as `AgentWatch` delivers it. It checks four things: a key was down at the cut, every pressed key was released at once, nothing more is typed in the next 0.5 s, and the status returns to waiting. Against 0.4.3's code it failed: 3 → 6 presses, and the status still said "Coding along". With the fix, `bash Scripts/test.sh` passes **17 tests, 0 failures** (macOS 27.2, Xcode 27.2 27B52).
+- `bash Scripts/build.sh`: succeeded. `dist/Board.app` is 0.4.4 (8), Developer ID-signed with a timestamp, `codesign --verify --deep --strict` valid, with no posting APIs.
+
 ## Board 0.4.3 (build 7) — AI mode as a sound cue, 2026-11-01
 
 Settings › Extras › AI mode now explains AI mode as a sound cue for your agents, with Rex as the source of the agent status. The status line says **Needs Rex to see when your agents are working** when Rex isn't installed, doesn't answer, or its event stream has ended. It keeps "Waiting for a coding agent to work in Rex" for when Rex answers and no agent is working. `AgentWatch.snapshot` now returns nil when `rex api call session.list` fails, instead of an empty set. With `--autostart=false` and no server, the real `rex` prints "no Rex server is running at …, and autostart is disabled" and exits 4 (checked against a socket path with no server behind it).

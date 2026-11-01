@@ -76,7 +76,12 @@ enum AITyping {
     // Tests pass watchAgents: false so a working agent on the test Mac can't start joke typing mid-test.
     init(watchAgents: Bool = true) {
         self.watchAgents = watchAgents
-        agents.onChange = { [weak self] in self?.next() }
+        agents.onChange = { [weak self] in
+            guard let self else { return }
+            // The cue stops the moment Rex says the agent stopped: drop the rest of the burst and release held keys.
+            if !agents.working, playing { cancel() }
+            next()
+        }
     }
     func configure(enabled: Bool, speed: Double, folder: String?) {
         self.speed = speed

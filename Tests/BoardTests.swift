@@ -244,6 +244,33 @@ final class BoardTests: XCTestCase {
         XCTAssertEqual(presses,stopped) // nothing typed after AI mode is off
         XCTAssertEqual(statuses.last,"Off")
     }
+    @MainActor func testJokeTypingStopsTheMomentTheAgentStops() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
+        defer { try? FileManager.default.removeItem(at:folder) }
+        let source = Array(repeating:"let value = compute(input) // keep going",count:20).joined(separator:"\n") // a burst of many seconds
+        try Data(source.utf8).write(to:folder.appendingPathComponent("main.swift"))
+        let ai = AIMode(watchAgents:false), cut = expectation(description:"the agent stops mid-burst")
+        var down = Set<Int>(), heldAtCut = Set<Int>(), presses = 0, stopped = false, statuses: [String] = []
+        ai.onStatus = { statuses.append($0) }
+        ai.onEvent = { event in
+            if event.transition == .press { down.insert(event.key); presses += 1 } else { down.remove(event.key) }
+            guard event.transition == .press, presses == 3, !stopped else { return }
+            stopped = true
+            // Rex's update arrives on the main queue, as AgentWatch delivers it, while this key is still down.
+            DispatchQueue.main.async { heldAtCut = down; ai.agents.working = false; cut.fulfill() }
+        }
+        ai.configure(enabled:true,speed:0,folder:folder.path)
+        ai.agents.working = true
+        wait(for:[cut],timeout:6) // the first key waits 1–3 s
+        XCTAssertFalse(heldAtCut.isEmpty) // a key was down when the agent stopped
+        XCTAssertEqual(down,[]) // and it was released at once: no stuck key or sound
+        let typed = presses
+        RunLoop.main.run(until:Date().addingTimeInterval(0.5))
+        XCTAssertEqual(presses,typed) // the rest of the burst is dropped
+        XCTAssertEqual(statuses.last,"Waiting for a coding agent to work in Rex")
+        ai.stop()
+    }
     @MainActor func testAIModeSaysWhenItNeedsRex() throws {
         // A stand-in rex: the real one exits 4 when no server runs and --autostart=false; a running Rex lists its sessions.
         let temp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
