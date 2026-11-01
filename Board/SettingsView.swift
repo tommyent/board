@@ -278,6 +278,18 @@ struct ExtrasSettings: View {
             Toggle("8D sound · orbit every eight seconds",isOn:$app.settings.sound.orbit)
             Toggle("Enable and disable sound cues",isOn:$app.settings.toggleCues)
         }
+        SettingsCard(title:"Ambient") {
+            Picker("Place",selection:Binding(get:{app.settings.ambientPlace ?? ""},set:{app.settings.ambientPlace = $0.isEmpty ? nil : $0})) {
+                Text("Off").tag("")
+                ForEach(AmbientPlace.all) { Text($0.title).tag($0.id) }
+            }
+            if let place = AmbientPlace.place(app.settings.ambientPlace) {
+                LabeledSlider(title:"Ambient volume",value:Binding(get:{app.settings.ambientVolume ?? AmbientPlace.defaultVolume},set:{app.settings.ambientVolume = $0}))
+                ForEach(place.layers) { layer in LabeledSlider(title:layer.title,value:app.ambientLevel(place,layer)) }
+                Text(app.ambientStatus).font(.caption).foregroundStyle(.secondary)
+            }
+            Text("A looping background so you sound busy wherever you are. It pauses with Board's sounds: when Board is off or muted, during Secure Input, and while your Mac sleeps or is locked.").font(.caption).foregroundStyle(.secondary)
+        }
         SettingsCard(title:"AI mode") {
             Toggle("Type along with coding agents",isOn:Binding(get:{app.settings.aiMode ?? false},set:{app.settings.aiMode = $0}))
             VStack(spacing:6) {

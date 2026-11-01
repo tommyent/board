@@ -294,6 +294,51 @@ final class BoardTests: XCTestCase {
         ai.stop()
         XCTAssertEqual(statuses,["Waiting for a coding agent to work in Rex","Needs Rex to see when your agents are working","Waiting for a coding agent to work in Rex","Off"])
     }
+    func testAmbientCatalogMatchesItsFiles() throws {
+        let folder = root.appendingPathComponent("Ambient")
+        var expected = Set<String>()
+        XCTAssertEqual(Set(AmbientPlace.all.map(\.id)).count,AmbientPlace.all.count)
+        for place in AmbientPlace.all {
+            XCTAssertFalse(place.layers.isEmpty)
+            for layer in place.layers {
+                expected.insert(place.file(layer))
+                XCTAssertTrue((0...1).contains(layer.level))
+                XCTAssertGreaterThan(try AVAudioPlayer(contentsOf:folder.appendingPathComponent(place.file(layer))).duration,5,place.file(layer))
+            }
+        }
+        XCTAssertEqual(Set(try FileManager.default.contentsOfDirectory(atPath:folder.path)),expected) // nothing missing, nothing stray
+    }
+    func testAmbientSettingsAndMix() {
+        var settings = AppSettings()
+        XCTAssertNil(settings.ambientPlace) // Off by default
+        settings.ambientPlace = "moon-base"; settings.ambientVolume = 3; settings.ambientLevels = ["beach/waves":-1,"beach/music":0.8,"moon-base/hum":0.5]
+        settings.validate()
+        XCTAssertNil(settings.ambientPlace); XCTAssertEqual(settings.ambientVolume,1); XCTAssertEqual(settings.ambientLevels,["beach/waves":0,"beach/music":0.8])
+        settings.ambientPlace = "beach"; settings.validate(); XCTAssertEqual(settings.ambientPlace,"beach")
+        // Volume = master² × layer²; by default the waves sit well under the music.
+        let beach = AmbientPlace.place("beach")!, mix = AmbientMix.volumes(beach,master:0.5,levels:[:])
+        XCTAssertEqual(mix["waves"]!,0.25*0.16,accuracy:1e-6); XCTAssertEqual(mix["music"]!,0.25*0.49,accuracy:1e-6)
+        XCTAssertLessThan(20*log10(mix["waves"]!/mix["music"]!),-9)
+        XCTAssertEqual(AmbientMix.volumes(beach,master:1,levels:["beach/waves":1])["waves"],1) // a saved level wins
+        XCTAssertEqual(AmbientMix.volumes(beach,master:0,levels:[:]).values.max(),0)
+    }
+    @MainActor func testAmbientPlayerFollowsBoardsPauseRules() throws {
+        // Master volume 0 throughout, so the test never makes a sound.
+        let player = AmbientPlayer(root:root.appendingPathComponent("Ambient"))
+        var allowed = false
+        player.canPlay = { allowed }
+        player.configure(place:"beach",master:0,levels:[:])
+        XCTAssertEqual(player.layerIDs,["music","waves"]); XCTAssertEqual(player.volume("waves"),0)
+        XCTAssertFalse(player.isPlaying) // Board off, muted or asleep: loaded but silent
+        allowed = true; player.configure(place:"beach",master:0,levels:[:])
+        RunLoop.main.run(until:Date().addingTimeInterval(0.3))
+        XCTAssertTrue(player.isPlaying)
+        allowed = false
+        RunLoop.main.run(until:Date().addingTimeInterval(0.8)) // the half-second check pauses it
+        XCTAssertFalse(player.isPlaying)
+        player.configure(place:"coffee-shop",master:0,levels:[:]); XCTAssertEqual(player.layerIDs,["espresso","room"])
+        player.configure(place:nil,master:0,levels:[:]); XCTAssertEqual(player.layerIDs,[]); XCTAssertNil(player.placeID)
+    }
     func testAIModeCannotPostEvents() throws {
         // AI mode only feeds Board's own pipeline. The image holding its code (the app, Debug's Board.debug.dylib, or a
         // logic-test bundle) must import no API that posts events into other apps.

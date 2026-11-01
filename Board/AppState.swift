@@ -21,9 +21,11 @@ import UniformTypeIdentifiers
     @Published var recordingShortcut = false
     @Published var loginStatus = ""
     @Published var aiStatus = "Off"
+    @Published var ambientStatus = "Off"
     let monitor = InputMonitor()
     let audio: KeyboardAudio
     let ai = AIMode()
+    let ambient: AmbientPlayer
     private var sessionActive = true
     let resources: URL
     lazy var iconImages: [String:NSImage] = Dictionary(uniqueKeysWithValues:AppSettings.iconColors.compactMap { color in NSImage(contentsOf:resources.appendingPathComponent("AppIcons/Board-\(color).icns")).map { (color,$0) } })
@@ -45,6 +47,7 @@ import UniformTypeIdentifiers
         storage = FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("Board")
         importDirectory = storage.appendingPathComponent("Imported Audio")
         audio = KeyboardAudio(root:resources,importsRoot:importDirectory)
+        ambient = AmbientPlayer(root:resources.appendingPathComponent("Ambient"))
         if let data = defaults.data(forKey:"appSettings.v1"), let decoded = try? JSONDecoder().decode(AppSettings.self,from:data), decoded.version == 1 { settings = decoded }
         else { settings = AppSettings() }
         settings.validate()
@@ -69,7 +72,10 @@ import UniformTypeIdentifiers
         ai.onEvent = { [weak self] event in engine.handle(event); self?.visualize(event) }
         ai.onStatus = { [weak self] value in self?.aiStatus = value }
         ai.canPlay = { [weak self] in self.map { $0.settings.enabled && !$0.settings.muted && $0.sessionActive } ?? false }
-        audio.begin(); audio.configure(settings); configureAI(); monitor.begin(); refreshLogin()
+        // Ambient sound follows the same rules as AI mode; it has its own players and never enters the key-sound engine.
+        ambient.canPlay = ai.canPlay
+        ambient.onStatus = { [weak self] value in self?.ambientStatus = value }
+        audio.begin(); audio.configure(settings); configureAI(); configureAmbient(); monitor.begin(); refreshLogin()
         let workspace = NSWorkspace.shared.notificationCenter
         for name in [NSWorkspace.willSleepNotification,NSWorkspace.sessionDidResignActiveNotification] {
             observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.sessionActive = false; self?.monitor.setSuspended(true); self?.audio.reset(); self?.clearVisuals() } })
@@ -83,11 +89,17 @@ import UniformTypeIdentifiers
         guard started else { return }
         do { defaults.set(try JSONEncoder().encode(settings),forKey:"appSettings.v1") }
         catch { self.error = "Settings could not be saved: \(error.localizedDescription)" }
-        audio.configure(settings); configureAI()
+        audio.configure(settings); configureAI(); configureAmbient()
         if !settings.enabled || !settings.visualizer.enabled { clearVisuals() }
         onPreferences?()
     }
     private func configureAI() { ai.configure(enabled:settings.aiMode ?? false,speed:settings.aiSpeed ?? 0.35,folder:settings.aiFolder) }
+    private func configureAmbient() { ambient.configure(place:settings.ambientPlace,master:settings.ambientVolume ?? AmbientPlace.defaultVolume,levels:settings.ambientLevels ?? [:]) }
+    /// A layer's slider position: the saved level, or the layer's default.
+    func ambientLevel(_ place: AmbientPlace, _ layer: AmbientPlace.Layer) -> Binding<Double> {
+        Binding(get:{ self.settings.ambientLevels?[place.levelKey(layer)] ?? layer.level },
+                set:{ var levels = self.settings.ambientLevels ?? [:]; levels[place.levelKey(layer)] = $0; self.settings.ambientLevels = levels })
+    }
     private func receive(_ event: PhysicalInputEvent) {
         if recordingShortcut, event.transition == .press, !KeyGeometry.modifierKeys.contains(event.key), !event.isMouse {
             settings.shortcutKey = event.key

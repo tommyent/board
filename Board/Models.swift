@@ -207,6 +207,11 @@ struct AppSettings: Codable, Equatable {
     var aiMode: Bool?
     var aiSpeed: Double?
     var aiFolder: String?
+    // Ambient sound, optional for the same reason. A nil place is Off; levels are keyed "place/layer", and a missing key
+    // uses the layer's default.
+    var ambientPlace: String?
+    var ambientVolume: Double?
+    var ambientLevels: [String:Double]?
     static let iconColors = ["Porcelain","Sage","Blue","Lilac","Graphite"]
     mutating func validate() {
         if let color = iconColor, color == "Porcelain" || !Self.iconColors.contains(color) { iconColor = nil }
@@ -219,6 +224,12 @@ struct AppSettings: Codable, Equatable {
         visualizer.shuffleEvery = min(100,max(1,visualizer.shuffleEvery))
         gestureTaps = min(5,max(1,gestureTaps)); presets = Array(presets.prefix(6))
         if let speed = aiSpeed { aiSpeed = clamp(speed,0...1,fallback:0.35) }
+        if AmbientPlace.place(ambientPlace) == nil { ambientPlace = nil }
+        if let volume = ambientVolume { ambientVolume = clamp(volume,0...1,fallback:AmbientPlace.defaultVolume) }
+        let layerKeys = Set(AmbientPlace.all.flatMap { place in place.layers.map(place.levelKey) })
+        if let levels = ambientLevels {
+            ambientLevels = levels.filter { layerKeys.contains($0.key) }.mapValues { clamp($0,0...1,fallback:0.5) }
+        }
     }
 }
 
