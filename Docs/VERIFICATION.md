@@ -4,6 +4,14 @@ Date: **2026-09-10**. Host: Apple Silicon MacBook Air, Xcode 27.0 (27A5252f), Sw
 
 **Current scope: 11 bundled sound profiles.** The user removed unavailable sounds and recording dependencies from the requested app. Hardware, permission, and performance verification remains limited as detailed below; earlier catalog counts describe historical builds.
 
+## Board 0.4.2 (build 6) — AI mode without agent hooks, 2026-11-01
+
+AI mode now does one thing: while Rex reports a coding agent working, Board codes along from real source files (a chosen folder, or Board's own sources), at the chosen speed and with the odd typo. It isn't the code the agent is writing. The Claude Code and Codex hooks of 0.4.1 are gone: the hook script and its copy in the app, the Install/Remove rows, the folder reader and its `listening` marker, `Scripts/test-ai-hook.sh` and its fixtures, the ⌘S that ended a typed edit, and three tests (queue, queued edit, hook installer). The hooks only got an edit after it was written, so they couldn't follow the agent's pace. When it starts, Board 0.4.2 deletes the folder 0.4.1 used for them, `~/Library/Application Support/Board/AI Queue/`, and nothing else. The no-event-posting guarantee, its test and the `Scripts/build.sh` check are unchanged.
+
+- `bash Scripts/test.sh` on this MacBook Air (macOS 27.2) with Xcode 27.2 (27B52), app-hosted: **15 tests, 0 failures** (`** TEST SUCCEEDED **`). New: `testJokeModeCodesAlongOnlyWhileAnAgentWorks` (nothing is typed until an agent works, joke typing then reaches Board's pipeline, and stops when AI mode is turned off; the test sets the working state itself, without Rex).
+- `bash Scripts/build.sh`: Release build succeeded; Xcode removed the stale hook from the previous build's product. `dist/Board.app` is 0.4.2 (6), Developer ID-signed with hardened runtime and a secure timestamp, `codesign --verify --deep --strict` valid. The event-posting check passed (`nm -u` lists none of the posting APIs).
+- `/usr/bin/grep -R` for `board-ai-hook`, `AI Queue` and `PostToolUse` over the checkout, `build/` and `dist/`: the source, scripts, README and packaged app have only the cleanup line in `Board/AppState.swift` (and its copy in the app's `Resources/Code/`). `build/` also has the Debug build of that line, Xcode's cached build descriptions of earlier builds, and the old packages in `build/PreviousBuilds/`.
+
 ## Board 0.3.0 — available sounds only
 
 Removed all twelve unavailable catalog entries, their thumbnails, pending-recording copy, and the unused novelty filter. Menus, settings, and key overrides use the same eleven-profile catalog. The asset manifest now lists actual assets only. Saved current/preset profiles that reference removed IDs fall back to Alpaca; missing per-key profile overrides inherit the global profile while preserving their tone, pitch, and volume.

@@ -47,7 +47,7 @@ Choose **Sound → Switch → Classic · Typewriter** to use the new sound. The 
 - 32 preloaded playback voices, authentic down/up samples, native spatial output, limiter, offline tone preparation, gain/pitch variation and home-row softness.
 - Per-key overrides, six favorites, validated native audio imports, device UID preferences, output-kind override, optional motion tracking and an eight-second orbit mode.
 - Keyboard, keystroke pills, combo and bezel visualizers; ANSI/ISO/JIS layouts, position/scale/theme/timing controls, six pins and random placement.
-- AI mode: Board "types" the edits Claude Code makes, and codes along while a Rex agent works, with sounds and the visualizer only. See [AI mode](#ai-mode).
+- AI mode: while a coding agent works in Rex, Board codes along from real source files, with sounds and the visualizer only. See [AI mode](#ai-mode).
 - Five app icon colors from the Board Keycap brand package: Porcelain (the bundled icon), Sage, Blue, Lilac and Graphite. Settings › General › App icon changes Board's Dock icon while it runs; Finder and Launchpad keep Porcelain. The visualizer's key highlights follow the chosen color: the brand's strong accent in light mode, the pale finish in dark mode. Settings uses the standard macOS sidebar, forms and controls, in your system accent color.
 - App icons and menu bar glyph from the Board Keycap brand package, theme previews, source/license manifests and a recording guide.
 
@@ -55,16 +55,15 @@ The default profile is **Durock Alpaca**. Mouse and Enter sounds support None, t
 
 ## AI mode
 
-For vibe coders who aren't doing any typing themselves: turn on **Settings › Extras › AI mode** and Board plays the keys for the code your AI writes. It only plays key sounds and drives the visualizer. It never posts key events, so nothing is typed into your apps, and `Scripts/build.sh` fails if the app ever links an event-posting API.
+For vibe coders who aren't doing any typing themselves: turn on **Settings › Extras › AI mode**, and Board plays the keys while your coding agent works. It only plays key sounds and drives the visualizer. It never posts key events, so nothing is typed into your apps, and `Scripts/build.sh` fails if the app ever links an event-posting API.
 
-- **Real code from Claude Code and Codex.** `Scripts/board-ai-hook`, bundled in the app, is a `PostToolUse` hook for `Write|Edit`. It takes Claude Code's new text, or the added lines of a Codex patch. When Board is running with AI mode on, the hook puts that text, capped at 4 KB, in `~/Library/Application Support/Board/AI Queue/`. Board reads each file once and deletes it, then types up to about ten seconds of the text at the chosen speed and finishes with ⌘S. When Board isn't running or AI mode is off, the hook exits at once. Edits queue one after another, and only the newest three wait.
-- **Joke mode.** While AI mode is on and a coding agent is working in Rex, Board codes along from real source files, with the odd typo. It uses a folder you choose, or Board's own sources by default. Board asks Rex with `--autostart=false`, so it never starts Rex; without Rex, no agent counts as working. Hook edits take priority over joke typing.
+- **What it plays.** While a coding agent is working in Rex, Board codes along from real source files, with the odd typo. It uses a folder you choose, or Board's own sources by default. It starts when Rex reports an agent working and stops when none is. Board asks Rex with `--autostart=false`, so it never starts Rex; without Rex, no agent counts as working and AI mode stays quiet.
 - **Speed:** from Human (about 9 keys a second) to Machine gun (about 36), with bursts inside words and pauses at spaces, punctuation and line ends.
 - AI mode pauses whenever Board's sounds do: Board off, muted, Secure Input, or a locked or sleeping session.
 
-To connect your agents, use the **Claude Code hook** and **Codex hook** rows in the AI mode card. **Install** adds one `PostToolUse` entry for `Write|Edit` that runs the hook bundled at `Board.app/Contents/Resources/board-ai-hook` in the background. For Claude Code it goes in `~/.claude/settings.json`; for Codex it goes in `~/.codex/hooks.json`, where Codex matches its `apply_patch` edits to `Write|Edit`. Board leaves every other setting as it was and keeps the previous file next to it as `.bak-board`. **Remove** takes out only Board's entry. If a file isn't valid JSON, or its hooks have a shape Board doesn't recognise, Board leaves it alone and says so. Codex asks you to review a new hook before it runs it. Without a hook, AI mode can only code along from source files, which isn't what your agent is writing.
+What Board plays isn't the code your agent is writing. Board 0.4.1 had Claude Code and Codex hooks that sent Board each edit, but a hook only gets an edit after it's written, so the typing couldn't keep the agent's pace. Board 0.4.2 removed them. If you installed one with 0.4.1, click its **Remove** button in 0.4.1 before you update.
 
-Code text stays on this Mac: the hook and Board never log it or send it anywhere.
+Code text stays on this Mac: Board never logs it or sends it anywhere.
 
 ## Verification
 
@@ -72,9 +71,9 @@ Code text stays on this Mac: the hook and Board never log it or send it anywhere
 bash Scripts/test.sh
 ```
 
-Tests cover input transitions and shortcuts, keyboard geometry, sample selection/held-release association, versioned settings, import validation, visualizer timing, offline stereo/limiter output, and AI mode (key mapping, pacing, queue, no event posting). `bash Scripts/test-ai-hook.sh` checks the hook offline with a temporary home folder. Results, measured idle CPU, remaining hardware checks, and known limitations are in [Docs/VERIFICATION.md](Docs/VERIFICATION.md).
+Tests cover input transitions and shortcuts, keyboard geometry, sample selection/held-release association, versioned settings, import validation, visualizer timing, offline stereo/limiter output, and AI mode (key mapping, pacing, coding along only while an agent works, no event posting). Results, measured idle CPU, remaining hardware checks, and known limitations are in [Docs/VERIFICATION.md](Docs/VERIFICATION.md).
 
-Settings use `UserDefaults` under `com.tommyent.Board`; imports are copied to `~/Library/Application Support/Board/Imported Audio/`. AI mode's queue is `~/Library/Application Support/Board/AI Queue/`, and its files are deleted as soon as Board reads them. No key-event history is persisted. No application code creates a network connection. Only `bash Scripts/build.sh --notarize` uploads anything, and only the built app, to Apple's notary service.
+Settings use `UserDefaults` under `com.tommyent.Board`; imports are copied to `~/Library/Application Support/Board/Imported Audio/`. No key-event history is persisted. No application code creates a network connection. Only `bash Scripts/build.sh --notarize` uploads anything, and only the built app, to Apple's notary service.
 
 ## Assets and provenance
 
