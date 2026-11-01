@@ -10,6 +10,7 @@ When Rex reports that the agent stopped, AI mode now drops the rest of the curre
 
 - New `testJokeTypingStopsTheMomentTheAgentStops`. It cuts in while a key is down, delivered on the main queue as `AgentWatch` delivers it. It checks four things: a key was down at the cut, every pressed key was released at once, nothing more is typed in the next 0.5 s, and the status returns to waiting. Against 0.4.3's code it failed: 3 → 6 presses, and the status still said "Coding along". With the fix, `bash Scripts/test.sh` passes **17 tests, 0 failures** (macOS 27.2, Xcode 27.2 27B52).
 - `bash Scripts/build.sh`: succeeded. `dist/Board.app` is 0.4.4 (8), Developer ID-signed with a timestamp, `codesign --verify --deep --strict` valid, with no posting APIs.
+- Installed on this MacBook Air at 17:27. 0.4.3 was backed up, quit through Vitals with the owner's OK, and replaced: old bundle trashed, then copied with `ditto`. `/Applications/Board.app` is 0.4.4 (8), and its binary is byte-identical to `dist/`. It runs as the only Board process, with its `rex --autostart=false events` stream as a child. tccd allowed its Input Monitoring preflight (`authValue=2`). No crash report. How the cut sounds live is for the owner to hear.
 
 ## Board 0.4.3 (build 7) — AI mode as a sound cue, 2026-11-01
 
