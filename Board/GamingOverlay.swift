@@ -4,7 +4,12 @@ import AppKit
 @MainActor final class GamingOverlay: ObservableObject {
     struct Hold { let start: Double; var released: Double? }
     static let keys = [13, 0, 1, 2, 56, 59, 49, 1000, 1001]
-    @Published var enabled = false { didSet { if enabled { present() } else { clear(); panel?.orderOut(nil) } } }
+    @Published var enabled: Bool {
+        didSet {
+            defaults.set(enabled, forKey: "gaming.overlay.enabled")
+            if enabled { present() } else { clear(); panel?.orderOut(nil) }
+        }
+    }
     @Published private(set) var holds: [Int: Hold] = [:]
     @Published private(set) var now = 0.0
     private(set) var available = false
@@ -12,8 +17,11 @@ import AppKit
     private var panel: PassivePanel?
     private let presentsWindow: Bool
     private let clock: () -> Double
+    private let defaults: UserDefaults
 
-    init(presentsWindow: Bool = true, clock: @escaping () -> Double = { ProcessInfo.processInfo.systemUptime }) {
+    init(defaults: UserDefaults = .standard, presentsWindow: Bool = true, clock: @escaping () -> Double = { ProcessInfo.processInfo.systemUptime }) {
+        self.defaults = defaults
+        enabled = defaults.bool(forKey: "gaming.overlay.enabled")
         self.presentsWindow = presentsWindow; self.clock = clock
     }
     deinit { timer?.invalidate() }

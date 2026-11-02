@@ -74,9 +74,26 @@ import SwiftUI
         game.clearHistory(); XCTAssertNil(game.historyError)
     }
 
+    func testOverlayRestoresOnAndOffWithoutChangingAvailability() {
+        let defaults = store()
+        let overlay = GamingOverlay(defaults: defaults, presentsWindow: false)
+        XCTAssertFalse(overlay.enabled)
+        overlay.enabled = true
+        XCTAssertTrue(defaults.bool(forKey: "gaming.overlay.enabled"))
+        let restored = GamingOverlay(defaults: defaults, presentsWindow: false)
+        XCTAssertTrue(restored.enabled)
+        XCTAssertFalse(restored.available)
+        restored.setAvailable(true)
+        restored.setAvailable(false)
+        XCTAssertTrue(defaults.bool(forKey: "gaming.overlay.enabled"))
+        restored.enabled = false
+        XCTAssertFalse(defaults.bool(forKey: "gaming.overlay.enabled"))
+        XCTAssertFalse(GamingOverlay(defaults: defaults, presentsWindow: false).enabled)
+    }
+
     func testOverlayOptInHoldExpiryAndSecurityResetStopTimer() {
         var now = 10.0
-        let overlay = GamingOverlay(presentsWindow: false, clock: { now })
+        let overlay = GamingOverlay(defaults: store(), presentsWindow: false, clock: { now })
         func event(_ key: Int, _ transition: PhysicalInputEvent.Transition) -> PhysicalInputEvent {
             .init(key: key, transition: transition, modifiers: 0, timestamp: now)
         }
@@ -206,7 +223,7 @@ import SwiftUI
     }
 
     func testOffscreenOverlayAndReducedMotionLane() throws {
-        let overlay = GamingOverlay(presentsWindow: false, clock: { 12.0 })
+        let overlay = GamingOverlay(defaults: store(), presentsWindow: false, clock: { 12.0 })
         overlay.setAvailable(true); overlay.enabled = true
         overlay.receive(.init(key: 13, transition: .press, modifiers: 0, timestamp: 12))
         overlay.receive(.init(key: 1000, transition: .press, modifiers: 0, timestamp: 12))

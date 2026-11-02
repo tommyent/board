@@ -24,7 +24,7 @@ import Carbon
     @Published var loginStatus = ""
     @Published var aiStatus = "Off"
     let monitor = InputMonitor()
-    let gamingOverlay = GamingOverlay()
+    let gamingOverlay: GamingOverlay
     let audio: KeyboardAudio
     let ai = AIMode()
     private var sessionActive = true
@@ -44,6 +44,7 @@ import Carbon
     var showSettings: (() -> Void)?
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        gamingOverlay = GamingOverlay(defaults: defaults)
         resources = Bundle.main.resourceURL!.appendingPathComponent("Resources")
         storage = FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("Board")
         importDirectory = storage.appendingPathComponent("Imported Audio")
