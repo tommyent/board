@@ -194,7 +194,6 @@ struct OverlayContent: View {
                 VStack(spacing:0) { Text("\(app.combo.count)").font(.system(size:70,weight:.black,design:.rounded)).foregroundStyle(comboColor).shadow(color:comboColor.opacity(0.6),radius:app.settings.visualizer.comboTheme == "Neon" ? 18 : 4); Text("COMBO").font(.system(size:12,weight:.heavy,design:.rounded)).tracking(5).foregroundStyle(comboColor.opacity(0.9)) }.padding(20).background(.black.opacity(0.78),in:RoundedRectangle(cornerRadius:25)).overlay(RoundedRectangle(cornerRadius:25).stroke(comboColor.opacity(0.6),lineWidth:2))
             case "Keystrokes":
                 KeystrokeRibbon(app:app)
-            case "Bezel": BezelView(count:app.combo.count,color:app.accent.tint)
             default: KeyboardView(layout:app.settings.layout,held:app.heldKeys,theme:app.settings.visualizer.theme,accent:app.accent,sound:app.settings.sound,releases:app.visualTrail.releases,motion:app.settings.visualizer.movement).padding(8).background(.ultraThinMaterial,in:RoundedRectangle(cornerRadius:14))
             }
         }.modifier(VisualArrival(trigger:app.combo.totalPresses,motion:app.settings.visualizer.movement,enabled:app.settings.visualizer.style == "Combo"))

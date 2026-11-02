@@ -6,10 +6,10 @@ def ident(s): return hashlib.sha1(s.encode()).hexdigest()[:24].upper()
 objects = {}
 def add(name, value): objects[ident(name)] = value; return ident(name)
 def arr(items): return '(' + ', '.join(items) + ',)'
-files = sorted((ROOT/'Board').glob('*.swift'))
+files = sorted((ROOT/'Board').rglob('*.swift'))
 refs, builds, resources, code = [], [], [], []
 for file in files:
-    ref=add(file.name, '{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Board/'+file.name+'"; sourceTree = SOURCE_ROOT;}'); refs.append(ref)
+    ref=add(file.name, '{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "'+str(file.relative_to(ROOT))+'"; sourceTree = SOURCE_ROOT;}'); refs.append(ref)
     builds.append(add(file.name+'build', '{isa = PBXBuildFile; fileRef = '+ref+';}'))
     # Also copied verbatim to Resources/Code: AI mode codes along from Board's own sources by default.
     code.append(add(file.name+'code', '{isa = PBXBuildFile; fileRef = '+ref+';}'))
@@ -17,9 +17,9 @@ for name, kind in [('Resources','folder'),('Assets.xcassets','folder.assetcatalo
     ref=add(name,'{isa = PBXFileReference; lastKnownFileType = '+kind+'; path = "Board/'+name+'"; sourceTree = SOURCE_ROOT;}'); refs.append(ref)
     resources.append(add(name+'build','{isa = PBXBuildFile; fileRef = '+ref+';}'))
 testRefs, testBuilds = [], []
-for file in sorted((ROOT/'Tests').glob('*.swift')):
+for file in sorted((ROOT/'Tests').rglob('*.swift')):
     key = '' if file.name == 'BoardTests.swift' else file.name   # keeps BoardTests' original IDs
-    testRefs.append(add(key+'testFile','{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/'+file.name+'; sourceTree = SOURCE_ROOT;}'))
+    testRefs.append(add(key+'testFile','{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "'+str(file.relative_to(ROOT))+'"; sourceTree = SOURCE_ROOT;}'))
     testBuilds.append(add(key+'testBuild','{isa = PBXBuildFile; fileRef = '+testRefs[-1]+';}'))
 appProduct=add('appProduct','{isa = PBXFileReference; explicitFileType = wrapper.application; path = "Board.app"; sourceTree = BUILT_PRODUCTS_DIR;}')
 testProduct=add('testProduct','{isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = BoardTests.xctest; sourceTree = BUILT_PRODUCTS_DIR;}')
