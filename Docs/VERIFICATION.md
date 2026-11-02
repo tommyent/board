@@ -4,6 +4,16 @@ Date: **2026-09-10**. Host: Apple Silicon MacBook Air, Xcode 27.0 (27A5252f), Sw
 
 **Current scope: 11 bundled sound profiles.** The user removed unavailable sounds and recording dependencies from the requested app. Hardware, permission, and performance verification remains limited as detailed below; earlier catalog counts describe historical builds.
 
+## Board 0.4.5 (build 9) — keystroke trails and Practice, 2026-11-01
+
+Merges two branches built from 0.4.4. `visualizer` (453a860) brings the 15-key fading keystroke ribbon with repeat counts, Float and the other movements in every placement, a 1.4-second afterglow on the keyboard, and switch-colored highlights and caps. `practice` (2d144be) brings the Practice window. The branches didn't conflict. Practice had added its sources to the Xcode project by hand. `Scripts/generate_project.py` now adds every `Tests/*.swift` file, and the project is regenerated from it, so a later regeneration keeps the Practice tests. Practice keeps its own key trail for now.
+
+- `bash Scripts/test.sh` on this MacBook Air (macOS 27.2, Xcode 27.2 27B52), app-hosted: **30 tests, 0 failures**. That is the 17 from 0.4.4, the 4 new visualizer tests (trail capacity and repeat counts, afterglow, movement independent of placement, expiry and Secure Input reset; three existing tests were extended) and Practice's 9.
+- `bash Scripts/build.sh`: succeeded. `dist/Board.app` is 0.4.5 (9), Developer ID-signed with hardened runtime and a timestamp, `codesign --verify --deep --strict` valid, with no posting APIs. The package's `Resources/Code` holds the five Practice sources and no Ambient files.
+- `/usr/bin/grep -R` for `suffix(6)` and `pills` over the checkout and `dist/`: no match. The README's old "keystroke pills" line is rewritten. Under `build/`, only Xcode's index and the archived packages in `build/PreviousBuilds/` still match.
+- Installed on this MacBook Air at 19:37. 0.4.4 was backed up first. It wasn't running: its last run, launched from `/Applications` at 17:43, ended at 18:03 through Board's own Quit, so there was nothing to quit through Vitals. The old bundle was trashed, the new one copied with `ditto`, and Board launched with `open -g`. `/Applications/Board.app` is 0.4.5 (9), its binary byte-identical to `dist/`. It runs as the only Board process. tccd allowed its Input Monitoring preflight and both WindowServer checks (`kTCCServiceListenEvent`, `authValue=2`). No crash report. AI mode is off in the saved settings, so no `rex` stream runs.
+- Not observed yet: the ribbon, Float and afterglow on screen while typing; CPU while typing; Practice's window focus, sleep, lock and real Secure Input transitions; the Command–Shift–P shortcut; VoiceOver; and sound while practicing. The builders' images are off-screen renders, and their tests inject focus and Secure Input states.
+
 ## Board 0.4.4 (build 8) — the cue stops when the agent stops, 2026-11-01
 
 When Rex reports that the agent stopped, AI mode now drops the rest of the current burst at once. It releases every held key through the same path as physical keys, so nothing stays down in the sound engine or the visualizer. Before, the burst played out for up to about ten more seconds.

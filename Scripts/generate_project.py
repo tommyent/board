@@ -16,17 +16,20 @@ for file in files:
 for name, kind in [('Resources','folder'),('Assets.xcassets','folder.assetcatalog'),('BoardPorcelain.icon','folder.iconcomposer.icon')]:
     ref=add(name,'{isa = PBXFileReference; lastKnownFileType = '+kind+'; path = "Board/'+name+'"; sourceTree = SOURCE_ROOT;}'); refs.append(ref)
     resources.append(add(name+'build','{isa = PBXBuildFile; fileRef = '+ref+';}'))
-testRef=add('testFile','{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/BoardTests.swift; sourceTree = SOURCE_ROOT;}')
-testBuild=add('testBuild','{isa = PBXBuildFile; fileRef = '+testRef+';}')
+testRefs, testBuilds = [], []
+for file in sorted((ROOT/'Tests').glob('*.swift')):
+    key = '' if file.name == 'BoardTests.swift' else file.name   # keeps BoardTests' original IDs
+    testRefs.append(add(key+'testFile','{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/'+file.name+'; sourceTree = SOURCE_ROOT;}'))
+    testBuilds.append(add(key+'testBuild','{isa = PBXBuildFile; fileRef = '+testRefs[-1]+';}'))
 appProduct=add('appProduct','{isa = PBXFileReference; explicitFileType = wrapper.application; path = "Board.app"; sourceTree = BUILT_PRODUCTS_DIR;}')
 testProduct=add('testProduct','{isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = BoardTests.xctest; sourceTree = BUILT_PRODUCTS_DIR;}')
 products=add('products','{isa = PBXGroup; name = Products; children = '+arr([appProduct,testProduct])+'; sourceTree = "<group>";}')
-main=add('main','{isa = PBXGroup; children = '+arr(refs+[testRef,products])+'; sourceTree = "<group>";}')
+main=add('main','{isa = PBXGroup; children = '+arr(refs+testRefs+[products])+'; sourceTree = "<group>";}')
 source=add('sources','{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = '+arr(builds)+'; runOnlyForDeploymentPostprocessing = 0;}')
 resource=add('resources','{isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = '+arr(resources)+'; runOnlyForDeploymentPostprocessing = 0;}')
 copyCode=add('copyCode','{isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = Code; dstSubfolderSpec = 7; files = '+arr(code)+'; name = "Copy Code for AI Mode"; runOnlyForDeploymentPostprocessing = 0;}')
 framework=add('frameworks','{isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;}')
-testSources=add('testSources','{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = '+arr([testBuild])+'; runOnlyForDeploymentPostprocessing = 0;}')
+testSources=add('testSources','{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = '+arr(testBuilds)+'; runOnlyForDeploymentPostprocessing = 0;}')
 def configs(scope, extra):
     ids=[]
     for mode in ['Debug','Release']:

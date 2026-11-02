@@ -42,15 +42,19 @@ Choose **Sound → Switch → Classic · Typewriter** to use the new sound. The 
 
 ## Included
 
-- Practice window: English, Swift/JavaScript/Python code, or your own text; 30-second, 1-minute and 2-minute attempts; WPM, accuracy, marked errors, a key trail, and local result history. Open **Practice…** from Board's menu, or press **Command–Shift–P** while Board is active.
-
 - Native status menu; six Settings sections; onboarding, permission status, mute and independent volumes.
 - One listen-only session event tap; transition deduplication, repeat suppression, Secure Input pause, sleep/session reset and permission retry.
 - 32 preloaded playback voices, authentic down/up samples, native spatial output, limiter, offline tone preparation, gain/pitch variation and home-row softness.
 - Per-key overrides, six favorites, validated native audio imports, device UID preferences, output-kind override, optional motion tracking and an eight-second orbit mode.
-- Keyboard, keystroke pills, combo and bezel visualizers; ANSI/ISO/JIS layouts, position/scale/theme/timing controls, six pins and random placement.
+- Keyboard, Keystrokes, Combo and Bezel visualizers; ANSI/ISO/JIS layouts, position/scale/theme/timing controls, six pins and random placement.
+  - **Keystrokes** is a ribbon of your last 15 keys, in a row or a column. Each key fades, shrinks and blurs over 1.9 seconds, so the oldest trail off. Taps of the same key less than 0.3 seconds apart merge into one cap with a count, such as `⌫ ×3`; a held key doesn't count up, because Board ignores key repeat.
+  - **Movement:** Pop, Slide, Bounce and Pulse work in every placement. Keystrokes also offers Float, which lifts each key along its keyboard column.
+  - **Keyboard:** released keys glow for 1.4 seconds.
+  - **Colors:** keyboard highlights and keystroke caps take the color of each key's switch, including per-key overrides, and Bezel takes the selected switch's color. Combo keeps its own theme.
+  - With macOS Reduce Motion on, keys only fade, and Float becomes a still row.
+- Practice window: English, Swift/JavaScript/Python code, or your own text; 30-second, 1-minute and 2-minute attempts; WPM, accuracy, marked errors, a key trail, and local result history. Open **Practice…** from Board's menu, or press **Command–Shift–P** while Board is active. See [Practice](#practice).
 - AI mode: a sound cue for your coding agents. While one works, Board types along, with sounds and the visualizer only; Rex tells Board when an agent is working. See [AI mode](#ai-mode).
-- Five app icon colors from the Board Keycap brand package: Porcelain (the bundled icon), Sage, Blue, Lilac and Graphite. Settings › General › App icon changes Board's Dock icon while it runs; Finder and Launchpad keep Porcelain. The visualizer's key highlights follow the chosen color: the brand's strong accent in light mode, the pale finish in dark mode. Settings uses the standard macOS sidebar, forms and controls, in your system accent color.
+- Five app icon colors from the Board Keycap brand package: Porcelain (the bundled icon), Sage, Blue, Lilac and Graphite. Settings › General › App icon changes Board's Dock icon while it runs; Finder and Launchpad keep Porcelain. The keyboard in Settings › Your Keyboard and Practice's key trail use the chosen color; the visualizer uses switch colors. Settings uses the standard macOS sidebar, forms and controls, in your system accent color.
 - App icons and menu bar glyph from the Board Keycap brand package, theme previews, source/license manifests and a recording guide.
 
 The default profile is **Durock Alpaca**. Mouse and Enter sounds support None, the selected keyboard profile, or imported recordings.
@@ -68,9 +72,7 @@ What Board plays isn't the code your agent is writing. Board 0.4.1 had Claude Co
 
 Code text stays on this Mac: Board never logs it or sends it anywhere.
 
-## Verification
-
-### Practice
+## Practice
 
 The first committed character starts the clock. WPM is correct characters currently entered divided by five, per minute of active typing time. Accuracy is correct insertion attempts divided by all insertion attempts; correcting a mistake does not erase it from accuracy. Editing earlier text does not recount its unchanged suffix. Return inserts a new line; in code passages Tab inserts four spaces and Control–Tab leaves the typing field. Paste and drop are disabled in a scored attempt; paste your passage in **Your text → Edit text…** instead.
 
@@ -78,13 +80,13 @@ The Practice controller is wired to pause when its window loses focus, the sessi
 
 History keeps the latest 200 completed result summaries in `UserDefaults` under `practice.history.v1`. It never saves passage text, typed text, or individual keys. Personal bests are separate for each mode, duration, and code language; custom passages have no shared best. Custom text is limited to 10,000 characters, stays in memory, and is cleared when Practice closes. **History → Clear History…** removes saved results and bests. English/code passages repeat for the timed attempt; reaching the end of a custom passage finishes early. Unfinished attempts are not saved. Drills are not included.
 
-Practice tests cover scoring, corrections, time limits, pause/resume with injected availability flags, Secure Input gating, Unicode composition through native text input, result persistence, and off-screen rendering. Screenshot artifacts are written to `/private/tmp/board-practice-artifacts/` by the test suite. Actual window-focus transitions, the menu shortcut, OS Secure Input changes, accessibility activation, and audible hardware playback still need an interactive check. The tests do not grant Input Monitoring permission.
+## Verification
 
 ```sh
 bash Scripts/test.sh
 ```
 
-Tests cover input transitions and shortcuts, keyboard geometry, sample selection/held-release association, versioned settings, import validation, visualizer timing, offline stereo/limiter output, and AI mode (key mapping, pacing, coding along only while an agent works, no event posting). Results, measured idle CPU, remaining hardware checks, and known limitations are in [Docs/VERIFICATION.md](Docs/VERIFICATION.md).
+Tests cover input transitions and shortcuts, keyboard geometry, sample selection/held-release association, versioned settings, import validation, visualizer timing and the keystroke trail (15-key limit, repeat counts, expiry, afterglow, movement in every placement), offline stereo/limiter output, AI mode (key mapping, pacing, coding along only while an agent works, no event posting), and Practice (scoring, corrections, time limits, pause and resume, Secure Input, Unicode composition through native text input, saved results, off-screen rendering). Practice's rendering test writes its screenshots to `/private/tmp/board-practice-artifacts/`. Window focus changes, the menu shortcut, a real Secure Input change and audible playback in Practice still need a check by hand. Results, measured idle CPU, remaining hardware checks, and known limitations are in [Docs/VERIFICATION.md](Docs/VERIFICATION.md).
 
 Settings use `UserDefaults` under `com.tommyent.Board`; imports are copied to `~/Library/Application Support/Board/Imported Audio/`. No key-event history is persisted. No application code creates a network connection. Only `bash Scripts/build.sh --notarize` uploads anything, and only the built app, to Apple's notary service.
 
