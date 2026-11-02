@@ -1,5 +1,9 @@
 import XCTest
+#if canImport(BoardGamingEngine)
 @testable import BoardGamingEngine
+#else
+@testable import Board
+#endif
 
 final class GamingEngineTests: XCTestCase {
     private struct SeededRandom: RandomNumberGenerator {
@@ -298,5 +302,25 @@ final class GamingEngineTests: XCTestCase {
         game.advance(to: 600)
         XCTAssertEqual(game.results.count, 3000)
         XCTAssertEqual(game.phase, .finished)
+    }
+
+    func testCueBoundariesRemainStableWithNonzeroUptimeOrigins() throws {
+        for origin in [3.0, 1_000_000, 1_000_000_000] {
+            var reaction = try session(.reaction)
+            reaction.start(at: origin)
+            XCTAssertEqual(reaction.press(reaction.cues[0].input, at: origin+reaction.cues[0].targetAt), .hit)
+            XCTAssertGreaterThanOrEqual(try XCTUnwrap(reaction.score.medianMilliseconds), 0)
+            var reversal = try session(.keyReversal)
+            reversal.start(at: origin)
+            reversal.press(.a, at: origin+0.1)
+            reversal.release(.a, at: origin+reversal.cues[0].targetAt)
+            XCTAssertEqual(reversal.press(.d, at: origin+reversal.cues[0].targetAt+0.06), .hit)
+            var rhythm = try session(.strafeRhythm)
+            rhythm.start(at: origin)
+            XCTAssertEqual(rhythm.press(.d, at: origin+rhythm.cues[0].targetAt+0.06), .hit)
+            rhythm.advance(to: origin+30)
+            XCTAssertEqual(rhythm.phase, .finished)
+            XCTAssertEqual(rhythm.elapsed, 30)
+        }
     }
 }

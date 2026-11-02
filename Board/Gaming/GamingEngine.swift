@@ -77,6 +77,8 @@ struct GamingSession {
     private var lastWallTime: Double?
     private var nextIndex = 0
     private var reversalRelease: Double?
+    // Subtracting an uptime origin loses precision; use its representable spacing at cue boundaries.
+    private var clockTolerance: Double { max(1e-9, (lastWallTime ?? 0).ulp*2) }
 
     init(configuration: GamingConfiguration) {
         var random = SystemRandomNumberGenerator()
@@ -112,7 +114,7 @@ struct GamingSession {
     }
 
     var currentCue: GamingCue? {
-        guard phase == .running, nextIndex < cues.count, cues[nextIndex].startsAt <= elapsed else { return nil }
+        guard phase == .running, nextIndex < cues.count, cues[nextIndex].startsAt <= elapsed+clockTolerance else { return nil }
         return cues[nextIndex]
     }
 
@@ -128,11 +130,11 @@ struct GamingSession {
         lastWallTime = time
         guard phase == .running else { return true }
         elapsed = min(configuration.duration, elapsed + (time-previous))
-        while nextIndex < cues.count, cues[nextIndex].deadline <= elapsed {
+        while nextIndex < cues.count, cues[nextIndex].deadline <= elapsed+clockTolerance {
             resolve(.timeout)
         }
-        if elapsed >= configuration.duration {
-            phase = .finished; held.removeAll(); reversalRelease = nil
+        if elapsed+clockTolerance >= configuration.duration {
+            elapsed = configuration.duration; phase = .finished; held.removeAll(); reversalRelease = nil
         }
         return true
     }
@@ -161,8 +163,8 @@ struct GamingSession {
             extraPresses += 1; lastFeedback = .extra
             return .extra
         }
-        if input == cue.requiredRelease, elapsed < cue.targetAt { return nil }
-        if configuration.drill == .reaction, elapsed < cue.targetAt {
+        if input == cue.requiredRelease, elapsed+clockTolerance < cue.targetAt { return nil }
+        if configuration.drill == .reaction, elapsed+clockTolerance < cue.targetAt {
             return resolve(.early)
         }
         guard input == cue.input else { return resolve(.wrongKey) }
@@ -170,11 +172,11 @@ struct GamingSession {
         if let required = cue.requiredRelease {
             guard let released = reversalRelease, held[required] == nil else { return resolve(.wrongOrder) }
             let gap = elapsed-released
-            return resolve(gap <= configuration.window+1e-9 ? .hit : .late, milliseconds: gap*1000)
+            return resolve(gap <= configuration.window+clockTolerance ? .hit : .late, milliseconds: gap*1000)
         }
         let error = elapsed-cue.targetAt
-        if configuration.drill == .reaction { return resolve(.hit, milliseconds: error*1000) }
-        let verdict: GamingVerdict = abs(error) <= configuration.window+1e-9 ? .hit : (error < 0 ? .early : .late)
+        if configuration.drill == .reaction { return resolve(.hit, milliseconds: max(0, error)*1000) }
+        let verdict: GamingVerdict = abs(error) <= configuration.window+clockTolerance ? .hit : (error < 0 ? .early : .late)
         return resolve(verdict, milliseconds: error*1000)
     }
 
@@ -182,7 +184,7 @@ struct GamingSession {
         guard phase == .running, advance(to: time), phase == .running,
               let pressed = held.removeValue(forKey: input) else { return }
         if let cue = currentCue, cue.requiredRelease == input,
-           pressed < cue.targetAt, elapsed >= cue.targetAt, held[cue.input] == nil {
+           pressed+clockTolerance < cue.targetAt, elapsed+clockTolerance >= cue.targetAt, held[cue.input] == nil {
             reversalRelease = elapsed
         }
     }

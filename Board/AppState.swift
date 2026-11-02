@@ -1,6 +1,7 @@
 import SwiftUI
 import ServiceManagement
 import UniformTypeIdentifiers
+import Carbon
 
 @MainActor final class AppState: ObservableObject {
     @Published var selectedSettingsSection: SettingsSection? = .general
@@ -23,6 +24,7 @@ import UniformTypeIdentifiers
     @Published var loginStatus = ""
     @Published var aiStatus = "Off"
     let monitor = InputMonitor()
+    let gamingOverlay = GamingOverlay()
     let audio: KeyboardAudio
     let ai = AIMode()
     private var sessionActive = true
@@ -59,13 +61,13 @@ import UniformTypeIdentifiers
         audio.onMetrics = { [weak self] value in DispatchQueue.main.async { self?.audioMetrics = value } }
         audio.onMotion = { [weak self] value in DispatchQueue.main.async { if self?.motionStatus != value { self?.motionStatus = value } } }
         audio.onDevices = { [weak self] devices in DispatchQueue.main.async { if self?.devices != devices { self?.devices = devices } } }
-        monitor.onStatus = { [weak self] value in DispatchQueue.main.async { self?.inputStatus = value } }
+        monitor.onStatus = { [weak self] value in DispatchQueue.main.async { self?.inputStatus = value; self?.refreshGamingAvailability() } }
         let engine = audio
         monitor.onEvent = { [weak self] event in
             engine.handle(event)
             DispatchQueue.main.async { self?.receive(event) }
         }
-        monitor.onReset = { [weak self] in engine.reset(); DispatchQueue.main.async { self?.clearVisuals() } }
+        monitor.onReset = { [weak self] in engine.reset(); DispatchQueue.main.async { self?.clearVisuals(); self?.gamingOverlay.setAvailable(false) } }
         // AI mode's keystrokes take the same path as physical ones, minus the toggle shortcut.
         ai.onEvent = { [weak self] event in engine.handle(event); self?.visualize(event) }
         ai.onStatus = { [weak self] value in self?.aiStatus = value }
@@ -73,7 +75,7 @@ import UniformTypeIdentifiers
         audio.begin(); audio.configure(settings); configureAI(); monitor.begin(); refreshLogin()
         let workspace = NSWorkspace.shared.notificationCenter
         for name in [NSWorkspace.willSleepNotification,NSWorkspace.sessionDidResignActiveNotification] {
-            observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.sessionActive = false; self?.monitor.setSuspended(true); self?.audio.reset(); self?.clearVisuals() } })
+            observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.sessionActive = false; self?.monitor.setSuspended(true); self?.audio.reset(); self?.clearVisuals(); self?.gamingOverlay.setAvailable(false) } })
         }
         for name in [NSWorkspace.didWakeNotification,NSWorkspace.sessionDidBecomeActiveNotification] {
             observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.sessionActive = true; self?.monitor.setSuspended(false); self?.audio.recover() } })
@@ -85,11 +87,14 @@ import UniformTypeIdentifiers
         do { defaults.set(try JSONEncoder().encode(settings),forKey:"appSettings.v1") }
         catch { self.error = "Settings could not be saved: \(error.localizedDescription)" }
         audio.configure(settings); configureAI()
+        refreshGamingAvailability()
         if !settings.enabled || !settings.visualizer.enabled { clearVisuals() }
         onPreferences?()
     }
     private func configureAI() { ai.configure(enabled:settings.aiMode ?? false,speed:settings.aiSpeed ?? 0.35,folder:settings.aiFolder) }
     private func receive(_ event: PhysicalInputEvent) {
+        refreshGamingAvailability()
+        gamingOverlay.receive(event)
         if recordingShortcut, event.transition == .press, !KeyGeometry.modifierKeys.contains(event.key), !event.isMouse {
             settings.shortcutKey = event.key
             let mask = CGEventFlags.maskCommand.rawValue | CGEventFlags.maskControl.rawValue | CGEventFlags.maskAlternate.rawValue | CGEventFlags.maskShift.rawValue
@@ -98,6 +103,10 @@ import UniformTypeIdentifiers
         }
         if shortcut.matches(event,settings:settings) { toggle(); clearVisuals(); return }
         visualize(event)
+    }
+    private func refreshGamingAvailability() {
+        gamingOverlay.setAvailable(settings.enabled && sessionActive && !IsSecureEventInputEnabled()
+                                   && inputStatus == "Listening to physical input")
     }
     func visualize(_ event: PhysicalInputEvent) {
         guard settings.enabled, settings.visualizer.enabled else { return }
