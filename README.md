@@ -42,6 +42,8 @@ Choose **Sound → Switch → Classic · Typewriter** to use the new sound. The 
 
 ## Included
 
+- Practice window: English, Swift/JavaScript/Python code, or your own text; 30-second, 1-minute and 2-minute attempts; WPM, accuracy, marked errors, a key trail, and local result history. Open **Practice…** from Board's menu, or press **Command–Shift–P** while Board is active.
+
 - Native status menu; six Settings sections; onboarding, permission status, mute and independent volumes.
 - One listen-only session event tap; transition deduplication, repeat suppression, Secure Input pause, sleep/session reset and permission retry.
 - 32 preloaded playback voices, authentic down/up samples, native spatial output, limiter, offline tone preparation, gain/pitch variation and home-row softness.
@@ -67,6 +69,16 @@ What Board plays isn't the code your agent is writing. Board 0.4.1 had Claude Co
 Code text stays on this Mac: Board never logs it or sends it anywhere.
 
 ## Verification
+
+### Practice
+
+The first committed character starts the clock. WPM is correct characters currently entered divided by five, per minute of active typing time. Accuracy is correct insertion attempts divided by all insertion attempts; correcting a mistake does not erase it from accuracy. Editing earlier text does not recount its unchanged suffix. Return inserts a new line; in code passages Tab inserts four spaces and Control–Tab leaves the typing field. Paste and drop are disabled in a scored attempt; paste your passage in **Your text → Edit text…** instead.
+
+The Practice controller is wired to pause when its window loses focus, the session sleeps or locks, or Secure Input is enabled, with an explicit Resume action. Its key trail consumes only keys received by its own typing field. Sound still comes from the existing physical input monitor, so Input Monitoring permission is required for typing sounds; Practice adds no second sound path. The footer shows when Board is off, muted, or lacks permission.
+
+History keeps the latest 200 completed result summaries in `UserDefaults` under `practice.history.v1`. It never saves passage text, typed text, or individual keys. Personal bests are separate for each mode, duration, and code language; custom passages have no shared best. Custom text is limited to 10,000 characters, stays in memory, and is cleared when Practice closes. **History → Clear History…** removes saved results and bests. English/code passages repeat for the timed attempt; reaching the end of a custom passage finishes early. Unfinished attempts are not saved. Drills are not included.
+
+Practice tests cover scoring, corrections, time limits, pause/resume with injected availability flags, Secure Input gating, Unicode composition through native text input, result persistence, and off-screen rendering. Screenshot artifacts are written to `/private/tmp/board-practice-artifacts/` by the test suite. Actual window-focus transitions, the menu shortcut, OS Secure Input changes, accessibility activation, and audible hardware playback still need an interactive check. The tests do not grant Input Monitoring permission.
 
 ```sh
 bash Scripts/test.sh

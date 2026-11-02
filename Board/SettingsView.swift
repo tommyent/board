@@ -100,7 +100,7 @@ struct GeneralSettings: View {
     var body: some View {
         SettingsCard(title:"Physical input") {
             Label(app.inputStatus,systemImage:app.inputStatus.hasPrefix("Listening") ? "checkmark.shield.fill" : "hand.raised.fill").foregroundStyle(app.inputStatus.hasPrefix("Listening") ? .green : .orange)
-            Text("Board responds to physical key positions and mouse buttons. It does not read, record, or transmit typed text. Secure Input pauses monitoring. Local sound previews work without permission.").font(.callout).foregroundStyle(.secondary)
+            Text("System-wide sounds respond to physical key positions and mouse buttons without reading or recording typed text. Practice reads only text entered in its own window and saves result summaries locally. Secure Input pauses monitoring and Practice. Local sound previews work without permission.").font(.callout).foregroundStyle(.secondary)
             if app.inputStatus.hasPrefix("Input Monitoring required") {
                 if app.inputRequested { Button("Open Input Monitoring Settings") { app.openInputSettings() }.buttonStyle(.borderedProminent) }
                 else { Button("Request Input Monitoring") { app.requestInput() }.buttonStyle(.borderedProminent) }
