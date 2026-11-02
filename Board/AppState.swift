@@ -16,7 +16,8 @@ import UniformTypeIdentifiers
     @Published var error: String?
     @Published var heldKeys = Set<Int>()
     @Published var combo = ComboState()
-    @Published var pills: [String] = []
+    @Published var visualTrail = VisualizerTrail()
+    private var visualExpiry: DispatchWorkItem?
     @Published var selectedKey = 0
     @Published var recordingShortcut = false
     @Published var loginStatus = ""
@@ -98,19 +99,35 @@ import UniformTypeIdentifiers
         if shortcut.matches(event,settings:settings) { toggle(); clearVisuals(); return }
         visualize(event)
     }
-    private func visualize(_ event: PhysicalInputEvent) {
+    func visualize(_ event: PhysicalInputEvent) {
         guard settings.enabled, settings.visualizer.enabled else { return }
-        if event.transition == .release { heldKeys.remove(event.key); return }
         guard !event.isMouse else { return }
+        if event.transition == .release {
+            guard heldKeys.remove(event.key) != nil else { return }
+            visualTrail.release(event.key,at:event.timestamp)
+            scheduleVisualExpiry()
+            if settings.visualizer.style == "Keyboard" { onVisualEvent?(false) }
+            return
+        }
         heldKeys.insert(event.key)
         let shuffle = combo.press(at:event.timestamp,settings:settings.visualizer)
-        let chord = KeyGeometry.chord(event)
-        if !KeyGeometry.modifierKeys.contains(event.key) {
-            pills.append(chord); pills = Array(pills.suffix(6))
-        }
+        visualTrail.press(event)
+        scheduleVisualExpiry()
         onVisualEvent?(shuffle)
     }
-    func clearVisuals() { heldKeys.removeAll(); pills.removeAll(); combo.clear(); onVisualReset?() }
+    private func scheduleVisualExpiry() {
+        visualExpiry?.cancel(); visualExpiry = nil
+        guard let deadline = visualTrail.nextExpiry else { return }
+        let task = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.visualTrail.expire(at:ProcessInfo.processInfo.systemUptime)
+            self.scheduleVisualExpiry()
+        }
+        visualExpiry = task
+        DispatchQueue.main.asyncAfter(deadline:.now()+max(0,deadline-ProcessInfo.processInfo.systemUptime),execute:task)
+    }
+    func clearVisualTail() { visualExpiry?.cancel(); visualExpiry = nil; visualTrail = VisualizerTrail() }
+    func clearVisuals() { heldKeys.removeAll(); clearVisualTail(); combo.clear(); onVisualReset?() }
     func toggle() { settings.enabled.toggle(); if settings.toggleCues { audio.cue(enabled:settings.enabled) }; clearVisuals() }
     func requestInput() { _ = CGRequestListenEventAccess(); inputRequested = true; monitor.refreshSoon() }
     func openInputSettings() {
@@ -176,7 +193,7 @@ import UniformTypeIdentifiers
         for (i,key) in [0,1,2,3].enumerated() {
             DispatchQueue.main.asyncAfter(deadline:.now()+Double(i)*0.15) {
                 self.receive(.init(key:key,transition:.press,modifiers:0,timestamp:ProcessInfo.processInfo.systemUptime))
-                DispatchQueue.main.asyncAfter(deadline:.now()+0.1) { self.heldKeys.remove(key) }
+                DispatchQueue.main.asyncAfter(deadline:.now()+0.1) { self.visualize(.init(key:key,transition:.release,modifiers:0,timestamp:ProcessInfo.processInfo.systemUptime)) }
             }
         }
     }

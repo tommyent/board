@@ -5,6 +5,87 @@ import AudioToolbox
 @testable import Board
 
 final class BoardTests: XCTestCase {
+    func testVisualizerTrailIdentityCapacityAndRepeatCoalescing() {
+        var trail = VisualizerTrail()
+        func press(_ key: Int, _ time: Double, _ modifiers: UInt64 = 0) -> PhysicalInputEvent {
+            .init(key:key,transition:.press,modifiers:modifiers,timestamp:time)
+        }
+        trail.press(press(51,0))
+        let repeatedID = trail.strokes[0].id
+        trail.press(press(51,0.1)); trail.press(press(51,0.2))
+        XCTAssertEqual(trail.strokes.count,1)
+        XCTAssertEqual(trail.strokes[0].id,repeatedID)
+        XCTAssertEqual(trail.strokes[0].label,"⌫ ×3")
+        trail.press(press(51,0.3,CGEventFlags.maskCommand.rawValue))
+        XCTAssertEqual(trail.strokes.count,2,"A different chord must not coalesce")
+        trail.press(press(51,0.7))
+        XCTAssertEqual(trail.strokes.count,3,"Separated repeats get their own identity")
+        let preservedID = trail.strokes.last!.id
+        for key in 0..<14 { trail.press(press(key,0.8+Double(key)*0.01)) }
+        XCTAssertEqual(trail.strokes.count,15)
+        XCTAssertEqual(trail.strokes.first?.id,preservedID)
+        XCTAssertEqual(Set(trail.strokes.map(\.id)).count,15)
+        XCTAssertFalse(trail.strokes.contains { $0.id == repeatedID })
+        trail.expire(at:3)
+        XCTAssertTrue(trail.strokes.isEmpty)
+        XCTAssertNil(trail.nextExpiry)
+    }
+    func testVisualizerAfterglowExpiresAndRepressCancelsIt() {
+        var trail = VisualizerTrail()
+        trail.release(0,at:0); trail.release(1,at:0.5)
+        trail.expire(at:1.4)
+        XCTAssertNil(trail.releases[0]); XCTAssertEqual(trail.releases[1],0.5)
+        trail.press(.init(key:1,transition:.press,modifiers:0,timestamp:1.5))
+        XCTAssertNil(trail.releases[1])
+        trail.expire(at:3.5)
+        XCTAssertNil(trail.nextExpiry)
+    }
+    func testVisualizerMovementIsIndependentOfPlacement() {
+        var settings = VisualizerSettings()
+        settings.style = "Keystrokes"
+        for motion in VisualizerMotion.allCases {
+            settings.motion = motion.rawValue
+            for placement in ["Follow Cursor","Pin to Screen","Random"] {
+                settings.placement = placement
+                XCTAssertEqual(settings.movement,motion)
+                XCTAssertEqual(settings.tailDuration,1.9)
+                XCTAssertGreaterThanOrEqual(settings.panelSize.width,540)
+            }
+        }
+        XCTAssertLessThan(VisualizerMotion.pop.arrivalScale,1)
+        XCTAssertGreaterThan(VisualizerMotion.pulse.arrivalScale,1)
+        XCTAssertGreaterThan(VisualizerMotion.slide.arrivalX,0)
+        XCTAssertGreaterThan(VisualizerMotion.bounce.arrivalY,0)
+        settings.style = "Keyboard"
+        XCTAssertEqual(settings.tailDuration,1.4)
+    }
+    @MainActor func testVisualizerExpiryAndSecureReset() async throws {
+        let app = AppState(defaults:UserDefaults(suiteName:"com.tommyent.Board.tests.visualizer")!)
+        app.settings.visualizer.enabled = true
+        app.settings.visualizer.style = "Keystrokes"
+        var presentations = 0
+        app.onVisualEvent = { _ in presentations += 1 }
+        let time = ProcessInfo.processInfo.systemUptime
+        app.visualize(.init(key:0,transition:.press,modifiers:0,timestamp:time))
+        app.visualize(.init(key:0,transition:.release,modifiers:0,timestamp:time+0.01))
+        XCTAssertTrue(app.heldKeys.isEmpty)
+        XCTAssertEqual(app.visualTrail.strokes.count,1)
+        XCTAssertNotNil(app.visualTrail.releases[0])
+        XCTAssertEqual(presentations,1,"A release must not reopen a dismissed ribbon")
+        try await Task.sleep(for:.seconds(2.1))
+        XCTAssertTrue(app.visualTrail.strokes.isEmpty)
+        XCTAssertTrue(app.visualTrail.releases.isEmpty)
+        app.visualize(.init(key:1,transition:.press,modifiers:0,timestamp:ProcessInfo.processInfo.systemUptime))
+        var resets = 0
+        app.onVisualReset = { resets += 1 }
+        app.clearVisuals() // InputMonitor's Secure Input reset uses this path.
+        XCTAssertTrue(app.heldKeys.isEmpty)
+        XCTAssertEqual(app.visualTrail,VisualizerTrail())
+        XCTAssertEqual(app.combo.count,0)
+        XCTAssertEqual(resets,1)
+        try await Task.sleep(for:.seconds(2))
+        XCTAssertEqual(app.visualTrail,VisualizerTrail(),"Cancelled expiry must not resurrect old input")
+    }
     func testPhysicalTransitionsAndShortcut() {
         var normalizer = InputNormalizer()
         XCTAssertNotNil(normalizer.accept(key:0,down:true,time:0))
@@ -85,10 +166,12 @@ final class BoardTests: XCTestCase {
     }
     @MainActor func testSpaceChangeClearsKeystrokeLabels() {
         let app = AppState(defaults:UserDefaults(suiteName:"com.tommyent.Board.tests.space")!), overlay = OverlayController(app:app)
-        app.pills = ["⌘ S"]
+        app.heldKeys = [1]
+        app.visualTrail.press(.init(key:1,transition:.press,modifiers:CGEventFlags.maskCommand.rawValue,timestamp:ProcessInfo.processInfo.systemUptime))
         NSWorkspace.shared.notificationCenter.post(name:NSWorkspace.activeSpaceDidChangeNotification,object:nil)
         RunLoop.main.run(until:Date()+0.1)
-        XCTAssertEqual(app.pills,[])
+        XCTAssertTrue(app.visualTrail.strokes.isEmpty)
+        XCTAssertTrue(app.heldKeys.isEmpty)
         withExtendedLifetime(overlay) {}
     }
     func testAppIconColors() throws {

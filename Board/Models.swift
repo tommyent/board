@@ -165,6 +165,52 @@ struct SoundPreset: Identifiable, Codable, Equatable {
     var name: String
     var sound: SoundConfiguration
 }
+struct KeystrokeVisual: Identifiable, Equatable {
+    let id = UUID()
+    let key: Int
+    let chord: String
+    var count = 1
+    var time: TimeInterval
+    var label: String { chord + (count > 1 ? " ×\(count)" : "") }
+}
+
+struct VisualizerTrail: Equatable {
+    static let capacity = 15
+    static let lifetime = 1.9
+    static let afterglow = 1.4
+    private(set) var strokes: [KeystrokeVisual] = []
+    private(set) var releases: [Int:TimeInterval] = [:]
+
+    mutating func press(_ event: PhysicalInputEvent) {
+        expire(at:event.timestamp)
+        releases[event.key] = nil
+        guard !KeyGeometry.modifierKeys.contains(event.key) else { return }
+        let chord = KeyGeometry.chord(event)
+        if let last = strokes.last, last.key == event.key, last.chord == chord, event.timestamp-last.time < 0.3 {
+            strokes[strokes.count-1].count += 1
+            strokes[strokes.count-1].time = event.timestamp
+        } else {
+            strokes.append(KeystrokeVisual(key:event.key,chord:chord,time:event.timestamp))
+            if strokes.count > Self.capacity { strokes.removeFirst(strokes.count-Self.capacity) }
+        }
+    }
+    mutating func release(_ key: Int, at time: TimeInterval) { releases[key] = time }
+    mutating func expire(at time: TimeInterval) {
+        strokes.removeAll { time-$0.time >= Self.lifetime }
+        releases = releases.filter { time-$0.value < Self.afterglow }
+    }
+    var nextExpiry: TimeInterval? {
+        (strokes.map { $0.time+Self.lifetime } + releases.values.map { $0+Self.afterglow }).min()
+    }
+}
+
+enum VisualizerMotion: String, CaseIterable {
+    case pop = "Pop", slide = "Slide", bounce = "Bounce", pulse = "Pulse", float = "Float"
+    var arrivalScale: Double { switch self { case .pop:0.82; case .pulse:1.12; default:1 } }
+    var arrivalX: Double { self == .slide ? 22 : 0 }
+    var arrivalY: Double { self == .bounce ? 14 : 0 }
+}
+
 struct VisualizerSettings: Codable, Equatable {
     var enabled = false
     var style = "Keyboard"
@@ -181,6 +227,15 @@ struct VisualizerSettings: Codable, Equatable {
     var comboReset = 2.0
     var preserveCombo = false
     var keepComboVisible = false
+    var movement: VisualizerMotion { motion == "Float" && style != "Keystrokes" ? .pop : (VisualizerMotion(rawValue:motion) ?? .pop) }
+    var tailDuration: TimeInterval { style == "Keystrokes" ? VisualizerTrail.lifetime : (style == "Keyboard" ? VisualizerTrail.afterglow : 0) }
+    var panelSize: CGSize {
+        switch style {
+        case "Combo": CGSize(width:210,height:170)
+        case "Keystrokes": movement == .float ? CGSize(width:840,height:230) : (flow == "Column" ? CGSize(width:180,height:640) : CGSize(width:840,height:90))
+        default: CGSize(width:420,height:170)
+        }
+    }
 }
 struct AppSettings: Codable, Equatable {
     var version = 1
