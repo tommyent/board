@@ -7,6 +7,9 @@ struct KeyboardView: View {
     var selected: Int? = nil
     var theme = "Dark"
     var accent: Accent
+    var sound: SoundConfiguration? = nil
+    var releases: [Int:TimeInterval] = [:]
+    var motion: VisualizerMotion = .pop
     var action: ((Int) -> Void)? = nil
     private var light: Bool { theme == "Light" || theme == "Glass Clear" }
     var body: some View {
@@ -17,7 +20,9 @@ struct KeyboardView: View {
                 RoundedRectangle(cornerRadius:8).fill(light ? Color.white.opacity(theme.hasPrefix("Glass") ? 0.45 : 0.9) : Color.black.opacity(theme.hasPrefix("Glass") ? 0.4 : 0.85))
                 ForEach(KeyGeometry.keys(layout)) { key in
                     let active = held.contains(key.id) || selected == key.id
-                    let face = KeyFace(label:key.label,active:active,light:light,accent:accent,unit:unit,width:unit*key.width-3,height:rowHeight*key.height-3)
+                    let profile = sound.flatMap { SoundProfile.find($0.overrides[key.id]?.profile ?? $0.profile) }
+                    let face = KeyFace(label:key.label,active:active,light:light,accent:accent,unit:unit,width:unit*key.width-3,height:rowHeight*key.height-3,stem:profile?.color,releasedAt:releases[key.id])
+                        .modifier(VisualArrival(trigger:active ? 1 : 0,motion:motion,enabled:active && sound != nil))
                     Group {
                         if let action { Button { action(key.id) } label: { face }.buttonStyle(.plain).accessibilityLabel("\(KeyGeometry.label(key.id)), physical key \(key.id)").accessibilityAddTraits(selected == key.id ? .isSelected : []) }
                         else { face.accessibilityHidden(true) }
@@ -35,31 +40,146 @@ struct KeyFace: View {
     let unit: Double
     let width: Double
     let height: Double
+    var stem: String? = nil
+    var releasedAt: TimeInterval? = nil
     var body: some View {
-        let background: Color = active ? accent.fill(light:light) : (light ? .black.opacity(0.055) : .white.opacity(0.12))
-        let foreground: Color = active ? accent.text(light:light) : (light ? .black.opacity(0.75) : .white.opacity(0.9))
+        let background: Color = active ? stem.map { Color(hex:$0) } ?? accent.fill(light:light) : (light ? .black.opacity(0.055) : .white.opacity(0.12))
+        let foreground: Color = active ? stem.map(stemText) ?? accent.text(light:light) : (light ? .black.opacity(0.75) : .white.opacity(0.9))
         Text(label)
             .font(.system(size:max(5,min(11,unit*0.3)),weight:.medium,design:.rounded))
             .frame(width:max(2,width),height:max(2,height))
             .background(background,in:RoundedRectangle(cornerRadius:3))
+            .background {
+                if let releasedAt, !active {
+                    KeyAfterglow(time:releasedAt,color:stem.map { Color(hex:$0) } ?? accent.fill(light:light))
+                }
+            }
             .foregroundStyle(foreground)
             .overlay(RoundedRectangle(cornerRadius:3).stroke(.primary.opacity(0.07)))
     }
 }
-struct OverlayContent: View {
-    @ObservedObject var app: AppState
+
+private func stemText(_ hex: String) -> Color {
+    let value = UInt64(hex,radix:16) ?? 0
+    let brightness = (Double((value>>16)&255)*0.2126 + Double((value>>8)&255)*0.7152 + Double(value&255)*0.0722)/255
+    return brightness > 0.55 ? .black.opacity(0.85) : .white
+}
+
+private struct KeyAfterglow: View {
+    let time: TimeInterval
+    let color: Color
+    @State private var faded = false
+    var body: some View {
+        let remaining = max(0,VisualizerTrail.afterglow-(ProcessInfo.processInfo.systemUptime-time))
+        RoundedRectangle(cornerRadius:3).fill(color)
+            .opacity(faded ? 0 : 0.65*remaining/VisualizerTrail.afterglow)
+            .task(id:time) {
+                var transaction = Transaction(); transaction.disablesAnimations = true
+                withTransaction(transaction) { faded = false }
+                await Task.yield()
+                guard !Task.isCancelled else { return }
+                withAnimation(.easeOut(duration:remaining)) { faded = true }
+            }
+    }
+}
+
+private struct VisualArrival: ViewModifier {
+    let trigger: Int
+    let motion: VisualizerMotion
+    var enabled = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    private var comboColor: Color { app.settings.visualizer.comboTheme == "Amber" ? .orange : (app.settings.visualizer.comboTheme == "Neon" ? .mint : .white) }
-    private var baseSize: CGSize {
-        switch app.settings.visualizer.style {
-        case "Combo": return CGSize(width:210,height:170)
-        case "Keystrokes": return app.settings.visualizer.flow == "Column" ? CGSize(width:180,height:330) : CGSize(width:540,height:80)
-        default: return CGSize(width:420,height:170)
-        }
+    @State private var settled = true
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(settled || reduceMotion || !enabled ? 1 : motion.arrivalScale)
+            .offset(x:settled || reduceMotion || !enabled ? 0 : motion.arrivalX,y:settled || reduceMotion || !enabled ? 0 : motion.arrivalY)
+            .opacity(settled || !enabled ? 1 : 0.65)
+            .task(id:trigger) {
+                guard enabled else { return }
+                var transaction = Transaction(); transaction.disablesAnimations = true
+                withTransaction(transaction) { settled = false }
+                await Task.yield()
+                guard !Task.isCancelled else { return }
+                withAnimation(reduceMotion ? .easeOut(duration:0.2) : .spring(response:0.32,dampingFraction:motion == .bounce ? 0.5 : 0.85)) { settled = true }
+            }
+    }
+}
+
+struct KeystrokeCap: View {
+    let stroke: KeystrokeVisual
+    let color: String
+    let progress: Double
+    let float: Bool
+    let reduceMotion: Bool
+    let light: Bool
+    var body: some View {
+        Text(stroke.label).font(.system(size:14,weight:.semibold,design:.rounded))
+            .lineLimit(1).minimumScaleFactor(0.5)
+            .frame(width:44,height:34)
+            .foregroundStyle(light ? Color.black.opacity(0.85) : .white)
+            .background(light ? Color.white.opacity(0.94) : Color(white:0.12).opacity(0.94),in:RoundedRectangle(cornerRadius:8))
+            .overlay(RoundedRectangle(cornerRadius:8).stroke(Color(hex:color).opacity(0.85),lineWidth:1.5))
+            .overlay(alignment:.bottom) { Capsule().fill(Color(hex:color)).frame(width:14,height:2).padding(.bottom,3) }
+            .scaleEffect(reduceMotion ? 1 : 1-0.24*progress)
+            .blur(radius:reduceMotion ? 0 : 1.5*progress*progress)
+            .opacity(max(0,1-progress))
+            .offset(x:float && !reduceMotion ? KeyGeometry.position(stroke.key,layout:"ANSI")*12*progress : 0,y:float && !reduceMotion ? -155*progress : 0)
+    }
+}
+
+private struct FadingKeystroke: View {
+    let stroke: KeystrokeVisual
+    let color: String
+    let settings: VisualizerSettings
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    // Seeds an animation's starting age; subsequent repeats restart it through the task.
+    @State private var progress: Double
+    init(stroke: KeystrokeVisual, color: String, settings: VisualizerSettings) {
+        self.stroke = stroke; self.color = color; self.settings = settings
+        _progress = State(initialValue:min(1,max(0,(ProcessInfo.processInfo.systemUptime-stroke.time)/VisualizerTrail.lifetime)))
     }
     var body: some View {
+        KeystrokeCap(stroke:stroke,color:color,progress:progress,float:settings.movement == .float,reduceMotion:reduceMotion,light:settings.theme == "Light" || settings.theme == "Glass Clear")
+            .modifier(VisualArrival(trigger:stroke.count,motion:settings.movement))
+            .task(id:stroke.time) {
+                let age = min(1,max(0,(ProcessInfo.processInfo.systemUptime-stroke.time)/VisualizerTrail.lifetime))
+                var transaction = Transaction(); transaction.disablesAnimations = true
+                withTransaction(transaction) { progress = age }
+                await Task.yield()
+                guard !Task.isCancelled else { return }
+                withAnimation(.easeIn(duration:VisualizerTrail.lifetime*(1-age))) { progress = 1 }
+            }
+    }
+}
+
+private struct KeystrokeRibbon: View {
+    @ObservedObject var app: AppState
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    var body: some View {
+        let settings = app.settings.visualizer
+        let floating = settings.movement == .float && !reduceMotion
+        let column = settings.flow == "Column" && settings.movement != .float
+        let layout = floating ? AnyLayout(ZStackLayout()) : (column ? AnyLayout(VStackLayout(spacing:6)) : AnyLayout(HStackLayout(spacing:6)))
+        layout {
+            ForEach(app.visualTrail.strokes) { stroke in
+                let profile = SoundProfile.find(app.settings.sound.overrides[stroke.key]?.profile ?? app.settings.sound.profile) ?? app.selectedProfile
+                FadingKeystroke(stroke:stroke,color:profile.color,settings:settings)
+                    .offset(x:floating ? KeyGeometry.position(stroke.key,layout:app.settings.layout)*300 : 0,y:floating ? 80 : 0)
+                    .transition(.opacity)
+            }
+        }
+        .animation(reduceMotion ? nil : .easeOut(duration:0.18),value:app.visualTrail.strokes.map(\.id))
+        .padding(12)
+    }
+}
+
+struct OverlayContent: View {
+    @ObservedObject var app: AppState
+    private var comboColor: Color { app.settings.visualizer.comboTheme == "Amber" ? .orange : (app.settings.visualizer.comboTheme == "Neon" ? .mint : .white) }
+    private var baseSize: CGSize { app.settings.visualizer.panelSize }
+    var body: some View {
         GeometryReader { geometry in
-            if app.settings.visualizer.style == "Bezel" { BezelView(count:app.combo.count,color:app.accent.tint) }
+            if app.settings.visualizer.style == "Bezel" { BezelView(count:app.combo.count,color:Color(hex:app.selectedProfile.color)).modifier(VisualArrival(trigger:app.combo.totalPresses,motion:app.settings.visualizer.movement)) }
             else {
                 let size = baseSize
                 let scale = min(geometry.size.width/size.width,geometry.size.height/size.height)
@@ -73,15 +193,11 @@ struct OverlayContent: View {
             case "Combo":
                 VStack(spacing:0) { Text("\(app.combo.count)").font(.system(size:70,weight:.black,design:.rounded)).foregroundStyle(comboColor).shadow(color:comboColor.opacity(0.6),radius:app.settings.visualizer.comboTheme == "Neon" ? 18 : 4); Text("COMBO").font(.system(size:12,weight:.heavy,design:.rounded)).tracking(5).foregroundStyle(comboColor.opacity(0.9)) }.padding(20).background(.black.opacity(0.78),in:RoundedRectangle(cornerRadius:25)).overlay(RoundedRectangle(cornerRadius:25).stroke(comboColor.opacity(0.6),lineWidth:2))
             case "Keystrokes":
-                let column = app.settings.visualizer.flow == "Column"
-                let layout = column ? AnyLayout(VStackLayout(spacing:8)) : AnyLayout(HStackLayout(spacing:8))
-                layout {
-                    ForEach(Array(app.pills.enumerated()),id:\.offset) { _, key in Text(key).font(.system(size:17,weight:.semibold,design:.rounded)).lineLimit(1).minimumScaleFactor(0.6).padding(.horizontal,13).padding(.vertical,10).background(.ultraThinMaterial,in:RoundedRectangle(cornerRadius:10)).overlay(RoundedRectangle(cornerRadius:10).stroke(.white.opacity(0.2))) }
-                }.padding(8)
+                KeystrokeRibbon(app:app)
             case "Bezel": BezelView(count:app.combo.count,color:app.accent.tint)
-            default: KeyboardView(layout:app.settings.layout,held:app.heldKeys,theme:app.settings.visualizer.theme,accent:app.accent).padding(8).background(.ultraThinMaterial,in:RoundedRectangle(cornerRadius:14))
+            default: KeyboardView(layout:app.settings.layout,held:app.heldKeys,theme:app.settings.visualizer.theme,accent:app.accent,sound:app.settings.sound,releases:app.visualTrail.releases,motion:app.settings.visualizer.movement).padding(8).background(.ultraThinMaterial,in:RoundedRectangle(cornerRadius:14))
             }
-        }.animation(reduceMotion ? nil : .easeOut(duration:0.12),value:app.heldKeys)
+        }.modifier(VisualArrival(trigger:app.combo.totalPresses,motion:app.settings.visualizer.movement,enabled:app.settings.visualizer.style == "Combo"))
     }
 }
 struct BezelView: View {
@@ -140,6 +256,7 @@ final class PassivePanel: NSPanel {
     }
     private var screen: NSScreen? { NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation,$0.frame,false) } ?? NSScreen.main ?? NSScreen.screens.first }
     func preferencesChanged() {
+        if app.settings.visualizer.placement != "Follow Cursor" { timer?.invalidate(); timer = nil }
         if !app.settings.visualizer.enabled || !app.settings.enabled { hide() }
         else if panel.isVisible { updatePosition() }
     }
@@ -152,9 +269,9 @@ final class PassivePanel: NSPanel {
         let task = DispatchWorkItem { [weak self] in
             guard let self else { return }
             self.timer?.invalidate(); self.timer = nil
-            if !(self.app.settings.visualizer.style == "Combo" && self.app.settings.visualizer.keepComboVisible) { self.panel.orderOut(nil); self.app.pills.removeAll() }
+            if !(self.app.settings.visualizer.style == "Combo" && self.app.settings.visualizer.keepComboVisible) { self.panel.orderOut(nil); self.app.clearVisualTail() }
         }
-        dismissal = task; DispatchQueue.main.asyncAfter(deadline:.now()+app.settings.visualizer.dismiss,execute:task)
+        dismissal = task; DispatchQueue.main.asyncAfter(deadline:.now()+max(app.settings.visualizer.dismiss,app.settings.visualizer.tailDuration),execute:task)
         comboExpiry?.cancel()
         let expiry = DispatchWorkItem { [weak self] in
             guard let self else { return }
@@ -167,14 +284,12 @@ final class PassivePanel: NSPanel {
             RunLoop.main.add(timer!,forMode:.common)
         }
     }
-    // Cancelling the dismissal skips its pill cleanup, so clear the labels here (a Space change would otherwise carry them over).
-    func hide() { dismissal?.cancel(); comboExpiry?.cancel(); timer?.invalidate(); timer = nil; panel.orderOut(nil); app.pills.removeAll() }
+    func hide() { dismissal?.cancel(); comboExpiry?.cancel(); timer?.invalidate(); timer = nil; panel.orderOut(nil); app.heldKeys.removeAll(); app.clearVisualTail() }
     private func updatePosition() {
         guard let screen else { return }
         let settings = app.settings.visualizer
         if settings.style == "Bezel" { panel.setFrame(screen.frame,display:true); return }
-        let base: NSSize
-        switch settings.style { case "Combo":base = NSSize(width:210,height:170); case "Keystrokes":base = settings.flow == "Column" ? NSSize(width:180,height:330) : NSSize(width:540,height:80); default:base = NSSize(width:420,height:170) }
+        let base = settings.panelSize
         let bounds = screen.visibleFrame.insetBy(dx:12,dy:12)
         let size = NSSize(width:min(bounds.width,base.width*settings.scale),height:min(bounds.height,base.height*settings.scale))
         panel.contentView?.wantsLayer = true
@@ -191,21 +306,6 @@ final class PassivePanel: NSPanel {
         origin.x = min(max(bounds.minX,origin.x),bounds.maxX-size.width); origin.y = min(max(bounds.minY,origin.y),bounds.maxY-size.height)
         let frame = NSRect(origin:origin,size:size)
         guard frame != panel.frame else { return }
-        let animate = panel.isVisible && settings.placement == "Random" && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-        if animate, ["Slide","Bounce"].contains(settings.motion) {
-            NSAnimationContext.runAnimationGroup { context in context.duration = settings.motion == "Bounce" ? 0.35 : 0.2; context.timingFunction = CAMediaTimingFunction(name:.easeOut); panel.animator().setFrame(frame,display:true) }
-            if settings.motion == "Bounce" {
-                let bounce = CAKeyframeAnimation(keyPath:"transform.translation.y")
-                bounce.values = [0,-14,5,0]; bounce.keyTimes = [0,0.45,0.75,1]; bounce.duration = 0.35
-                panel.contentView?.layer?.add(bounce,forKey:"arrival")
-            }
-        } else {
-            panel.setFrame(frame,display:true)
-            if animate, settings.motion == "Pulse" {
-                let pulse = CAKeyframeAnimation(keyPath:"transform.scale")
-                pulse.values = [0.9,1.06,1]; pulse.keyTimes = [0,0.5,1]; pulse.duration = 0.25
-                panel.contentView?.layer?.add(pulse,forKey:"arrival")
-            }
-        }
+        panel.setFrame(frame,display:true)
     }
 }
