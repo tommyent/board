@@ -4,6 +4,16 @@ Date: **2026-09-10**. Host: Apple Silicon MacBook Air, Xcode 27.0 (27A5252f), Sw
 
 **Current scope: 11 bundled sound profiles.** The user removed unavailable sounds and recording dependencies from the requested app. Hardware, permission, and performance verification remains limited as detailed below; earlier catalog counts describe historical builds.
 
+## Board 0.4.6 (build 10) — Gaming practice, 2026-11-01
+
+Merges `gaming` (8f9de8e, fbd4574), built on 0.4.5. It adds a Gaming tab to the Practice window with four drills (Reaction, Strafe rhythm, Key reversal, Hold + tap), its own history, and an opt-in floating overlay of the gaming keys and mouse buttons. The drill engine lives in `Board/Gaming/` and also builds as a separate Swift package (`Package.swift`). The project generator now includes Swift files in subfolders; regenerating the merged project changed nothing. The branch also removed the unreachable Bezel case in `OverlayContent.content`.
+
+- `bash Scripts/test.sh` on this MacBook Air (macOS 27.2, Xcode 27.2 27B52), app-hosted: **59 tests, 58 passed, 1 skipped, 0 failures**. That is the 30 from 0.4.5, 20 engine tests and 9 Gaming tests. The skipped one, `testNativeAccessibilityStartAndPauseActions`, skips itself because the off-screen SwiftUI window exposes no buttons to accessibility, so Start and Pause through accessibility are unverified.
+- `swift test` (the engine package alone): **20 tests, 0 failures**.
+- `bash Scripts/build.sh`: succeeded. `dist/Board.app` is 0.4.6 (10), Developer ID-signed with hardened runtime and a timestamp, `codesign --verify --deep --strict` valid, with no posting APIs.
+- Installed on this MacBook Air at 20:16. 0.4.5 was backed up first. It wasn't running: it ended at 19:43 through Board's own Quit, so there was nothing to quit through Vitals. The old bundle was trashed, the new one copied with `ditto`, and Board launched with `open -g`. `/Applications/Board.app` is 0.4.6 (10), its binary byte-identical to `dist/`, and it runs as the only Board process. tccd allowed its Input Monitoring preflight and both WindowServer checks (`kTCCServiceListenEvent`, `authValue=2`).
+- Not observed yet: any drill or the overlay on screen; the overlay over a full-screen game or in OBS; real focus, sleep, lock and Secure Input changes; VoiceOver; key sounds during a drill (single, not doubled); and latency of the keyboard, app and display path. The Gaming images are off-screen renders of test sessions.
+
 ## Board 0.4.5 (build 9) — keystroke trails and Practice, 2026-11-01
 
 Merges two branches built from 0.4.4. `visualizer` (453a860) brings the 15-key fading keystroke ribbon with repeat counts, Float and the other movements in every placement, a 1.4-second afterglow on the keyboard, and switch-colored highlights and caps. `practice` (2d144be) brings the Practice window. The branches didn't conflict. Practice had added its sources to the Xcode project by hand. `Scripts/generate_project.py` now adds every `Tests/*.swift` file, and the project is regenerated from it, so a later regeneration keeps the Practice tests. Practice keeps its own key trail for now.
