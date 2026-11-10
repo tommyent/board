@@ -18,13 +18,14 @@ The release is on this repository's [Releases](https://github.com/tommyent/board
 4. Board opens its Settings window. To hear sounds in other apps, Board needs the **Input Monitoring** permission:
    - Choose **Request Input Monitoring**.
    - If macOS shows a prompt, choose **Open System Settings**. If no prompt appears, choose **Open Input Monitoring Settings** in Board.
+   - If Board is missing from the list, use **+** below it to add Board from Applications. macOS may ask for your password before you can add an app.
    - In **Privacy & Security › Input Monitoring**, switch Board on. macOS asks for your password.
    - Quit Board and open it again. If macOS offers **Quit & Reopen**, choose it.
 5. Check that Settings says **Listening to physical input**, then choose **Got it — continue** to finish the first run.
 
 Without the permission Board still opens, and the sound previews in Settings work, but it can't hear your keys in other apps.
 
-If Board is missing from the Input Monitoring list: on macOS 26.5.1, no prompt appeared and the list stayed empty in testing. The **+** button under the list adds an app by hand, but that route has not been tested to the end.
+On the macOS 26.5.1 test system, a fresh request still showed no prompt and left the list empty after resetting Board's permission. **+** opened the account-password sheet; adding the app and granting access could not be completed without that password. Use the manual-add route above when Board is absent.
 
 Keep `Board.app` in one place. macOS ties the permission to the app's identifier and signing identity, so an update signed with the same identity keeps it. The two updates tested so far did.
 
@@ -61,6 +62,7 @@ Board starts on Durock Alpaca. Pick another under **Settings › Sound**, or fro
 - You can give single keys their own sound, save six favorites, and import your own recordings.
 - The mouse buttons and the Enter key can have their own sound, the same as the keyboard, or none. Typing, mouse and Enter each have their own volume.
 - Sounds are placed left to right by where the key sits on the keyboard, and you can choose the output device.
+- Motion & Fitness access is requested when you turn on head tracking, rather than at first launch. Head tracking needs supported headphones.
 
 ## Visualizers
 
@@ -113,6 +115,7 @@ AI mode is a sound cue for coding agents. While an agent is working, Board types
 - Board pauses while macOS Secure Input is on, for example in a password field.
 - Nothing leaves your Mac. The app makes no network connection.
 - Settings, results and imported sounds are stored on your Mac, in Board's preferences and in `~/Library/Application Support/Board/`.
+- Missing settings fields use their defaults while keeping your other choices. If saved settings cannot be read, Board tells you and keeps the original bytes in the `appSettings.v1.unreadable` preference before using defaults.
 
 ## More detail
 

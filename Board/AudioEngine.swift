@@ -41,7 +41,7 @@ final class KeyboardAudio {
     private var orbitTimer: DispatchSourceTimer?
     private var deviceTimer: DispatchSourceTimer?
     private var deviceSignature = ""
-    private let motion = CMHeadphoneMotionManager()
+    private var motion: CMHeadphoneMotionManager?
     private let motionQueue = OperationQueue()
     private var yawOffset = 0.0
     private var latestYaw = 0.0
@@ -60,17 +60,29 @@ final class KeyboardAudio {
             timer.resume(); self.deviceTimer = timer
         }
     }
-    func configure(_ settings: AppSettings) {
+    func configure(_ settings: AppSettings, requestMotionAccess: Bool = false) {
         queue.async {
             let old = self.settings; self.settings = settings
             if old.enabled != settings.enabled || old.muted != settings.muted { self.held.clear(); self.previewGeneration += 1; self.fadeStop() }
             if old.outputUID != settings.outputUID || old.outputKind != settings.outputKind { self.deviceSignature = ""; self.checkDevices() }
             self.headphones = self.selectedDevice().map { self.isHeadphones($0) } ?? false
+            // Even stopping updates asks for access; leave Motion untouched until the user opts in.
+            if settings.sound.headTracking, self.motion == nil,
+               requestMotionAccess || CMHeadphoneMotionManager.authorizationStatus() != .notDetermined {
+                self.motion = CMHeadphoneMotionManager()
+            }
+            if requestMotionAccess, let motion = self.motion, motion.isDeviceMotionAvailable {
+                motion.startDeviceMotionUpdates(); motion.stopDeviceMotionUpdates()
+            }
             if !settings.sound.headTracking || !settings.sound.spatial {
-                self.motion.stopDeviceMotionUpdates()
+                self.motion?.stopDeviceMotionUpdates()
                 self.lastOrientation = .init(yaw:0,pitch:0,roll:0)
                 self.environment.listenerAngularOrientation = self.lastOrientation
                 self.onMotion?(settings.sound.spatial ? "Head tracking off" : "Spatial audio off")
+            } else if self.motion == nil {
+                // Saved as on, but macOS was never asked (settings from another Mac, or a reset permission): say so
+                // instead of leaving a switch that looks on and does nothing.
+                self.onMotion?("Head tracking needs Motion access: switch it off and on again to be asked.")
             }
             if !settings.sound.orbit || !settings.sound.spatial { self.orbitTimer?.cancel(); self.orbitTimer = nil; self.environment.listenerAngularOrientation = self.lastOrientation }
             self.prepare(settings)
@@ -231,7 +243,7 @@ final class KeyboardAudio {
     }
     private func startMotion() {
         guard settings.sound.spatial else { return }
-        if settings.sound.headTracking && headphones && !motion.isDeviceMotionActive {
+        if settings.sound.headTracking, headphones, let motion, !motion.isDeviceMotionActive {
             guard motion.isDeviceMotionAvailable else {
                 lastOrientation = .init(yaw:0,pitch:0,roll:0)
                 environment.listenerAngularOrientation = lastOrientation
@@ -279,7 +291,7 @@ final class KeyboardAudio {
     }
     private func stopImmediately() {
         for voice in voices { voice.generation += 1; voice.player.stop(); voice.until = 0 }
-        held.clear(); engine.stop(); motion.stopDeviceMotionUpdates(); orbitTimer?.cancel(); orbitTimer = nil; idleTimer?.cancel(); idleTimer = nil
+        held.clear(); engine.stop(); motion?.stopDeviceMotionUpdates(); orbitTimer?.cancel(); orbitTimer = nil; idleTimer?.cancel(); idleTimer = nil
     }
     private func suspendNow() { stopImmediately(); onPlayback?("Audio suspended after idle · \(scheduledCount) sounds scheduled") }
     func cancelPreview() { queue.async { self.previewGeneration += 1 } }

@@ -10,11 +10,19 @@ The [README](../README.md) describes each feature in a few lines. This page keep
 - Mouse and Enter sounds can be None, the selected keyboard profile, or an imported recording.
 - Typing, mouse and Enter each have their own volume, and a key with its own sound has its own volume too. Mute silences everything.
 - The default profile is Durock Alpaca.
+- The Motion manager is created only for enabled head tracking. An explicit opt-in requests Motion & Fitness access; a background launch with an unanswered permission does not. Already answered permissions continue through the existing playback path. Supported headphones are still required for actual motion playback.
 
 ## Input
 
 - One listen-only event tap for the session. Board never posts events.
 - It removes duplicate transitions and ignores key repeat, pauses during Secure Input, resets after sleep or a session switch, and retries when the permission changes.
+- Input Monitoring requests use `CGRequestListenEventAccess` only after the user presses the request button. On the macOS 26.5.1 test system, even a fresh request did not show a prompt or add Board to the list. Settings explains the manual **+** route; its account-password sheet was observed, but access could not be granted there.
+
+## Settings recovery and support logs
+
+Missing fields in app, sound and visualizer settings take their defaults, including sound settings inside favorites. Other saved choices remain intact. Malformed data or an unsupported settings version is copied to the single `appSettings.v1.unreadable` preference before defaults are used, and an error explains where the copy is kept. The next unreadable payload replaces that one backup; it is not a history.
+
+Unified logs use subsystem `com.tommyent.Board`. They record the launch version, whether Settings opened and the onboarding/permission reasons, Input Monitoring permission changes, and input-tap installation or refusal. They never include key events, key codes or typed text. Read them with `/usr/bin/log show --last 5m --style compact --predicate 'subsystem == "com.tommyent.Board"'`.
 
 ## Visualizers
 
