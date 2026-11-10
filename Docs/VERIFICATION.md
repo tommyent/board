@@ -17,8 +17,21 @@ Reopen changed during 0.4.8 (7a2d392, the owner's decision of 2026-11-10): openi
   - After **Got it — continue** (saved `onboardingComplete` true), quit and `open -g` again, permission still missing: Settings opened. The same with a plain `open`.
   - With Board running and Settings closed, `open -g` on the app showed Settings again and brought Board to the front. This is the old reopen behaviour; with the menu bar icon on, the code from 7a2d392 on no longer does this (inferred from the code, not observed).
   - **Request Input Monitoring** showed no macOS prompt and did not add Board to System Settings › Privacy & Security › Input Monitoring (the list stayed empty; tccd logged "Service kTCCServiceListenEvent does not allow prompting"). The button changed to **Open Input Monitoring Settings**, which opened that pane. Adding Board with **+** asks for the account password.
-- Not observed on any package: a launch with onboarding finished and Input Monitoring allowed, which is the case that must not open Settings. Allowing it on the test Mac needs the account password in System Settings, so that path is covered only by the unit test and by reading the code. Board was not launched on the MacBook Air.
-- Not observed on the final package (965f758): anything. The new reopen rule in its four icon combinations, and the launches above, have not been run on it.
+- Not observed on the test Mac: a launch with onboarding finished and Input Monitoring allowed, which is the case that must not open Settings. Allowing it there needs the account password in System Settings, so that path is covered only by the unit test and by reading the code. Board was not launched on the MacBook Air.
+- Observed on a macOS 27.0.1 VM with the package built at 965f758 (CDHash `2ea79c5b…`), onboarding finished, Input Monitoring **not** granted, reading Board's windows from CGWindowList and the front app from `lsappinfo`, with Finder in front before each reopen:
+
+  | Menu bar icon | Dock | `open -g` on the running app | plain `open` |
+  |---|---|---|---|
+  | on | off | no Settings, Finder stays in front | no Settings, Board becomes the front app with no window |
+  | on | on | no Settings, Finder stays in front | no Settings, Board becomes the front app with no window |
+  | off | on | no Settings, Finder stays in front | no Settings, Board becomes the front app with no window; a Dock click does the same |
+  | off | off | Settings opens and Board comes to the front | not run |
+
+  - First run with `open -g`: Settings opened (behind the front app), and macOS asked "Allow “Board” to access your motion and fitness activity?" (answered Don't Allow).
+  - **Request Input Monitoring** showed macOS's Keystroke Receiving prompt on this system, and **Open System Settings** listed Board in Input Monitoring, switched off. Switching it on asks for the account password, which was not entered, so the permission was never granted.
+  - A launch with onboarding finished and the permission missing (`open -g`) opened Settings and brought Board to the front, as intended.
+  - With the Dock icon on, **Board › Settings…** in the menu bar and Command-comma open an empty window titled "Board Settings", not Board's Settings. The menu bar shows SwiftUI's menus (Board, View, Window, Help), not the ones `applicationDidFinishLaunching` builds; the empty window is the `Settings { EmptyView() }` scene in `BoardApp`. With the Dock icon on and the menu bar icon off there was therefore no way into Settings in the running app. Older than 0.4.8, but until 7a2d392 a Dock click opened the real Settings.
+- Still not observed on any package: a launch with onboarding finished and Input Monitoring allowed, and live keyboard sounds after it.
 
 ## Board 0.4.6 (build 10) — Gaming practice, 2026-11-01
 
