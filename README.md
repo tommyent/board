@@ -35,6 +35,7 @@ Keep `Board.app` in one place. macOS ties the permission to the app's identifier
 - **The menu bar icon** has the everyday controls: turn Board on or off, mute, volume, the switch, mouse and Enter sounds, favorites, the visualizer, Practice and Settings.
 - **A global shortcut turns Board on and off:** Control–Option–Command–K. You can change the key and how many taps it takes in **Settings › General**.
 - **Icons:** Board can show a menu bar icon, a Dock icon, both or neither (**Settings › General**). The app icon comes in five colors: Porcelain, Sage, Blue, Lilac and Graphite.
+- **Mac menus:** with the Dock icon on, Board has About, Services, Hide, the standard editing commands (including Undo and Redo), and a Window menu for Minimize, Zoom and Bring All to Front. About opens the About section in Settings. With the Dock icon off, Command-comma still opens Settings while a Board window is in front.
 
 ## Sounds
 
