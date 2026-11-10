@@ -114,7 +114,7 @@ struct GeneralSettings: View {
             if app.loginStatus.hasPrefix("Approval") { Button("Open Login Items") { SMAppService.openSystemSettingsLoginItems() } }
             Toggle("Show in Dock and Command–Tab",isOn:$app.settings.showDock)
             Toggle("Show menu bar icon",isOn:$app.settings.showMenu)
-            Text("Reopen Board from Finder or Spotlight to reveal Settings, even when both icons are hidden.").font(.caption).foregroundStyle(.secondary)
+            Text("With both icons hidden, open Board again from Finder or Spotlight to show Settings.").font(.caption).foregroundStyle(.secondary)
         }
         SettingsCard(title:"App icon") {
             HStack(spacing:14) {

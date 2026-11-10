@@ -44,7 +44,12 @@ final class ActionMenuItem: NSMenuItem {
     }
     // A launch opens no window (login items and `open -g` start Board in the background), except to finish onboarding or to ask for Input Monitoring.
     nonisolated static func opensSettingsAtLaunch(onboardingComplete:Bool,inputAllowed:Bool) -> Bool { !onboardingComplete || !inputAllowed }
-    func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows:Bool) -> Bool { showSettings(); return true }
+    // Opening Board again while it runs is the way into Settings only when no icon offers one; otherwise it does nothing.
+    nonisolated static func opensSettingsOnReopen(showMenu:Bool,showDock:Bool) -> Bool { !showMenu && !showDock }
+    func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows:Bool) -> Bool {
+        guard Self.opensSettingsOnReopen(showMenu:state.settings.showMenu,showDock:state.settings.showDock) else { return false }
+        showSettings(); return true
+    }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication) -> Bool { false }
     func applicationWillTerminate(_ notification:Notification) { state.audio.reset(); state.ai.stop() }
     func applyPreferences() {
