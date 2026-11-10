@@ -4,6 +4,19 @@ Date: **2026-09-10**. Host: Apple Silicon MacBook Air, Xcode 27.0 (27A5252f), Sw
 
 **Current scope: 11 bundled sound profiles.** The user removed unavailable sounds and recording dependencies from the requested app. Hardware, permission, and performance verification remains limited as detailed below; earlier catalog counts describe historical builds.
 
+## Board 0.4.8 (build 12) — no Settings window at launch, 2026-11-10
+
+Until 0.4.7, `applicationDidFinishLaunching` ended with an unconditional `showSettings()`, so every launch, including a login item and `open -g`, put the Settings window in front of the user's work. Now a launch opens Settings only while onboarding is unfinished (**Got it — continue** not yet chosen) or Input Monitoring is not allowed (`CGPreflightListenEventAccess()` is false). Opening Board again while it runs still opens Settings (`applicationShouldHandleReopen`), which is the only way in when both icons are hidden. 0.4.7 (build 11, 9dd875c) remembered the gaming overlay setting and has no entry of its own.
+
+- New `testLaunchOpensSettingsOnlyForOnboardingOrMissingPermission` covers the four combinations of the launch decision. `bash Scripts/test.sh` on this MacBook Air (macOS 27.3, Xcode 27.2 27B52), app-hosted: **61 tests, 60 passed, 1 skipped, 0 failures** (22 app, 20 engine, 10 Gaming, 9 Practice). The skipped one is still `testNativeAccessibilityStartAndPauseActions`.
+- `bash Scripts/build.sh`: succeeded. `dist/Board.app` is 0.4.8 (12), Developer ID-signed with hardened runtime and a timestamp, `codesign --verify --deep --strict` valid, with no posting APIs. Not notarized and not installed.
+- Observed on the test Mac (M1 MacBook Air, macOS 26.5.1, a clean account with no Board settings and no Input Monitoring grant), with the packaged app copied over, reading windows from CGWindowList and cua-driver 0.44.0:
+  - First run, `open -g`: the 890×740 **Board — Settings** window opened and Board came to the front.
+  - After **Got it — continue** (saved `onboardingComplete` true), quit and `open -g` again, permission still missing: Settings opened. The same with a plain `open`.
+  - With Board running and Settings closed, `open -g` on the app showed Settings again and brought Board to the front.
+  - **Request Input Monitoring** showed no macOS prompt and did not add Board to System Settings › Privacy & Security › Input Monitoring (the list stayed empty; tccd logged "Service kTCCServiceListenEvent does not allow prompting"). The button changed to **Open Input Monitoring Settings**, which opened that pane. Adding Board with **+** asks for the account password.
+- Not observed: a launch with onboarding finished and Input Monitoring allowed, which is the case that must open no window. Allowing it on the test Mac needs the account password in System Settings, so that path is covered only by the unit test and by reading the code. Board was not launched on the MacBook Air.
+
 ## Board 0.4.6 (build 10) — Gaming practice, 2026-11-01
 
 Merges `gaming` (8f9de8e, fbd4574), built on 0.4.5. It adds a Gaming tab to the Practice window with four drills (Reaction, Strafe rhythm, Key reversal, Hold + tap), its own history, and an opt-in floating overlay of the gaming keys and mouse buttons. The drill engine lives in `Board/Gaming/` and also builds as a separate Swift package (`Package.swift`). The project generator now includes Swift files in subfolders; regenerating the merged project changed nothing. The branch also removed the unreachable Bezel case in `OverlayContent.content`.
