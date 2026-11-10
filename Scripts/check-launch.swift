@@ -26,6 +26,10 @@ func checkLaunches() throws {
                 "Quit Board on the test machine before running this check")
     let defaults = UserDefaults(suiteName:identifier)!
     let original = defaults.persistentDomain(forName:identifier)
+    // This check overwrites Board's saved settings while it runs. On a Mac where Board is really used, an
+    // interrupted run would lose them, so it only runs where Board has no saved settings at all.
+    try require(original?.isEmpty ?? true,
+                "This Mac has saved Board settings, so it is not a clean test machine. Nothing was changed.")
     let originalFront = NSWorkspace.shared.frontmostApplication
     var running: NSRunningApplication?
     func stop() {

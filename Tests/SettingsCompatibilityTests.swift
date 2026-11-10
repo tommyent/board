@@ -21,6 +21,17 @@ final class SettingsCompatibilityTests: XCTestCase {
         }
         try check(AppSettings()); try check(SoundConfiguration()); try check(VisualizerSettings())
     }
+    func testEveryStoredSettingsPropertyIsSaved() throws {
+        // The three settings types list their coding keys by hand. A property left out of a list would silently
+        // stop being saved and loaded; Mirror sees every stored property, so a forgotten one fails here.
+        func check<T: Encodable>(_ value: T) throws {
+            let saved = Set(try XCTUnwrap(JSONSerialization.jsonObject(with:JSONEncoder().encode(value)) as? [String:Any]).keys)
+            XCTAssertEqual(saved,Set(Mirror(reflecting:value).children.compactMap(\.label)),String(describing:T.self))
+        }
+        var settings = AppSettings()   // optionals are only encoded when set
+        settings.iconColor = "Sage"; settings.aiMode = true; settings.aiSpeed = 0.2; settings.aiFolder = "/tmp/code"
+        try check(settings); try check(settings.sound); try check(settings.visualizer)
+    }
     func testMissingNestedFieldsKeepOtherSavedChoices() throws {
         var expected = AppSettings()
         expected.layout = "ISO"; expected.showDock = true; expected.onboardingComplete = true

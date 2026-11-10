@@ -77,7 +77,7 @@ On a test Mac with Input Monitoring off and Board stopped, the optional lifecycl
 swift Scripts/check-launch.swift --test-machine /path/to/test/Board.app
 ```
 
-It temporarily replaces Board's preferences with muted synthetic settings, checks the actual window list and front app, quits its test processes, and restores the previous preferences and front app. It refuses `/Applications/Board.app` and refuses to run while another Board process exists. It does not reset or grant permissions. It cannot cover a permission-granted launch on a machine where access cannot be granted.
+It temporarily replaces Board's preferences with muted synthetic settings, checks the actual window list and front app, quits its test processes, and restores the previous preferences and front app. It refuses `/Applications/Board.app`, refuses to run while another Board process exists, and refuses to run on a Mac that has any saved Board settings, because an interrupted run would lose them. It does not reset or grant permissions. It cannot cover a permission-granted launch on a machine where access cannot be granted.
 
 `python3 Scripts/generate-settings-fixtures.py` prints the historical fixture JSON. It compiles `Models.swift` directly from commits `2debb8c` and `9dd875c` and encodes their default `AppSettings`; it reads no real preferences. The checked-in outputs are under `Tests/Fixtures/`.
 
