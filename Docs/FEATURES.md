@@ -42,7 +42,11 @@ Five colors from the Board Keycap brand package: Porcelain (the bundled icon), S
 
 With **Show in Dock and Command–Tab** on, Board uses AppKit menus: **Board** (About, Practice, Settings, Services, Hide, Hide Others, Show All and Quit), **File** (Close Window), **Edit** (Undo, Redo, Cut, Copy, Paste and Select All) and **Window** (Minimize, Zoom, Bring All to Front and the open windows). About selects Settings' existing About section. There is no Help menu because Board has no bundled help or public help address yet.
 
-Standard shortcuts use the responder chain: Command-H hides Board, Option-Command-H hides other apps, Command-M minimizes the front window, and Command-Z / Shift-Command-Z undo and redo in editable text fields. Practice's scored input keeps its own editing rules. Command-comma opens the real Settings window, including with the Dock icon off; Command-Shift-P opens Practice. The status menu is unchanged.
+The shortcuts are the standard ones: Command-H hides Board, Option-Command-H hides other apps, Command-M minimizes the front window, and Command-Z / Shift-Command-Z undo and redo in editable text fields. Practice's scored input keeps its own editing rules. Command-comma opens the real Settings window; Command-Shift-P opens Practice. The status menu is unchanged.
+
+With the Dock icon off, macOS shows no menu bar for Board, but the shortcuts still work while a Board window is in front, with one exception: Command-H does nothing, because macOS does not hide an app that has no Dock icon.
+
+Known issue: if you minimize the Settings window, bring it back by opening Board again, and then switch **Show in Dock and Command–Tab** on, Board's menus do not open until you switch to another app and back. The shortcuts work meanwhile.
 
 ## AI mode
 

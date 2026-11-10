@@ -115,7 +115,7 @@ AI mode is a sound cue for coding agents. While an agent is working, Board types
 - Board pauses while macOS Secure Input is on, for example in a password field.
 - Nothing leaves your Mac. The app makes no network connection.
 - Settings, results and imported sounds are stored on your Mac, in Board's preferences and in `~/Library/Application Support/Board/`.
-- Missing settings fields use their defaults while keeping your other choices. If saved settings cannot be read, Board tells you and keeps the original bytes in the `appSettings.v1.unreadable` preference before using defaults.
+- An update keeps your settings. If saved settings ever can't be read, Board tells you, starts from defaults and keeps a copy of the old ones.
 
 ## More detail
 
