@@ -1,4 +1,9 @@
-# Board
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="Docs/images/readme-header-dark@2x.png">
+    <img alt="Board" src="Docs/images/readme-header-light@2x.png" width="640" height="160">
+  </picture>
+</h1>
 
 Board is a Mac app that plays the sound of a mechanical keyboard, or a typewriter, as you type. It plays sounds across your apps, except while macOS Secure Input is on, as in a password field. It runs from the menu bar and stays on your Mac: no account, no server, no network.
 
