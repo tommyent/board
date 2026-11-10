@@ -79,6 +79,10 @@ final class KeyboardAudio {
                 self.lastOrientation = .init(yaw:0,pitch:0,roll:0)
                 self.environment.listenerAngularOrientation = self.lastOrientation
                 self.onMotion?(settings.sound.spatial ? "Head tracking off" : "Spatial audio off")
+            } else if self.motion == nil {
+                // Saved as on, but macOS was never asked (settings from another Mac, or a reset permission): say so
+                // instead of leaving a switch that looks on and does nothing.
+                self.onMotion?("Head tracking needs Motion access: switch it off and on again to be asked.")
             }
             if !settings.sound.orbit || !settings.sound.spatial { self.orbitTimer?.cancel(); self.orbitTimer = nil; self.environment.listenerAngularOrientation = self.lastOrientation }
             self.prepare(settings)
