@@ -78,19 +78,7 @@ final class ActionMenuItem: NSMenuItem {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication) -> Bool { false }
     func applicationWillTerminate(_ notification:Notification) { state.audio.reset(); state.ai.stop() }
     func applyPreferences() {
-        if previousDock != state.settings.showDock {
-            let reactivate = previousDock == false && state.settings.showDock && NSApp.isActive
-            // Refresh AppKit's menu activation when an already-active accessory becomes a regular app.
-            if reactivate { NSApp.deactivate() }
-            NSApp.setActivationPolicy(state.settings.showDock ? .regular : .accessory)
-            previousDock = state.settings.showDock; appliedIcon = nil
-            if reactivate {
-                DispatchQueue.main.async { [weak self] in
-                    guard self?.state.settings.showDock == true, NSApp.activationPolicy() == .regular else { return }
-                    NSApp.activate()
-                }
-            }
-        }
+        if previousDock != state.settings.showDock { NSApp.setActivationPolicy(state.settings.showDock ? .regular : .accessory); previousDock = state.settings.showDock; appliedIcon = nil }
         // applicationIconImage only overrides the running app's Dock tile; nil restores the bundled Porcelain icon.
         if appliedIcon != (state.settings.iconColor ?? "Porcelain") { NSApp.applicationIconImage = state.settings.iconColor.flatMap { state.iconImages[$0] }; appliedIcon = state.settings.iconColor ?? "Porcelain" }
         if state.settings.showMenu, status == nil {
