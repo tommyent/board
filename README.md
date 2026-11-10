@@ -1,6 +1,6 @@
 # Board
 
-Board is a Mac app that plays the sound of a mechanical keyboard, or a typewriter, as you type. It works in every app, runs from the menu bar, and stays on your Mac: no account, no server, no network.
+Board is a Mac app that plays the sound of a mechanical keyboard, or a typewriter, as you type. It plays sounds across your apps, except while macOS Secure Input is on, as in a password field. It runs from the menu bar and stays on your Mac: no account, no server, no network.
 
 It comes with eleven recorded sounds, on-screen visualizers that show your keystrokes, a typing practice window, practice drills for games, and a mode that lets you hear when your coding agents are busy.
 
@@ -10,18 +10,23 @@ It comes with eleven recorded sounds, on-screen visualizers that show your keyst
 
 Board needs a Mac with Apple silicon. It is built for macOS 15 or later. It has been run on macOS 26.5.1 and on macOS 27.0.1 to 27.3, and not on macOS 15 itself.
 
-1. Download `Board-<version>.zip` from [Releases](https://github.com/tommyent/board/releases) and open it.
+The release is on this repository's [Releases](https://github.com/tommyent/board/releases) page. The repository is private, so the download needs access to it; there is no public download yet. With access you can also [build Board from source](#build-from-source).
+
+1. Download `Board-<version>.zip` from Releases and open it.
 2. Move `Board.app` to your Applications folder.
-3. Open Board. The first time, macOS asks whether you want to open an app downloaded from the internet; choose **Open**. The app is signed and notarized by Apple.
-4. Board opens its Settings window. To hear sounds in every app, Board needs the **Input Monitoring** permission:
-   - Choose **Request Input Monitoring**. On macOS 27, macOS showed a prompt with an **Open System Settings** button, and Board was listed under **Privacy & Security › Input Monitoring** with its switch off. On macOS 26.5.1 no prompt appeared and Board was not listed. The **+** button under that list adds an app by hand; that path has not been completed in testing.
-   - Switch Board on. macOS asks for your password.
+3. Open Board. The first time, macOS asks whether you want to open an app downloaded from the internet; choose **Open**. The release is signed with Developer ID and notarized by Apple.
+4. Board opens its Settings window. To hear sounds in other apps, Board needs the **Input Monitoring** permission:
+   - Choose **Request Input Monitoring**.
+   - If macOS shows a prompt, choose **Open System Settings**. If no prompt appears, choose **Open Input Monitoring Settings** in Board.
+   - In **Privacy & Security › Input Monitoring**, switch Board on. macOS asks for your password.
    - Quit Board and open it again. If macOS offers **Quit & Reopen**, choose it.
-5. Choose **Got it — continue**. Settings now shows **Listening to physical input**.
+5. Check that Settings says **Listening to physical input**, then choose **Got it — continue** to finish the first run.
 
 Without the permission Board still opens, and the sound previews in Settings work, but it can't hear your keys in other apps.
 
-Keep `Board.app` in one place. macOS ties the permission to the app, and an update from Releases keeps it.
+If Board is missing from the Input Monitoring list: on macOS 26.5.1, no prompt appeared and the list stayed empty in testing. The **+** button under the list adds an app by hand, but that route has not been tested to the end.
+
+Keep `Board.app` in one place. macOS ties the permission to the app's identifier and signing identity, so an update signed with the same identity keeps it. The two updates tested so far did.
 
 ## How it behaves
 
@@ -53,7 +58,7 @@ Board starts on Durock Alpaca. Pick another under **Settings › Sound**, or fro
 
 - Keys make a sound when you press them and another when you let go, as a real switch does. The typewriter plays one full stroke per press.
 - You can give single keys their own sound, save six favorites, and import your own recordings.
-- The mouse buttons and the Enter key can have their own sound, the same as the keyboard, or none.
+- The mouse buttons and the Enter key can have their own sound, the same as the keyboard, or none. Typing, mouse and Enter each have their own volume.
 - Sounds are placed left to right by where the key sits on the keyboard, and you can choose the output device.
 
 ## Visualizers

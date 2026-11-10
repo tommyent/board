@@ -8,6 +8,7 @@ The [README](../README.md) describes each feature in a few lines. This page keep
 - Native spatial output, a limiter, offline tone preparation, gain and pitch variation, and softer home-row keys.
 - Per-key overrides, six favorites, imports of your own recordings (validated before use), a preferred output device, an output-kind override, optional head tracking with supported headphones, and an eight-second orbit mode.
 - Mouse and Enter sounds can be None, the selected keyboard profile, or an imported recording.
+- Typing, mouse and Enter each have their own volume, and a key with its own sound has its own volume too. Mute silences everything.
 - The default profile is Durock Alpaca.
 
 ## Input
