@@ -1,4 +1,5 @@
 import SwiftUI
+import OSLog
 
 // A plain AppKit start: a SwiftUI App replaces the main menu AppDelegate builds, and its Settings… opened an empty window.
 @main enum BoardApp {
@@ -44,7 +45,10 @@ final class ActionMenuItem: NSMenuItem {
         state.showSettings = { [weak self] in self?.showSettings() }
         state.onPreferences = { [weak self] in self?.applyPreferences() }
         state.start(); applyPreferences()
-        if Self.opensSettingsAtLaunch(onboardingComplete:state.settings.onboardingComplete,inputAllowed:CGPreflightListenEventAccess()) { showSettings() }
+        let inputAllowed = CGPreflightListenEventAccess(), onboardingComplete = state.settings.onboardingComplete
+        let opensSettings = Self.opensSettingsAtLaunch(onboardingComplete:onboardingComplete,inputAllowed:inputAllowed)
+        if opensSettings { showSettings() }
+        Logger(subsystem:"com.tommyent.Board",category:"lifecycle").notice("Launch version=\(Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "unknown",privacy:.public) settingsOpened=\(opensSettings,privacy:.public) onboardingIncomplete=\(!onboardingComplete,privacy:.public) inputPermissionMissing=\(!inputAllowed,privacy:.public)")
     }
     // A launch does not open Settings (login items and `open -g` start Board in the background), except to finish onboarding or to ask for Input Monitoring.
     nonisolated static func opensSettingsAtLaunch(onboardingComplete:Bool,inputAllowed:Bool) -> Bool { !onboardingComplete || !inputAllowed }

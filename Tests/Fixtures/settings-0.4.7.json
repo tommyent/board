@@ -1,0 +1,59 @@
+{
+  "enabled" : true,
+  "gestureTaps" : 1,
+  "imports" : [
+
+  ],
+  "layout" : "ANSI",
+  "muted" : false,
+  "onboardingComplete" : false,
+  "outputKind" : "Auto",
+  "outputUID" : "",
+  "pauseOnHeadphones" : false,
+  "presets" : [
+
+  ],
+  "shortcutKey" : 40,
+  "shortcutModifiers" : 1835008,
+  "showDock" : false,
+  "showMenu" : true,
+  "sound" : {
+    "enter" : "none",
+    "enterVolume" : 0.35,
+    "headTracking" : false,
+    "homeSoftness" : 0.2,
+    "mouse" : "default",
+    "mouseVolume" : 0.25,
+    "normalization" : true,
+    "orbit" : false,
+    "overrides" : {
+
+    },
+    "pitch" : 0,
+    "profile" : "alpaca",
+    "spatial" : true,
+    "tone" : 0,
+    "variation" : true,
+    "volume" : 0.35,
+    "width" : 1
+  },
+  "toggleCues" : true,
+  "version" : 1,
+  "visualizer" : {
+    "comboReset" : 2,
+    "comboTheme" : "Amber",
+    "dismiss" : 1,
+    "enabled" : false,
+    "flow" : "Row",
+    "keepComboVisible" : false,
+    "motion" : "Pop",
+    "offset" : 35,
+    "pin" : "Bottom Center",
+    "placement" : "Follow Cursor",
+    "preserveCombo" : false,
+    "scale" : 1,
+    "shuffleEvery" : 5,
+    "style" : "Keyboard",
+    "theme" : "Dark"
+  }
+}

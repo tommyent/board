@@ -2,12 +2,13 @@ import SwiftUI
 import ServiceManagement
 import UniformTypeIdentifiers
 import Carbon
+import OSLog
 
 @MainActor final class AppState: ObservableObject {
     @Published var selectedSettingsSection: SettingsSection? = .general
-    @Published var settings: AppSettings { didSet { persistAndApply() } }
+    @Published var settings: AppSettings { didSet { persistAndApply(previous:oldValue) } }
     @Published var inputStatus = "Input Monitoring required"
-    // macOS shows its permission prompt only once, so after one request the card offers System Settings instead.
+    // After one request, offer System Settings even if macOS did not show a prompt.
     @Published var inputRequested = false
     @Published var audioStatus = "Preparing sound…"
     @Published var audioMetrics = ""
@@ -35,6 +36,7 @@ import Carbon
     let storage: URL
     let importDirectory: URL
     private let defaults: UserDefaults
+    private let logger = Logger(subsystem:"com.tommyent.Board",category:"settings")
     private var shortcut = ShortcutState()
     private var observers: [NSObjectProtocol] = []
     private var started = false
@@ -49,8 +51,15 @@ import Carbon
         storage = FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("Board")
         importDirectory = storage.appendingPathComponent("Imported Audio")
         audio = KeyboardAudio(root:resources,importsRoot:importDirectory)
-        if let data = defaults.data(forKey:"appSettings.v1"), let decoded = try? JSONDecoder().decode(AppSettings.self,from:data), decoded.version == 1 { settings = decoded }
-        else { settings = AppSettings() }
+        if let data = defaults.data(forKey:"appSettings.v1") {
+            if let decoded = try? JSONDecoder().decode(AppSettings.self,from:data), decoded.version == 1 { settings = decoded }
+            else {
+                defaults.set(data,forKey:"appSettings.v1.unreadable")
+                settings = AppSettings()
+                error = "Saved settings could not be read. Defaults are in use; the original data is kept in appSettings.v1.unreadable in Board’s preferences."
+                logger.error("Saved settings unreadable; original data backed up before using defaults")
+            }
+        } else { settings = AppSettings() }
         settings.validate()
     }
     func start() {
@@ -83,11 +92,11 @@ import Carbon
         }
         observers.append(NotificationCenter.default.addObserver(forName:NSApplication.didBecomeActiveNotification,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.monitor.refreshSoon(); self?.refreshLogin() } })
     }
-    private func persistAndApply() {
+    private func persistAndApply(previous: AppSettings) {
         guard started else { return }
         do { defaults.set(try JSONEncoder().encode(settings),forKey:"appSettings.v1") }
         catch { self.error = "Settings could not be saved: \(error.localizedDescription)" }
-        audio.configure(settings); configureAI()
+        audio.configure(settings,requestMotionAccess:settings.sound.headTracking && !previous.sound.headTracking); configureAI()
         refreshGamingAvailability()
         if !settings.enabled || !settings.visualizer.enabled { clearVisuals() }
         onPreferences?()
@@ -139,7 +148,11 @@ import Carbon
     func clearVisualTail() { visualExpiry?.cancel(); visualExpiry = nil; visualTrail = VisualizerTrail() }
     func clearVisuals() { heldKeys.removeAll(); clearVisualTail(); combo.clear(); onVisualReset?() }
     func toggle() { settings.enabled.toggle(); if settings.toggleCues { audio.cue(enabled:settings.enabled) }; clearVisuals() }
-    func requestInput() { _ = CGRequestListenEventAccess(); inputRequested = true; monitor.refreshSoon() }
+    func requestInput() {
+        let allowed = CGRequestListenEventAccess()
+        logger.notice("Input Monitoring requested; allowed=\(allowed,privacy:.public)")
+        inputRequested = true; monitor.refreshSoon()
+    }
     func openInputSettings() {
         let urls = [
             "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_ListenEvent",

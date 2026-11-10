@@ -104,7 +104,7 @@ struct GeneralSettings: View {
             if app.inputStatus.hasPrefix("Input Monitoring required") {
                 if app.inputRequested { Button("Open Input Monitoring Settings") { app.openInputSettings() }.buttonStyle(.borderedProminent) }
                 else { Button("Request Input Monitoring") { app.requestInput() }.buttonStyle(.borderedProminent) }
-                Text("After turning Board on, choose Quit & Reopen when macOS asks.").font(.caption).foregroundStyle(.secondary)
+                Text("If no prompt appears, open Input Monitoring Settings. If Board is missing from the list, use + to add Board from Applications; macOS may ask for your password first. Turn Board on, then quit and reopen it, or choose Quit & Reopen when offered.").font(.caption).foregroundStyle(.secondary)
             }
             if !app.settings.onboardingComplete { Button("Got it — continue") { app.settings.onboardingComplete = true } }
         }
