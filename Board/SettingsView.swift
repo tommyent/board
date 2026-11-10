@@ -100,7 +100,7 @@ struct GeneralSettings: View {
     var body: some View {
         SettingsCard(title:"Physical input") {
             Label(app.inputStatus,systemImage:app.inputStatus.hasPrefix("Listening") ? "checkmark.shield.fill" : "hand.raised.fill").foregroundStyle(app.inputStatus.hasPrefix("Listening") ? .green : .orange)
-            Text("Board responds to physical key positions and mouse buttons. It does not read, record, or transmit typed text. Secure Input pauses monitoring. Local sound previews work without permission.").font(.callout).foregroundStyle(.secondary)
+            Text("System-wide sounds respond to physical key positions and mouse buttons without reading or recording typed text. Practice reads only text entered in its own window and saves result summaries locally. Secure Input pauses monitoring and Practice. Local sound previews work without permission.").font(.callout).foregroundStyle(.secondary)
             if app.inputStatus.hasPrefix("Input Monitoring required") {
                 if app.inputRequested { Button("Open Input Monitoring Settings") { app.openInputSettings() }.buttonStyle(.borderedProminent) }
                 else { Button("Request Input Monitoring") { app.requestInput() }.buttonStyle(.borderedProminent) }
@@ -248,10 +248,10 @@ struct VisualizerPreferences: View {
     var body: some View {
         SettingsCard(title:"Display") {
             Toggle("Show visualizer",isOn:$app.settings.visualizer.enabled)
-            Picker("Style",selection:$app.settings.visualizer.style) { ForEach(["Keyboard","Keystrokes","Combo","Bezel"],id:\.self) { Text($0) } }.onChange(of:app.settings.visualizer.style) { app.settings.visualizer.enabled = true }
-            HStack { ForEach(["Dark","Light","Glass Dark","Glass Clear"],id:\.self) { theme in Button { app.settings.visualizer.theme = theme } label: { VStack { KeyboardView(layout:app.settings.layout,held:[0,1,2,3],theme:theme,accent:app.accent).frame(width:92,height:40); Text(theme).font(.caption2) }.padding(5).background(app.settings.visualizer.theme == theme ? Color.accentColor.opacity(0.18) : .clear,in:RoundedRectangle(cornerRadius:8)) }.buttonStyle(.plain).accessibilityLabel("\(theme) keyboard theme") } }
+            Picker("Style",selection:$app.settings.visualizer.style) { ForEach(["Keyboard","Keystrokes","Combo","Bezel"],id:\.self) { Text($0) } }.onChange(of:app.settings.visualizer.style) { app.settings.visualizer.enabled = true; if app.settings.visualizer.style != "Keystrokes", app.settings.visualizer.motion == "Float" { app.settings.visualizer.motion = "Pop" } }
+            HStack { ForEach(["Dark","Light","Glass Dark","Glass Clear"],id:\.self) { theme in Button { app.settings.visualizer.theme = theme } label: { VStack { KeyboardView(layout:app.settings.layout,held:[0,1,2,3],theme:theme,accent:app.accent,sound:app.settings.sound).frame(width:92,height:40); Text(theme).font(.caption2) }.padding(5).background(app.settings.visualizer.theme == theme ? Color.accentColor.opacity(0.18) : .clear,in:RoundedRectangle(cornerRadius:8)) }.buttonStyle(.plain).accessibilityLabel("\(theme) keyboard theme") } }
             Picker("Combo theme",selection:$app.settings.visualizer.comboTheme) { ForEach(["Monochrome","Amber","Neon"],id:\.self) { Text($0) } }
-            Picker("Keystroke flow",selection:$app.settings.visualizer.flow) { ForEach(["Row","Column"],id:\.self) { Text($0) } }
+            Picker("Keystroke flow",selection:$app.settings.visualizer.flow) { ForEach(["Row","Column"],id:\.self) { Text($0) } }.disabled(app.settings.visualizer.movement == .float)
             LabeledSlider(title:"Scale",value:$app.settings.visualizer.scale,range:0.5...2)
             Button("Preview visualizer") { app.demoVisualizer() }
         }
@@ -259,12 +259,14 @@ struct VisualizerPreferences: View {
             Picker("Placement",selection:$app.settings.visualizer.placement) { ForEach(["Follow Cursor","Pin to Screen","Random"],id:\.self) { Text($0) } }.onChange(of:app.settings.visualizer.placement) { app.settings.visualizer.enabled = true }
             Picker("Pinned position",selection:$app.settings.visualizer.pin) { ForEach(["Top Left","Top Center","Top Right","Bottom Left","Bottom Center","Bottom Right"],id:\.self) { Text($0) } }
             LabeledSlider(title:"Cursor offset",value:$app.settings.visualizer.offset,range:0...200,suffix:" pt")
-            Picker("Movement",selection:$app.settings.visualizer.motion) { ForEach(["Pop","Slide","Bounce","Pulse"],id:\.self) { Text($0) } }
+            Picker("Movement",selection:$app.settings.visualizer.motion) { ForEach(VisualizerMotion.allCases.filter { $0 != .float || app.settings.visualizer.style == "Keystrokes" }.map(\.rawValue),id:\.self) { Text($0) } }
+            Text("Movement works in every placement. Keystrokes also offers Float, which lifts each key along its keyboard column.").font(.caption).foregroundStyle(.secondary)
             Stepper("Shuffle every \(app.settings.visualizer.shuffleEvery) presses",value:$app.settings.visualizer.shuffleEvery,in:1...100)
             Text("Reduced Motion follows macOS Accessibility settings.").font(.caption).foregroundStyle(.secondary)
         }
         SettingsCard(title:"Timing") {
             LabeledSlider(title:"Dismiss after",value:$app.settings.visualizer.dismiss,range:0.3...5,suffix:" s")
+            Text("Keystrokes finish their 1.9-second tail; released keyboard keys glow for 1.4 seconds.").font(.caption).foregroundStyle(.secondary)
             LabeledSlider(title:"Combo resets after",value:$app.settings.visualizer.comboReset,range:0.3...10,suffix:" s")
             Toggle("Preserve combo through pauses",isOn:$app.settings.visualizer.preserveCombo)
             Toggle("Keep combo visible when idle",isOn:$app.settings.visualizer.keepComboVisible)
@@ -280,18 +282,6 @@ struct ExtrasSettings: View {
         }
         SettingsCard(title:"AI mode") {
             Toggle("Type along with coding agents",isOn:Binding(get:{app.settings.aiMode ?? false},set:{app.settings.aiMode = $0}))
-            ForEach(AIHook.Agent.allCases,id:\.self) { agent in
-                let command = app.aiHookCommands[agent], current = AIHook.runs(command,AIHook.script?.path)
-                HStack {
-                    VStack(alignment:.leading,spacing:2) {
-                        Text("\(agent.rawValue) hook")
-                        Text(command == nil ? "Not installed." : current ? "Installed. \(agent.rawValue) sends Board each file it writes or edits." : "Installed for another copy of Board. Install to use this one.").font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    if command != nil { Button("Remove") { app.removeAIHook(agent) } }
-                    if !current { Button("Install") { app.installAIHook(agent) }.disabled(AIHook.script == nil) }
-                }
-            }.onAppear { app.refreshAIHooks() }
             VStack(spacing:6) {
                 let speed = Binding(get:{app.settings.aiSpeed ?? 0.35},set:{app.settings.aiSpeed = $0})
                 HStack { Text("Typing speed"); Spacer(); Text("\(Int((1/AITyping.gap(speed.wrappedValue)).rounded())) keys a second").monospacedDigit().foregroundStyle(.secondary) }
@@ -304,7 +294,7 @@ struct ExtrasSettings: View {
                 if app.settings.aiFolder != nil { Button("Use Board's Code") { app.settings.aiFolder = nil } }
             }
             Text(app.aiStatus).font(.caption).foregroundStyle(.secondary)
-            Text("Plays key sounds and the visualizer only; Board never types into your apps. With a hook installed, Board types the code your agent writes, up to about ten seconds per edit, finished with ⌘S. Without one, or between edits while an agent works in Rex, Board codes along from real source files, which isn't what the agent is writing. Install adds one entry to ~/.claude/settings.json or ~/.codex/hooks.json and keeps the previous file next to it as .bak-board; Codex asks you to review a new hook before it runs it. Code stays on this Mac and isn't saved.").font(.caption).foregroundStyle(.secondary)
+            Text("Board only plays key sounds and the visualizer; it never types into your apps. It's a sound cue for your agents: while a coding agent works, Board types along, so you can hear when it's busy and when it stops. Board learns whether an agent is working from Rex, the terminal your agents run in; without Rex, it waits. The typing comes from real source files in the folder you choose, with the odd typo; it isn't the code the agent is writing. Code stays on this Mac and isn't saved.").font(.caption).foregroundStyle(.secondary)
         }
     }
 }

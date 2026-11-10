@@ -6,31 +6,30 @@ def ident(s): return hashlib.sha1(s.encode()).hexdigest()[:24].upper()
 objects = {}
 def add(name, value): objects[ident(name)] = value; return ident(name)
 def arr(items): return '(' + ', '.join(items) + ',)'
-files = sorted((ROOT/'Board').glob('*.swift'))
+files = sorted((ROOT/'Board').rglob('*.swift'))
 refs, builds, resources, code = [], [], [], []
 for file in files:
-    ref=add(file.name, '{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Board/'+file.name+'"; sourceTree = SOURCE_ROOT;}'); refs.append(ref)
+    ref=add(file.name, '{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "'+str(file.relative_to(ROOT))+'"; sourceTree = SOURCE_ROOT;}'); refs.append(ref)
     builds.append(add(file.name+'build', '{isa = PBXBuildFile; fileRef = '+ref+';}'))
     # Also copied verbatim to Resources/Code: AI mode codes along from Board's own sources by default.
     code.append(add(file.name+'code', '{isa = PBXBuildFile; fileRef = '+ref+';}'))
 for name, kind in [('Resources','folder'),('Assets.xcassets','folder.assetcatalog'),('BoardPorcelain.icon','folder.iconcomposer.icon')]:
     ref=add(name,'{isa = PBXFileReference; lastKnownFileType = '+kind+'; path = "Board/'+name+'"; sourceTree = SOURCE_ROOT;}'); refs.append(ref)
     resources.append(add(name+'build','{isa = PBXBuildFile; fileRef = '+ref+';}'))
-# The Claude Code hook ships inside the app, so AI mode's Install button can point Claude Code at it.
-hookRef=add('hookScript','{isa = PBXFileReference; lastKnownFileType = text.script.sh; path = Scripts/board-ai-hook; sourceTree = SOURCE_ROOT;}')
-hookBuild=add('hookScriptCopy','{isa = PBXBuildFile; fileRef = '+hookRef+';}')
-testRef=add('testFile','{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/BoardTests.swift; sourceTree = SOURCE_ROOT;}')
-testBuild=add('testBuild','{isa = PBXBuildFile; fileRef = '+testRef+';}')
+testRefs, testBuilds = [], []
+for file in sorted((ROOT/'Tests').rglob('*.swift')):
+    key = '' if file.name == 'BoardTests.swift' else file.name   # keeps BoardTests' original IDs
+    testRefs.append(add(key+'testFile','{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "'+str(file.relative_to(ROOT))+'"; sourceTree = SOURCE_ROOT;}'))
+    testBuilds.append(add(key+'testBuild','{isa = PBXBuildFile; fileRef = '+testRefs[-1]+';}'))
 appProduct=add('appProduct','{isa = PBXFileReference; explicitFileType = wrapper.application; path = "Board.app"; sourceTree = BUILT_PRODUCTS_DIR;}')
 testProduct=add('testProduct','{isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = BoardTests.xctest; sourceTree = BUILT_PRODUCTS_DIR;}')
 products=add('products','{isa = PBXGroup; name = Products; children = '+arr([appProduct,testProduct])+'; sourceTree = "<group>";}')
-main=add('main','{isa = PBXGroup; children = '+arr(refs+[hookRef,testRef,products])+'; sourceTree = "<group>";}')
+main=add('main','{isa = PBXGroup; children = '+arr(refs+testRefs+[products])+'; sourceTree = "<group>";}')
 source=add('sources','{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = '+arr(builds)+'; runOnlyForDeploymentPostprocessing = 0;}')
 resource=add('resources','{isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = '+arr(resources)+'; runOnlyForDeploymentPostprocessing = 0;}')
-copyHook=add('copyHook','{isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 7; files = '+arr([hookBuild])+'; name = "Copy Claude Code Hook"; runOnlyForDeploymentPostprocessing = 0;}')
 copyCode=add('copyCode','{isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = Code; dstSubfolderSpec = 7; files = '+arr(code)+'; name = "Copy Code for AI Mode"; runOnlyForDeploymentPostprocessing = 0;}')
 framework=add('frameworks','{isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;}')
-testSources=add('testSources','{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = '+arr([testBuild])+'; runOnlyForDeploymentPostprocessing = 0;}')
+testSources=add('testSources','{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = '+arr(testBuilds)+'; runOnlyForDeploymentPostprocessing = 0;}')
 def configs(scope, extra):
     ids=[]
     for mode in ['Debug','Release']:
@@ -42,7 +41,7 @@ appConfig=configs('app',{'PRODUCT_NAME':'"Board"','PRODUCT_MODULE_NAME':'Board',
 testConfig=configs('test',{'PRODUCT_NAME':'BoardTests','PRODUCT_BUNDLE_IDENTIFIER':'com.tommyent.Board.tests','GENERATE_INFOPLIST_FILE':'YES','TEST_HOST':'"$(BUILT_PRODUCTS_DIR)/Board.app/Contents/MacOS/Board"','BUNDLE_LOADER':'"$(TEST_HOST)"','LD_RUNPATH_SEARCH_PATHS':'"$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks"'})
 proxy=add('proxy','{isa = PBXContainerItemProxy; containerPortal = '+ident('project')+'; proxyType = 1; remoteGlobalIDString = '+ident('app')+'; remoteInfo = Board;}')
 dep=add('dependency','{isa = PBXTargetDependency; target = '+ident('app')+'; targetProxy = '+proxy+';}')
-app=add('app','{isa = PBXNativeTarget; buildConfigurationList = '+appConfig+'; buildPhases = '+arr([source,framework,resource,copyCode,copyHook])+'; buildRules = (); dependencies = (); name = Board; productName = "Board"; productReference = '+appProduct+'; productType = "com.apple.product-type.application";}')
+app=add('app','{isa = PBXNativeTarget; buildConfigurationList = '+appConfig+'; buildPhases = '+arr([source,framework,resource,copyCode])+'; buildRules = (); dependencies = (); name = Board; productName = "Board"; productReference = '+appProduct+'; productType = "com.apple.product-type.application";}')
 test=add('test','{isa = PBXNativeTarget; buildConfigurationList = '+testConfig+'; buildPhases = '+arr([testSources])+'; buildRules = (); dependencies = '+arr([dep])+'; name = BoardTests; productName = BoardTests; productReference = '+testProduct+'; productType = "com.apple.product-type.bundle.unit-test";}')
 proj=add('project','{isa = PBXProject; attributes = {LastUpgradeCheck = 2700;}; buildConfigurationList = '+projectConfig+'; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; knownRegions = (en, Base); mainGroup = '+main+'; productRefGroup = '+products+'; projectDirPath = ""; projectRoot = ""; targets = '+arr([app,test])+';}')
 out=ROOT/'Board.xcodeproj'; out.mkdir(exist_ok=True)

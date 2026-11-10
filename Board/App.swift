@@ -1,8 +1,12 @@
 import SwiftUI
 
-@main struct BoardApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    var body: some Scene { Settings { EmptyView() } }
+// A plain AppKit start: a SwiftUI App replaces the main menu AppDelegate builds, and its Settings… opened an empty window.
+@main enum BoardApp {
+    @MainActor static func main() {
+        let delegate = AppDelegate()
+        NSApplication.shared.delegate = delegate
+        NSApplication.shared.run()
+    }
 }
 final class ActionMenuItem: NSMenuItem {
     var handler: (() -> Void)?
@@ -16,6 +20,7 @@ final class ActionMenuItem: NSMenuItem {
     let state = AppState()
     private var status: NSStatusItem?
     private var settingsWindow: NSWindow?
+    private var practiceWindow: PracticeWindowController?
     private var overlays: OverlayController?
     private var menu = NSMenu()
     private var previewTask: DispatchWorkItem?
@@ -25,16 +30,24 @@ final class ActionMenuItem: NSMenuItem {
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil { return }
         NSApp.setActivationPolicy(.accessory)
         let appMenu = NSMenu(); let appItem = NSMenuItem(); appMenu.addItem(appItem)
-        let main = NSMenu(); main.addItem(ActionMenuItem("Settings…",key:",") { [weak self] in self?.showSettings() }); main.addItem(.separator()); main.addItem(ActionMenuItem("Quit Board",key:"q") { NSApp.terminate(nil) }); appItem.submenu = main
+        let main = NSMenu(); main.addItem(practiceMenuItem()); main.addItem(ActionMenuItem("Settings…",key:",") { [weak self] in self?.showSettings() }); main.addItem(.separator()); main.addItem(ActionMenuItem("Quit Board",key:"q") { NSApp.terminate(nil) }); appItem.submenu = main
         let fileItem = NSMenuItem(title:"File",action:nil,keyEquivalent:"")
         let fileMenu = NSMenu(title:"File")
         fileMenu.addItem(NSMenuItem(title:"Close Window",action:#selector(NSWindow.performClose(_:)),keyEquivalent:"w"))
         fileItem.submenu = fileMenu; appMenu.addItem(fileItem); NSApp.mainMenu = appMenu
+        let edit = NSMenu(title:"Edit"), editItem = NSMenuItem(title:"Edit",action:nil,keyEquivalent:"")
+        for (title, action, key) in [("Cut",#selector(NSText.cut(_:)),"x"),("Copy",#selector(NSText.copy(_:)),"c"),("Paste",#selector(NSText.paste(_:)),"v"),("Select All",#selector(NSText.selectAll(_:)),"a")] {
+            edit.addItem(NSMenuItem(title:title,action:action,keyEquivalent:key))
+        }
+        editItem.submenu = edit; appMenu.addItem(editItem)
         overlays = OverlayController(app:state)
         state.showSettings = { [weak self] in self?.showSettings() }
         state.onPreferences = { [weak self] in self?.applyPreferences() }
-        state.start(); applyPreferences(); showSettings()
+        state.start(); applyPreferences()
+        if Self.opensSettingsAtLaunch(onboardingComplete:state.settings.onboardingComplete,inputAllowed:CGPreflightListenEventAccess()) { showSettings() }
     }
+    // A launch does not open Settings (login items and `open -g` start Board in the background), except to finish onboarding or to ask for Input Monitoring.
+    nonisolated static func opensSettingsAtLaunch(onboardingComplete:Bool,inputAllowed:Bool) -> Bool { !onboardingComplete || !inputAllowed }
     func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows:Bool) -> Bool { showSettings(); return true }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication) -> Bool { false }
     func applicationWillTerminate(_ notification:Notification) { state.audio.reset(); state.ai.stop() }
@@ -62,6 +75,15 @@ final class ActionMenuItem: NSMenuItem {
             window.minSize = NSSize(width:850,height:650); settingsWindow = window
         }
         settingsWindow?.center(); settingsWindow?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps:true)
+    }
+    private func practiceMenuItem() -> NSMenuItem {
+        let item = ActionMenuItem("Practice…",key:"p") { [weak self] in
+            guard let self else { return }
+            if practiceWindow == nil { practiceWindow = PracticeWindowController(app:state) }
+            practiceWindow?.open()
+        }
+        item.keyEquivalentModifierMask = [.command,.shift]
+        return item
     }
     func menuNeedsUpdate(_ menu:NSMenu) { if menu === self.menu { buildMenu() } }
     func menu(_ menu:NSMenu,willHighlight item:NSMenuItem?) {
@@ -146,6 +168,7 @@ final class ActionMenuItem: NSMenuItem {
         position.addItem(.separator()); position.addItem(NSMenuItem.sectionHeader(title:"Pin to Screen"))
         for pin in ["Top Left","Top Center","Top Right","Bottom Left","Bottom Center","Bottom Right"] { position.addItem(toggle(pin,on:state.settings.visualizer.placement == "Pin to Screen" && state.settings.visualizer.pin == pin) { [weak self] in self?.state.settings.visualizer.pin = pin; self?.state.settings.visualizer.placement = "Pin to Screen"; self?.state.settings.visualizer.enabled = true }) }
         menu.addItem(.separator())
+        menu.addItem(practiceMenuItem())
         menu.addItem(ActionMenuItem("Settings…",key:",") { [weak self] in self?.showSettings() })
         menu.addItem(ActionMenuItem("About Board") { [weak self] in self?.state.selectedSettingsSection = .about; self?.showSettings() })
         menu.addItem(ActionMenuItem("Quit Board",key:"q") { NSApp.terminate(nil) })

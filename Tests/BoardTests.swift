@@ -5,6 +5,99 @@ import AudioToolbox
 @testable import Board
 
 final class BoardTests: XCTestCase {
+    func testVisualizerTrailIdentityCapacityAndRepeatCoalescing() {
+        var trail = VisualizerTrail()
+        func press(_ key: Int, _ time: Double, _ modifiers: UInt64 = 0) -> PhysicalInputEvent {
+            .init(key:key,transition:.press,modifiers:modifiers,timestamp:time)
+        }
+        trail.press(press(51,0))
+        let repeatedID = trail.strokes[0].id
+        trail.press(press(51,0.1)); trail.press(press(51,0.2))
+        XCTAssertEqual(trail.strokes.count,1)
+        XCTAssertEqual(trail.strokes[0].id,repeatedID)
+        XCTAssertEqual(trail.strokes[0].label,"⌫ ×3")
+        trail.press(press(51,0.3,CGEventFlags.maskCommand.rawValue))
+        XCTAssertEqual(trail.strokes.count,2,"A different chord must not coalesce")
+        trail.press(press(51,0.7))
+        XCTAssertEqual(trail.strokes.count,3,"Separated repeats get their own identity")
+        let preservedID = trail.strokes.last!.id
+        for key in 0..<14 { trail.press(press(key,0.8+Double(key)*0.01)) }
+        XCTAssertEqual(trail.strokes.count,15)
+        XCTAssertEqual(trail.strokes.first?.id,preservedID)
+        XCTAssertEqual(Set(trail.strokes.map(\.id)).count,15)
+        XCTAssertFalse(trail.strokes.contains { $0.id == repeatedID })
+        trail.expire(at:3)
+        XCTAssertTrue(trail.strokes.isEmpty)
+        XCTAssertNil(trail.nextExpiry)
+    }
+    func testVisualizerAfterglowExpiresAndRepressCancelsIt() {
+        var trail = VisualizerTrail()
+        trail.release(0,at:0); trail.release(1,at:0.5)
+        trail.expire(at:1.4)
+        XCTAssertNil(trail.releases[0]); XCTAssertEqual(trail.releases[1],0.5)
+        trail.press(.init(key:1,transition:.press,modifiers:0,timestamp:1.5))
+        XCTAssertNil(trail.releases[1])
+        trail.expire(at:3.5)
+        XCTAssertNil(trail.nextExpiry)
+    }
+    func testVisualizerMovementIsIndependentOfPlacement() {
+        var settings = VisualizerSettings()
+        settings.style = "Keystrokes"
+        for motion in VisualizerMotion.allCases {
+            settings.motion = motion.rawValue
+            for placement in ["Follow Cursor","Pin to Screen","Random"] {
+                settings.placement = placement
+                XCTAssertEqual(settings.movement,motion)
+                XCTAssertEqual(settings.tailDuration,1.9)
+                XCTAssertGreaterThanOrEqual(settings.panelSize.width,540)
+            }
+        }
+        XCTAssertLessThan(VisualizerMotion.pop.arrivalScale,1)
+        XCTAssertGreaterThan(VisualizerMotion.pulse.arrivalScale,1)
+        XCTAssertGreaterThan(VisualizerMotion.slide.arrivalX,0)
+        XCTAssertGreaterThan(VisualizerMotion.bounce.arrivalY,0)
+        settings.style = "Keyboard"
+        XCTAssertEqual(settings.tailDuration,1.4)
+    }
+    @MainActor func testVisualizerExpiryAndSecureReset() async throws {
+        let app = AppState(defaults:UserDefaults(suiteName:"com.tommyent.Board.tests.visualizer")!)
+        app.settings.visualizer.enabled = true
+        app.settings.visualizer.style = "Keystrokes"
+        var presentations = 0
+        app.onVisualEvent = { _ in presentations += 1 }
+        let time = ProcessInfo.processInfo.systemUptime
+        app.visualize(.init(key:0,transition:.press,modifiers:0,timestamp:time))
+        app.visualize(.init(key:0,transition:.release,modifiers:0,timestamp:time+0.01))
+        XCTAssertTrue(app.heldKeys.isEmpty)
+        XCTAssertEqual(app.visualTrail.strokes.count,1)
+        XCTAssertNotNil(app.visualTrail.releases[0])
+        XCTAssertEqual(presentations,1,"A release must not reopen a dismissed ribbon")
+        try await Task.sleep(for:.seconds(2.1))
+        XCTAssertTrue(app.visualTrail.strokes.isEmpty)
+        XCTAssertTrue(app.visualTrail.releases.isEmpty)
+        app.visualize(.init(key:1,transition:.press,modifiers:0,timestamp:ProcessInfo.processInfo.systemUptime))
+        var resets = 0
+        app.onVisualReset = { resets += 1 }
+        app.clearVisuals() // InputMonitor's Secure Input reset uses this path.
+        XCTAssertTrue(app.heldKeys.isEmpty)
+        XCTAssertEqual(app.visualTrail,VisualizerTrail())
+        XCTAssertEqual(app.combo.count,0)
+        XCTAssertEqual(resets,1)
+        try await Task.sleep(for:.seconds(2))
+        XCTAssertEqual(app.visualTrail,VisualizerTrail(),"Cancelled expiry must not resurrect old input")
+    }
+    func testLaunchOpensSettingsOnlyForOnboardingOrMissingPermission() {
+        XCTAssertFalse(AppDelegate.opensSettingsAtLaunch(onboardingComplete:true,inputAllowed:true),"A normal launch opens no window")
+        XCTAssertTrue(AppDelegate.opensSettingsAtLaunch(onboardingComplete:false,inputAllowed:true))
+        XCTAssertTrue(AppDelegate.opensSettingsAtLaunch(onboardingComplete:true,inputAllowed:false))
+        XCTAssertTrue(AppDelegate.opensSettingsAtLaunch(onboardingComplete:false,inputAllowed:false))
+    }
+    func testNothingButBoardBuildsTheMainMenu() {
+        // The test host skips Board's own menu, so a main menu here would be one a SwiftUI scene installed over it,
+        // whose Settings… opens that scene's empty window instead of Board's Settings.
+        XCTAssertTrue(NSApp.delegate is AppDelegate)
+        XCTAssertNil(NSApp.mainMenu,"Something other than AppDelegate installed a main menu")
+    }
     func testPhysicalTransitionsAndShortcut() {
         var normalizer = InputNormalizer()
         XCTAssertNotNil(normalizer.accept(key:0,down:true,time:0))
@@ -85,10 +178,12 @@ final class BoardTests: XCTestCase {
     }
     @MainActor func testSpaceChangeClearsKeystrokeLabels() {
         let app = AppState(defaults:UserDefaults(suiteName:"com.tommyent.Board.tests.space")!), overlay = OverlayController(app:app)
-        app.pills = ["⌘ S"]
+        app.heldKeys = [1]
+        app.visualTrail.press(.init(key:1,transition:.press,modifiers:CGEventFlags.maskCommand.rawValue,timestamp:ProcessInfo.processInfo.systemUptime))
         NSWorkspace.shared.notificationCenter.post(name:NSWorkspace.activeSpaceDidChangeNotification,object:nil)
         RunLoop.main.run(until:Date()+0.1)
-        XCTAssertEqual(app.pills,[])
+        XCTAssertTrue(app.visualTrail.strokes.isEmpty)
+        XCTAssertTrue(app.heldKeys.isEmpty)
         withExtendedLifetime(overlay) {}
     }
     func testAppIconColors() throws {
@@ -195,39 +290,104 @@ final class BoardTests: XCTestCase {
     }
     func testAIKeyMappingShiftReturnAndIndent() {
         // Capitals and symbols hold Shift; a new line is Return; four leading spaces are one Tab.
-        let downs = AITyping.plan("Hi(\n    x)",speed:1,flourish:false).filter(\.down)
+        let downs = AITyping.plan("Hi(\n    x)",speed:1).filter(\.down)
         XCTAssertEqual(downs.map(\.key),[56,4,34,56,25,36,48,7,56,29])
         XCTAssertEqual(downs.map { $0.modifiers & CGEventFlags.maskShift.rawValue != 0 },[true,true,false,true,true,false,false,false,true,true])
         XCTAssertEqual(AITyping.keyText("      a\r\n\tb"),"\t  a\n\tb")
         let printable = String((32...126).map { Character(UnicodeScalar($0)!) })
         XCTAssertTrue(printable.allSatisfy { AITyping.keys[$0] != nil })
-        let all = AITyping.plan(printable,speed:1,cap:100,flourish:false)
+        let all = AITyping.plan(printable,speed:1,cap:100)
         XCTAssertEqual(all.filter(\.down).count,all.filter { !$0.down }.count) // every press is released
     }
-    func testAIPacingAndEditCap() {
+    func testAIPacingAndCap() {
         var rng = SeededRandom(state:7)
         let text = "word next, more.\nline", gap = AITyping.gap(0.5)
-        let downs = AITyping.plan(text,speed:0.5,flourish:false,using:&rng).filter(\.down)
+        let downs = AITyping.plan(text,speed:0.5,using:&rng).filter(\.down)
         XCTAssertEqual(downs.count,text.count)
         let previous = [Character("x")] + Array(text.dropLast())
         func leads(_ after: (Character) -> Bool) -> [Double] { zip(previous,downs).filter { after($0.0) }.map { $0.1.delay/gap } }
         let inWord = leads { $0.isLetter }, word = leads { $0 == " " }, punctuation = leads { ",.".contains($0) }, line = leads { $0 == "\n" }
         XCTAssertGreaterThanOrEqual(inWord.min()!,0.6)
         XCTAssertLessThan(inWord.max()!,word.min()!); XCTAssertLessThan(word.max()!,punctuation.min()!); XCTAssertLessThan(punctuation.max()!,line.min()!)
-        // A long edit stops inside the 10 s cap and still ends with ⌘S; a faster speed types more of it.
+        // A long chunk stops inside the 10 s cap, with every key released; a faster speed types more of it.
         let long = String(repeating:"let value = compute(input) // keep going\n",count:200)
         for speed in [0.0,0.5,1.0] {
             let strokes = AITyping.plan(long,speed:speed,using:&rng), total = strokes.reduce(0) { $0+$1.delay }
             XCTAssertLessThanOrEqual(total,10); XCTAssertGreaterThan(total,8.5)
-            XCTAssertEqual(strokes.suffix(4).map(\.key),[55,1,1,55])
+            XCTAssertFalse(strokes.last!.down)
         }
         XCTAssertGreaterThan(AITyping.plan(long,speed:1,using:&rng).filter(\.down).count,AITyping.plan(long,speed:0,using:&rng).filter(\.down).count*3)
-        XCTAssertEqual(AITyping.plan("ok",speed:0.5,using:&rng).filter(\.down).map(\.key),[31,40,55,1]) // a short edit is typed whole
+        XCTAssertEqual(AITyping.plan("ok",speed:0.5,using:&rng).filter(\.down).map(\.key),[31,40]) // short text is typed whole
     }
-    func testAIQueueKeepsOrderAndOnlyTheNewest() {
-        var queue = AIQueue()
-        for text in ["one","two","three","four"] { queue.push(text) }
-        XCTAssertEqual([queue.pop(),queue.pop(),queue.pop(),queue.pop()],["two","three","four",nil])
+    @MainActor func testJokeModeCodesAlongOnlyWhileAnAgentWorks() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
+        defer { try? FileManager.default.removeItem(at:folder) }
+        try Data("let answer = 42\nprint(answer)".utf8).write(to:folder.appendingPathComponent("main.swift")) // no blank line to start a chunk on
+        let ai = AIMode(watchAgents:false), typing = expectation(description:"joke typing reaches Board's pipeline")
+        var presses = 0, statuses: [String] = []
+        ai.onStatus = { statuses.append($0) }
+        ai.onEvent = { event in if event.transition == .press { presses += 1; if presses == 3 { typing.fulfill() } } }
+        ai.configure(enabled:true,speed:1,folder:folder.path)
+        XCTAssertEqual(statuses,["Waiting for a coding agent to work in Rex"])
+        ai.agents.working = true
+        wait(for:[typing],timeout:6) // the first key waits 1–3 s
+        XCTAssertEqual(statuses.last,"Coding along from source files while an agent works")
+        ai.stop()
+        let stopped = presses
+        RunLoop.main.run(until:Date().addingTimeInterval(0.5))
+        XCTAssertEqual(presses,stopped) // nothing typed after AI mode is off
+        XCTAssertEqual(statuses.last,"Off")
+    }
+    @MainActor func testJokeTypingStopsTheMomentTheAgentStops() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
+        defer { try? FileManager.default.removeItem(at:folder) }
+        let source = Array(repeating:"let value = compute(input) // keep going",count:20).joined(separator:"\n") // a burst of many seconds
+        try Data(source.utf8).write(to:folder.appendingPathComponent("main.swift"))
+        let ai = AIMode(watchAgents:false), cut = expectation(description:"the agent stops mid-burst")
+        var down = Set<Int>(), heldAtCut = Set<Int>(), presses = 0, stopped = false, statuses: [String] = []
+        ai.onStatus = { statuses.append($0) }
+        ai.onEvent = { event in
+            if event.transition == .press { down.insert(event.key); presses += 1 } else { down.remove(event.key) }
+            guard event.transition == .press, presses == 3, !stopped else { return }
+            stopped = true
+            // Rex's update arrives on the main queue, as AgentWatch delivers it, while this key is still down.
+            DispatchQueue.main.async { heldAtCut = down; ai.agents.working = false; cut.fulfill() }
+        }
+        ai.configure(enabled:true,speed:0,folder:folder.path)
+        ai.agents.working = true
+        wait(for:[cut],timeout:6) // the first key waits 1–3 s
+        XCTAssertFalse(heldAtCut.isEmpty) // a key was down when the agent stopped
+        XCTAssertEqual(down,[]) // and it was released at once: no stuck key or sound
+        let typed = presses
+        RunLoop.main.run(until:Date().addingTimeInterval(0.5))
+        XCTAssertEqual(presses,typed) // the rest of the burst is dropped
+        XCTAssertEqual(statuses.last,"Waiting for a coding agent to work in Rex")
+        ai.stop()
+    }
+    @MainActor func testAIModeSaysWhenItNeedsRex() throws {
+        // A stand-in rex: the real one exits 4 when no server runs and --autostart=false; a running Rex lists its sessions.
+        let temp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at:temp,withIntermediateDirectories:true)
+        defer { try? FileManager.default.removeItem(at:temp) }
+        func rex(_ body: String) throws -> URL {
+            let url = temp.appendingPathComponent(UUID().uuidString)
+            try Data("#!/bin/sh\n\(body)\n".utf8).write(to:url)
+            try FileManager.default.setAttributes([.posixPermissions:0o755],ofItemAtPath:url.path)
+            return url
+        }
+        XCTAssertNil(AgentWatch.snapshot(try rex("exit 4")))
+        XCTAssertEqual(AgentWatch.snapshot(try rex("echo '{\"sessions\":[]}'")),[])
+        // The status line tells "no agent working" from "can't see agents".
+        let ai = AIMode(watchAgents:false)
+        var statuses: [String] = []
+        ai.onStatus = { statuses.append($0) }
+        ai.configure(enabled:true,speed:0.35,folder:nil)
+        ai.agents.rexReachable = false
+        ai.agents.rexReachable = true
+        ai.stop()
+        XCTAssertEqual(statuses,["Waiting for a coding agent to work in Rex","Needs Rex to see when your agents are working","Waiting for a coding agent to work in Rex","Off"])
     }
     func testAIModeCannotPostEvents() throws {
         // AI mode only feeds Board's own pipeline. The image holding its code (the app, Debug's Board.debug.dylib, or a
@@ -241,70 +401,6 @@ final class BoardTests: XCTestCase {
         XCTAssertTrue(symbols.contains("_CGEventTapCreate"),"nm listed no imports for \(image)") // Board's listen-only tap
         let posting: Set = ["_CGEventPost","_CGEventPostToPid","_CGEventPostToPSN","_CGEventTapPostEvent","_CGPostKeyboardEvent","_CGPostMouseEvent","_AXUIElementPostKeyboardEvent"]
         XCTAssertEqual(symbols.filter(posting.contains),[])
-    }
-    @MainActor func testAIModeTypesAQueuedEditOnce() throws {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString), marker = directory.appendingPathComponent("listening")
-        defer { try? FileManager.default.removeItem(at:directory) }
-        let ai = AIMode(directory:directory,watchAgents:false), saved = expectation(description:"the edit ends with ⌘S")
-        var downs: [Int] = []
-        ai.onEvent = { event in
-            guard event.transition == .press else { return }
-            downs.append(event.key)
-            if event.key == 1, event.modifiers & CGEventFlags.maskCommand.rawValue != 0 { saved.fulfill() }
-        }
-        ai.configure(enabled:true,speed:1,folder:nil)
-        XCTAssertEqual(try String(contentsOf:marker,encoding:.utf8),String(getpid()))
-        try Data("ok".utf8).write(to:directory.appendingPathComponent("1-1.txt")) // what board-ai-hook drops in
-        wait(for:[saved],timeout:5)
-        XCTAssertEqual(downs,[31,40,55,1])
-        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath:directory.path),["listening"]) // read once, then deleted
-        ai.stop()
-        XCTAssertFalse(FileManager.default.fileExists(atPath:marker.path))
-    }
-    func testAIHookInstallAndRemoveKeepEverythingElse() throws {
-        let temp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString), url = temp.appendingPathComponent(".claude/settings.json")
-        defer { try? FileManager.default.removeItem(at:temp) }
-        let script = "/Applications/Board.app/Contents/Resources/board-ai-hook"
-        let board: [String:Any] = ["matcher":"Write|Edit","hooks":[["type":"command","command":script,"args":[String](),"async":true]]]
-        // No settings file yet: installing creates one.
-        try AIHook.update(url) { try AIHook.installing(script,for:.claude,into:$0) }
-        XCTAssertEqual(AIHook.installed(in:try AIHook.read(url)),script)
-        // Settings with other hooks and keys: installing twice adds one entry and keeps the rest, the file's permissions, and a backup.
-        let other: [String:Any] = ["permissions":["allow":["Bash(ls)"]],"hooks":["PostToolUse":[["matcher":"","hooks":[["type":"command","command":"echo other","timeout":5]]]],"SessionEnd":[["hooks":[["type":"command","command":"echo end"]]]]]]
-        try JSONSerialization.data(withJSONObject:other).write(to:url)
-        try FileManager.default.setAttributes([.posixPermissions:0o600],ofItemAtPath:url.path)
-        for _ in 0..<2 { try AIHook.update(url) { try AIHook.installing(script,for:.claude,into:$0) } }
-        let post = try XCTUnwrap((try AIHook.read(url)["hooks"] as? [String:Any])?["PostToolUse"] as? [[String:Any]])
-        XCTAssertEqual(post.map { NSDictionary(dictionary:$0) },[NSDictionary(dictionary:((other["hooks"] as! [String:Any])["PostToolUse"] as! [[String:Any]])[0]),NSDictionary(dictionary:board)])
-        XCTAssertEqual(try FileManager.default.attributesOfItem(atPath:url.path)[.posixPermissions] as? NSNumber,0o600)
-        XCTAssertEqual(AIHook.installed(in:try AIHook.read(url.appendingPathExtension("bak-board"))),script)
-        // Removing gives back the original settings exactly.
-        try AIHook.update(url) { try AIHook.removing(from:$0) }
-        XCTAssertEqual(NSDictionary(dictionary:try AIHook.read(url)),NSDictionary(dictionary:other))
-        // A hook someone added to Board's entry by hand survives removal.
-        var shared = try AIHook.installing(script,for:.claude,into:other), hooks = shared["hooks"] as! [String:Any], entries = hooks["PostToolUse"] as! [[String:Any]]
-        entries[1]["hooks"] = (entries[1]["hooks"] as! [Any]) + [["type":"command","command":"echo also"]]
-        hooks["PostToolUse"] = entries; shared["hooks"] = hooks
-        let kept = try AIHook.removing(from:shared), keptEntries = (kept["hooks"] as! [String:Any])["PostToolUse"] as! [[String:Any]]
-        XCTAssertNil(AIHook.installed(in:kept))
-        XCTAssertEqual(((keptEntries[1]["hooks"] as! [[String:Any]]).map { $0["command"] as? String }),["echo also"])
-        // A file Board can't parse, or a hooks setting of another shape, is refused and left as it was.
-        try Data("{ not json".utf8).write(to:url)
-        XCTAssertThrowsError(try AIHook.update(url) { try AIHook.installing(script,for:.claude,into:$0) })
-        XCTAssertEqual(try String(contentsOf:url,encoding:.utf8),"{ not json")
-        XCTAssertThrowsError(try AIHook.installing(script,for:.claude,into:["hooks":["PostToolUse":"unexpected"]]))
-        // Codex: its hooks.json keeps its own hooks; Board's entry quotes the path because Codex runs commands through a shell.
-        let codex = temp.appendingPathComponent(".codex/hooks.json")
-        let codexOther: [String:Any] = ["hooks":["PreToolUse":[["matcher":"Bash","hooks":[["type":"command","command":"/usr/local/bin/guard"]]]]]]
-        try FileManager.default.createDirectory(at:codex.deletingLastPathComponent(),withIntermediateDirectories:true)
-        try JSONSerialization.data(withJSONObject:codexOther).write(to:codex)
-        try AIHook.update(codex) { try AIHook.installing(script,for:.codex,into:$0) }
-        let codexSettings = try AIHook.read(codex), codexPost = try XCTUnwrap((codexSettings["hooks"] as? [String:Any])?["PostToolUse"] as? [[String:Any]])
-        XCTAssertEqual(codexPost.map { NSDictionary(dictionary:$0) },[NSDictionary(dictionary:["matcher":"Write|Edit","hooks":[["type":"command","command":"'\(script)'","async":true,"timeout":10]]])])
-        XCTAssertTrue(AIHook.runs(AIHook.installed(in:codexSettings),script))
-        try AIHook.update(codex) { try AIHook.removing(from:$0) }
-        XCTAssertEqual(NSDictionary(dictionary:try AIHook.read(codex)),NSDictionary(dictionary:codexOther))
-        XCTAssertEqual(AIHook.quoted("/a/it's"),"'/a/it'\\''s'")
     }
     func testOfflineSpatialOutputAndProtection() throws {
         let left = try render(x:-1), right = try render(x:1), crowded = try render(x:0,voices:32)

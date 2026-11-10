@@ -1,6 +1,7 @@
 import SwiftUI
 import ServiceManagement
 import UniformTypeIdentifiers
+import Carbon
 
 @MainActor final class AppState: ObservableObject {
     @Published var selectedSettingsSection: SettingsSection? = .general
@@ -16,13 +17,14 @@ import UniformTypeIdentifiers
     @Published var error: String?
     @Published var heldKeys = Set<Int>()
     @Published var combo = ComboState()
-    @Published var pills: [String] = []
+    @Published var visualTrail = VisualizerTrail()
+    private var visualExpiry: DispatchWorkItem?
     @Published var selectedKey = 0
     @Published var recordingShortcut = false
     @Published var loginStatus = ""
     @Published var aiStatus = "Off"
-    @Published var aiHookCommands: [AIHook.Agent:String] = [:]   // Board's hook command in each agent's settings, if installed
     let monitor = InputMonitor()
+    let gamingOverlay: GamingOverlay
     let audio: KeyboardAudio
     let ai = AIMode()
     private var sessionActive = true
@@ -42,6 +44,7 @@ import UniformTypeIdentifiers
     var showSettings: (() -> Void)?
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        gamingOverlay = GamingOverlay(defaults: defaults)
         resources = Bundle.main.resourceURL!.appendingPathComponent("Resources")
         storage = FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("Board")
         importDirectory = storage.appendingPathComponent("Imported Audio")
@@ -52,18 +55,20 @@ import UniformTypeIdentifiers
     }
     func start() {
         guard !started else { return }; started = true
+        // Board 0.4.1's agent hooks used this folder (a "listening" marker and queued edits); 0.4.2 dropped them.
+        try? FileManager.default.removeItem(at:storage.appendingPathComponent("AI Queue"))
         audio.onStatus = { [weak self] value in DispatchQueue.main.async { self?.audioStatus = value } }
         audio.onPlayback = { [weak self] value in DispatchQueue.main.async { self?.playbackStatus = value } }
         audio.onMetrics = { [weak self] value in DispatchQueue.main.async { self?.audioMetrics = value } }
         audio.onMotion = { [weak self] value in DispatchQueue.main.async { if self?.motionStatus != value { self?.motionStatus = value } } }
         audio.onDevices = { [weak self] devices in DispatchQueue.main.async { if self?.devices != devices { self?.devices = devices } } }
-        monitor.onStatus = { [weak self] value in DispatchQueue.main.async { self?.inputStatus = value } }
+        monitor.onStatus = { [weak self] value in DispatchQueue.main.async { self?.inputStatus = value; self?.refreshGamingAvailability() } }
         let engine = audio
         monitor.onEvent = { [weak self] event in
             engine.handle(event)
             DispatchQueue.main.async { self?.receive(event) }
         }
-        monitor.onReset = { [weak self] in engine.reset(); DispatchQueue.main.async { self?.clearVisuals() } }
+        monitor.onReset = { [weak self] in engine.reset(); DispatchQueue.main.async { self?.clearVisuals(); self?.gamingOverlay.setAvailable(false) } }
         // AI mode's keystrokes take the same path as physical ones, minus the toggle shortcut.
         ai.onEvent = { [weak self] event in engine.handle(event); self?.visualize(event) }
         ai.onStatus = { [weak self] value in self?.aiStatus = value }
@@ -71,7 +76,7 @@ import UniformTypeIdentifiers
         audio.begin(); audio.configure(settings); configureAI(); monitor.begin(); refreshLogin()
         let workspace = NSWorkspace.shared.notificationCenter
         for name in [NSWorkspace.willSleepNotification,NSWorkspace.sessionDidResignActiveNotification] {
-            observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.sessionActive = false; self?.monitor.setSuspended(true); self?.audio.reset(); self?.clearVisuals() } })
+            observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.sessionActive = false; self?.monitor.setSuspended(true); self?.audio.reset(); self?.clearVisuals(); self?.gamingOverlay.setAvailable(false) } })
         }
         for name in [NSWorkspace.didWakeNotification,NSWorkspace.sessionDidBecomeActiveNotification] {
             observers.append(workspace.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in MainActor.assumeIsolated { self?.sessionActive = true; self?.monitor.setSuspended(false); self?.audio.recover() } })
@@ -83,11 +88,14 @@ import UniformTypeIdentifiers
         do { defaults.set(try JSONEncoder().encode(settings),forKey:"appSettings.v1") }
         catch { self.error = "Settings could not be saved: \(error.localizedDescription)" }
         audio.configure(settings); configureAI()
+        refreshGamingAvailability()
         if !settings.enabled || !settings.visualizer.enabled { clearVisuals() }
         onPreferences?()
     }
     private func configureAI() { ai.configure(enabled:settings.aiMode ?? false,speed:settings.aiSpeed ?? 0.35,folder:settings.aiFolder) }
     private func receive(_ event: PhysicalInputEvent) {
+        refreshGamingAvailability()
+        gamingOverlay.receive(event)
         if recordingShortcut, event.transition == .press, !KeyGeometry.modifierKeys.contains(event.key), !event.isMouse {
             settings.shortcutKey = event.key
             let mask = CGEventFlags.maskCommand.rawValue | CGEventFlags.maskControl.rawValue | CGEventFlags.maskAlternate.rawValue | CGEventFlags.maskShift.rawValue
@@ -97,19 +105,39 @@ import UniformTypeIdentifiers
         if shortcut.matches(event,settings:settings) { toggle(); clearVisuals(); return }
         visualize(event)
     }
-    private func visualize(_ event: PhysicalInputEvent) {
+    private func refreshGamingAvailability() {
+        gamingOverlay.setAvailable(settings.enabled && sessionActive && !IsSecureEventInputEnabled()
+                                   && inputStatus == "Listening to physical input")
+    }
+    func visualize(_ event: PhysicalInputEvent) {
         guard settings.enabled, settings.visualizer.enabled else { return }
-        if event.transition == .release { heldKeys.remove(event.key); return }
         guard !event.isMouse else { return }
+        if event.transition == .release {
+            guard heldKeys.remove(event.key) != nil else { return }
+            visualTrail.release(event.key,at:event.timestamp)
+            scheduleVisualExpiry()
+            if settings.visualizer.style == "Keyboard" { onVisualEvent?(false) }
+            return
+        }
         heldKeys.insert(event.key)
         let shuffle = combo.press(at:event.timestamp,settings:settings.visualizer)
-        let chord = KeyGeometry.chord(event)
-        if !KeyGeometry.modifierKeys.contains(event.key) {
-            pills.append(chord); pills = Array(pills.suffix(6))
-        }
+        visualTrail.press(event)
+        scheduleVisualExpiry()
         onVisualEvent?(shuffle)
     }
-    func clearVisuals() { heldKeys.removeAll(); pills.removeAll(); combo.clear(); onVisualReset?() }
+    private func scheduleVisualExpiry() {
+        visualExpiry?.cancel(); visualExpiry = nil
+        guard let deadline = visualTrail.nextExpiry else { return }
+        let task = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.visualTrail.expire(at:ProcessInfo.processInfo.systemUptime)
+            self.scheduleVisualExpiry()
+        }
+        visualExpiry = task
+        DispatchQueue.main.asyncAfter(deadline:.now()+max(0,deadline-ProcessInfo.processInfo.systemUptime),execute:task)
+    }
+    func clearVisualTail() { visualExpiry?.cancel(); visualExpiry = nil; visualTrail = VisualizerTrail() }
+    func clearVisuals() { heldKeys.removeAll(); clearVisualTail(); combo.clear(); onVisualReset?() }
     func toggle() { settings.enabled.toggle(); if settings.toggleCues { audio.cue(enabled:settings.enabled) }; clearVisuals() }
     func requestInput() { _ = CGRequestListenEventAccess(); inputRequested = true; monitor.refreshSoon() }
     func openInputSettings() {
@@ -166,20 +194,6 @@ import UniformTypeIdentifiers
             } catch { DispatchQueue.main.async { self.error = error.localizedDescription } }
         }
     }
-    func refreshAIHooks() {
-        aiHookCommands = Dictionary(uniqueKeysWithValues:AIHook.Agent.allCases.compactMap { agent in (try? AIHook.read(AIHook.settingsURL(agent))).flatMap(AIHook.installed).map { (agent,$0) } })
-    }
-    func installAIHook(_ agent: AIHook.Agent) {
-        guard let script = AIHook.script?.path else { error = "This copy of Board doesn't include the hook."; return }
-        do { try AIHook.update(AIHook.settingsURL(agent)) { try AIHook.installing(script,for:agent,into:$0) } }
-        catch { self.error = "Couldn't install the \(agent.rawValue) hook in \(AIHook.settingsURL(agent).path): \(error.localizedDescription)" }
-        refreshAIHooks()
-    }
-    func removeAIHook(_ agent: AIHook.Agent) {
-        do { try AIHook.update(AIHook.settingsURL(agent)) { try AIHook.removing(from:$0) } }
-        catch { self.error = "Couldn't remove the \(agent.rawValue) hook from \(AIHook.settingsURL(agent).path): \(error.localizedDescription)" }
-        refreshAIHooks()
-    }
     func chooseAIFolder() {
         let panel = NSOpenPanel(); panel.title = "Choose a folder of code to type along from"; panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = false
         if panel.runModal() == .OK, let url = panel.url { settings.aiFolder = url.path }
@@ -189,7 +203,7 @@ import UniformTypeIdentifiers
         for (i,key) in [0,1,2,3].enumerated() {
             DispatchQueue.main.asyncAfter(deadline:.now()+Double(i)*0.15) {
                 self.receive(.init(key:key,transition:.press,modifiers:0,timestamp:ProcessInfo.processInfo.systemUptime))
-                DispatchQueue.main.asyncAfter(deadline:.now()+0.1) { self.heldKeys.remove(key) }
+                DispatchQueue.main.asyncAfter(deadline:.now()+0.1) { self.visualize(.init(key:key,transition:.release,modifiers:0,timestamp:ProcessInfo.processInfo.systemUptime)) }
             }
         }
     }
