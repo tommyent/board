@@ -4,6 +4,42 @@ Date: **2026-09-10**. Host: Apple Silicon MacBook Air, Xcode 27.0 (27A5252f), Sw
 
 **Current scope: 11 bundled sound profiles.** The user removed unavailable sounds and recording dependencies from the requested app. Hardware, permission, and performance verification remains limited as detailed below; earlier catalog counts describe historical builds.
 
+## Board 0.4.9 (build 13) — Mac menus, quieter first run, safer settings, 2026-11-10
+
+Two branches written after 0.4.8 (`fix/menus`, `fix/first-run`), reviewed by a second model and merged on `release/0.4.9`. What changed:
+
+- **Menus.** The hand-built AppKit main menu gains About Board (the existing Settings section), Services, Hide Board, Hide Others and Show All; Undo and Redo before the editing commands; and a Window menu with Minimize, Zoom and Bring All to Front. Practice… and Settings… stay in the app menu. There is no Help menu, because Board has no help to open. The status menu, launch and reopen are unchanged.
+- **Motion & Fitness** is no longer asked for at launch. The headphone-motion manager is created only when head tracking is on, and macOS is asked when the user switches head tracking on. If head tracking is saved as on but macOS was never asked, the Sound section says so.
+- **Input Monitoring guidance** in Settings now covers the case where macOS shows no prompt and Board is missing from the list.
+- **Settings** missing a field take that field's default and keep everything else, at all three levels (app, sound, visualizer) and inside favorites. Settings that cannot be read at all are copied to `appSettings.v1.unreadable` before defaults are used, and Board says so.
+- **Log lines** under subsystem `com.tommyent.Board`: the launch (version, whether Settings opened and why), Input Monitoring permission changes, and the input tap being installed or refused. No key events, key codes, typed text or file paths.
+- `Scripts/check-launch.swift`, an optional probe for a clean test Mac, and `Scripts/generate-settings-fixtures.py` with its two fixtures.
+
+Changed in review, before the merge:
+
+- **The Dock-promotion workaround was removed.** `fix/menus` deactivated and reactivated Board when the Dock icon was switched on, as a cure for "menus don't open right after switching the Dock icon on". The review found a way to reproduce that bug every time (see the known issue below), showed that released 0.4.8 has it too, and showed that the workaround does not cure it: with the workaround built in, the same steps still left the menus dead, 2 tries out of 2. So the policy change is the single `setActivationPolicy` call it was in 0.4.8.
+- A test that fails when a stored settings property is left out of the hand-written coding keys (`testEveryStoredSettingsPropertyIsSaved`); the existing tests could not notice that.
+- `Scripts/check-launch.swift` now refuses to run on a Mac that has any saved Board settings, since it overwrites them while it runs.
+- The Sound section's message for head tracking that is on but was never permitted.
+- A scratch probe (not in the repository) decoded the settings exported from the two Macs that run Board daily with the new decoders: both decode and re-encode to the same JSON, a round trip of settings with every property away from its default is lossless, and every stored property of the three types is encoded.
+
+**Known issue, in 0.4.8 and 0.4.9: menus dead after the Dock icon is switched on.** Steps that reproduce it every time on macOS 26.5.1 (7 of 7 across the released 0.4.8, 0.4.9 and the workaround build): start Board with the Dock icon off, minimize the Settings window, open Board again so Settings comes back, switch **Show in Dock and Command–Tab** on. Board is the front app and has its Dock icon, but the menu bar keeps the previous app's menus and Board's do not open, 5 seconds later and 30 seconds later. Switching to another app and back brings them to life. Without the minimize step the menus worked in every try (cold launch then switch; another app then reopen then switch; close then reopen then switch). The cause is not known. Keyboard shortcuts still work in that state.
+
+What was run:
+
+- `bash Scripts/test.sh` at 5613bf2 on a MacBook Air (macOS 27.3, Xcode 27.2 27B52), app-hosted: **68 tests, 67 passed, 1 skipped, 0 failures** (24 app, 20 engine, 10 Gaming, 9 Practice, 5 settings). The skipped one is still `testNativeAccessibilityStartAndPauseActions`. The menu test checks the menu's structure, actions and key equivalents, not key presses; the settings tests check decoding and the backup of unreadable data.
+- `bash Scripts/build.sh` at 5613bf2: succeeded. `dist/Board.app` is 0.4.9 (13), CDHash `beab4697b458fedeff5084f0665a6183ed260079`, Developer ID-signed with hardened runtime and a timestamp, `codesign --verify --deep --strict` valid, no posting APIs. Not notarized, not released, not installed.
+- **Observed on the test Mac (M1 MacBook Air, macOS 26.5.1) with that package**, no Input Monitoring grant, no saved settings at the start. Evidence: Board's window list from CGWindowList, the front app from `lsappinfo`, screenshots, the accessibility tree for texts, and real pointer clicks and front-app key presses through cua-driver 0.44.0.
+  - First launch: Settings opened with **Request Input Monitoring**, the new guidance text and **Got it — continue**. No Motion request: the system's permission log shows one Motion request for Board in the session, at the launch of the released 0.4.8 used for comparison, and none at any of the 0.4.9 launches.
+  - Onboarding finished, quit, cold `open -g` with the permission missing: Settings opened and Board came to the front.
+  - Launch log lines, read with `/usr/bin/log show`: `Input Monitoring permission allowed=false`, `Input tap refused: Input Monitoring permission missing`, `Launch version=0.4.9 settingsOpened=true onboardingIncomplete=true inputPermissionMissing=true` on the first run, and `onboardingIncomplete=false` afterwards. Nothing else was logged, and nothing private.
+  - Dock icon on: the menu bar shows Board, File, Edit, Window. Board has About Board, Practice…, Settings…, Services, Hide Board, Hide Others, Show All, Quit Board. Window has Minimize, Zoom, the system's window-tiling items, Bring All to Front and the open windows. Command-W closed Settings; Command-comma opened the real Settings with no Board window open and again from Practice; Command-Shift-P opened Practice; Command-M minimized and reopening Board restored; Command-H hid Board and reopening showed it; Command-Q quit.
+  - Dock icon off: Command-W, Command-M and Command-Q worked the same; reopening Board opened Settings after a close and after a minimize; Command-Shift-P opened Practice; the status menu opened. **Command-H does nothing with the Dock icon off**: macOS does not hide an app that has no Dock icon.
+  - `Scripts/check-launch.swift` reported `settingsOpened=true boardTookFront=true` for the first run and for finished onboarding with the permission missing, in about three seconds, and left no settings behind.
+  - No crash report.
+- Observed earlier by the branches' authors on their own builds, not repeated on the combined package: the Motion prompt appearing when head tracking is switched on, and the recovery alert for unreadable settings (both in a macOS 27.0.1 VM); Undo and Redo in Practice's own-text editor; Hide Others and Show All; Zoom.
+- **Not observed on this package:** a launch with Input Monitoring granted (no Settings, front app unchanged), the `Listen-only input tap installed` log line, sound, a login-item launch, the Motion prompt on switching head tracking on, real head tracking with supported headphones, the **+** route for adding Board to Input Monitoring by hand, running a Services item, and Board › Settings… chosen with the pointer (the synthetic click did not register on the menu item; Command-comma, which calls the same action, did).
+
 ## Board 0.4.8 (build 12) — no Settings window at launch, 2026-11-10
 
 Until 0.4.7, `applicationDidFinishLaunching` ended with an unconditional `showSettings()`, so every launch, including a login item and `open -g`, put the Settings window in front of the user's work. Now a launch opens Settings only while onboarding is unfinished (**Got it — continue** not yet chosen) or Input Monitoring is not allowed (`CGPreflightListenEventAccess()` is false). The gaming overlay and the visualizers are separate and can still show after a launch. 0.4.7 (build 11, 9dd875c) remembered the gaming overlay setting and has no entry of its own.

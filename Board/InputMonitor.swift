@@ -1,5 +1,6 @@
 import AppKit
 import Carbon
+import OSLog
 
 final class InputMonitor {
     private var tap: CFMachPort?
@@ -11,6 +12,8 @@ final class InputMonitor {
     var onReset: (() -> Void)?
     var onStatus: ((String) -> Void)?
     private var previousStatus = ""
+    private var previousPermission: Bool?
+    private let logger = Logger(subsystem:"com.tommyent.Board",category:"input")
 
     func begin() {
         let thread = Thread { [weak self] in
@@ -41,7 +44,13 @@ final class InputMonitor {
     private func refresh() {
         if suspended { if tap != nil { stop() }; status("Paused while session is inactive"); return }
         if IsSecureEventInputEnabled() { if tap != nil { stop() }; status("Paused for Secure Input"); return }
-        guard CGPreflightListenEventAccess() else { if tap != nil { stop() }; status("Input Monitoring required"); return }
+        let allowed = CGPreflightListenEventAccess()
+        if previousPermission != allowed {
+            logger.notice("Input Monitoring permission allowed=\(allowed,privacy:.public)")
+            if !allowed { logger.notice("Input tap refused: Input Monitoring permission missing") }
+            previousPermission = allowed
+        }
+        guard allowed else { if tap != nil { stop() }; status("Input Monitoring required"); return }
         if let tap {
             if !CGEvent.tapIsEnabled(tap:tap) { normalizer.clear(); onReset?(); CGEvent.tapEnable(tap:tap,enable:true) }
             status(CGEvent.tapIsEnabled(tap:tap) ? "Listening to physical input" : "Input monitoring unavailable"); return
@@ -54,10 +63,14 @@ final class InputMonitor {
             monitor.receive(type,event)
             return Unmanaged.passUnretained(event)
         },userInfo:Unmanaged.passUnretained(self).toOpaque())
-        guard let tap else { status("Input monitoring unavailable — quit and reopen Board"); return }
+        guard let tap else {
+            if previousStatus != "Input monitoring unavailable — quit and reopen Board" { logger.error("Input tap creation refused despite Input Monitoring permission") }
+            status("Input monitoring unavailable — quit and reopen Board"); return
+        }
         source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault,tap,0)
         CFRunLoopAddSource(CFRunLoopGetCurrent(),source,.commonModes)
         CGEvent.tapEnable(tap:tap,enable:true)
+        logger.notice("Listen-only input tap installed; enabled=\(CGEvent.tapIsEnabled(tap:tap),privacy:.public)")
         status("Listening to physical input")
     }
     private func receive(_ type: CGEventType, _ event: CGEvent) {

@@ -144,6 +144,29 @@ struct SoundConfiguration: Codable, Equatable {
     var headTracking = false
     var orbit = false
     var overrides: [Int: KeyOverride] = [:]
+    private enum CodingKeys: String, CodingKey {
+        case profile, volume, mouseVolume, enterVolume, mouse, enter, tone, pitch, variation, homeSoftness, normalization, spatial, width, headTracking, orbit, overrides
+    }
+    init() {}
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy:CodingKeys.self)
+        profile = try c.decodeIfPresent(String.self,forKey:.profile) ?? profile
+        volume = try c.decodeIfPresent(Double.self,forKey:.volume) ?? volume
+        mouseVolume = try c.decodeIfPresent(Double.self,forKey:.mouseVolume) ?? mouseVolume
+        enterVolume = try c.decodeIfPresent(Double.self,forKey:.enterVolume) ?? enterVolume
+        mouse = try c.decodeIfPresent(String.self,forKey:.mouse) ?? mouse
+        enter = try c.decodeIfPresent(String.self,forKey:.enter) ?? enter
+        tone = try c.decodeIfPresent(Double.self,forKey:.tone) ?? tone
+        pitch = try c.decodeIfPresent(Double.self,forKey:.pitch) ?? pitch
+        variation = try c.decodeIfPresent(Bool.self,forKey:.variation) ?? variation
+        homeSoftness = try c.decodeIfPresent(Double.self,forKey:.homeSoftness) ?? homeSoftness
+        normalization = try c.decodeIfPresent(Bool.self,forKey:.normalization) ?? normalization
+        spatial = try c.decodeIfPresent(Bool.self,forKey:.spatial) ?? spatial
+        width = try c.decodeIfPresent(Double.self,forKey:.width) ?? width
+        headTracking = try c.decodeIfPresent(Bool.self,forKey:.headTracking) ?? headTracking
+        orbit = try c.decodeIfPresent(Bool.self,forKey:.orbit) ?? orbit
+        overrides = try c.decodeIfPresent([Int:KeyOverride].self,forKey:.overrides) ?? overrides
+    }
     // Applied to the active sound and to every saved preset, since selecting a preset copies it straight into the active sound.
     mutating func validate() {
         if SoundProfile.find(profile) == nil { profile = "alpaca" }
@@ -227,6 +250,28 @@ struct VisualizerSettings: Codable, Equatable {
     var comboReset = 2.0
     var preserveCombo = false
     var keepComboVisible = false
+    private enum CodingKeys: String, CodingKey {
+        case enabled, style, placement, pin, offset, scale, dismiss, theme, comboTheme, motion, flow, shuffleEvery, comboReset, preserveCombo, keepComboVisible
+    }
+    init() {}
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy:CodingKeys.self)
+        enabled = try c.decodeIfPresent(Bool.self,forKey:.enabled) ?? enabled
+        style = try c.decodeIfPresent(String.self,forKey:.style) ?? style
+        placement = try c.decodeIfPresent(String.self,forKey:.placement) ?? placement
+        pin = try c.decodeIfPresent(String.self,forKey:.pin) ?? pin
+        offset = try c.decodeIfPresent(Double.self,forKey:.offset) ?? offset
+        scale = try c.decodeIfPresent(Double.self,forKey:.scale) ?? scale
+        dismiss = try c.decodeIfPresent(Double.self,forKey:.dismiss) ?? dismiss
+        theme = try c.decodeIfPresent(String.self,forKey:.theme) ?? theme
+        comboTheme = try c.decodeIfPresent(String.self,forKey:.comboTheme) ?? comboTheme
+        motion = try c.decodeIfPresent(String.self,forKey:.motion) ?? motion
+        flow = try c.decodeIfPresent(String.self,forKey:.flow) ?? flow
+        shuffleEvery = try c.decodeIfPresent(Int.self,forKey:.shuffleEvery) ?? shuffleEvery
+        comboReset = try c.decodeIfPresent(Double.self,forKey:.comboReset) ?? comboReset
+        preserveCombo = try c.decodeIfPresent(Bool.self,forKey:.preserveCombo) ?? preserveCombo
+        keepComboVisible = try c.decodeIfPresent(Bool.self,forKey:.keepComboVisible) ?? keepComboVisible
+    }
     var movement: VisualizerMotion { motion == "Float" && style != "Keystrokes" ? .pop : (VisualizerMotion(rawValue:motion) ?? .pop) }
     var tailDuration: TimeInterval { style == "Keystrokes" ? VisualizerTrail.lifetime : (style == "Keyboard" ? VisualizerTrail.afterglow : 0) }
     var panelSize: CGSize {
@@ -262,6 +307,35 @@ struct AppSettings: Codable, Equatable {
     var aiMode: Bool?
     var aiSpeed: Double?
     var aiFolder: String?
+    private enum CodingKeys: String, CodingKey {
+        case version, enabled, muted, sound, visualizer, layout, outputUID, outputKind, pauseOnHeadphones, showDock, showMenu, toggleCues, shortcutKey, shortcutModifiers, gestureTaps, presets, imports, onboardingComplete, iconColor, aiMode, aiSpeed, aiFolder
+    }
+    init() {}
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy:CodingKeys.self)
+        version = try c.decodeIfPresent(Int.self,forKey:.version) ?? version
+        enabled = try c.decodeIfPresent(Bool.self,forKey:.enabled) ?? enabled
+        muted = try c.decodeIfPresent(Bool.self,forKey:.muted) ?? muted
+        sound = try c.decodeIfPresent(SoundConfiguration.self,forKey:.sound) ?? sound
+        visualizer = try c.decodeIfPresent(VisualizerSettings.self,forKey:.visualizer) ?? visualizer
+        layout = try c.decodeIfPresent(String.self,forKey:.layout) ?? layout
+        outputUID = try c.decodeIfPresent(String.self,forKey:.outputUID) ?? outputUID
+        outputKind = try c.decodeIfPresent(String.self,forKey:.outputKind) ?? outputKind
+        pauseOnHeadphones = try c.decodeIfPresent(Bool.self,forKey:.pauseOnHeadphones) ?? pauseOnHeadphones
+        showDock = try c.decodeIfPresent(Bool.self,forKey:.showDock) ?? showDock
+        showMenu = try c.decodeIfPresent(Bool.self,forKey:.showMenu) ?? showMenu
+        toggleCues = try c.decodeIfPresent(Bool.self,forKey:.toggleCues) ?? toggleCues
+        shortcutKey = try c.decodeIfPresent(Int.self,forKey:.shortcutKey) ?? shortcutKey
+        shortcutModifiers = try c.decodeIfPresent(UInt64.self,forKey:.shortcutModifiers) ?? shortcutModifiers
+        gestureTaps = try c.decodeIfPresent(Int.self,forKey:.gestureTaps) ?? gestureTaps
+        presets = try c.decodeIfPresent([SoundPreset].self,forKey:.presets) ?? presets
+        imports = try c.decodeIfPresent([ImportedSound].self,forKey:.imports) ?? imports
+        onboardingComplete = try c.decodeIfPresent(Bool.self,forKey:.onboardingComplete) ?? onboardingComplete
+        iconColor = try c.decodeIfPresent(String.self,forKey:.iconColor)
+        aiMode = try c.decodeIfPresent(Bool.self,forKey:.aiMode)
+        aiSpeed = try c.decodeIfPresent(Double.self,forKey:.aiSpeed)
+        aiFolder = try c.decodeIfPresent(String.self,forKey:.aiFolder)
+    }
     static let iconColors = ["Porcelain","Sage","Blue","Lilac","Graphite"]
     mutating func validate() {
         if let color = iconColor, color == "Porcelain" || !Self.iconColors.contains(color) { iconColor = nil }
