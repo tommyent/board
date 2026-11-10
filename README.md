@@ -1,6 +1,6 @@
 # Board
 
-A native, offline macOS app that plays mechanical keyboard and typewriter sounds as you type. Requires **Apple Silicon and macOS 15+**. No packages, account, server, purchase verification, or admin privileges are used.
+A native, offline macOS app that plays mechanical keyboard and typewriter sounds as you type. Built for **Apple Silicon and macOS 15+**. It has been run on macOS 26.5.1 and on macOS 27.0.1 to 27.3, not on macOS 15 itself. No packages, account, server, purchase verification, or admin privileges are used.
 
 **Current sound catalog: 11 complete profiles.** Ten mechanical keyboard packs plus Typewriter are included. Every listed profile has bundled audio; unavailable profiles and recording placeholders have been removed. Remaining hardware verification is tracked in [the acceptance ledger](Docs/VERIFICATION.md).
 
@@ -36,7 +36,7 @@ xcrun notarytool store-credentials board-notary --apple-id <your Apple ID email>
 
 For a stable permission identity, keep the final `.app` at a stable location. Launch it, choose **Request Input Monitoring**, and enable Board in macOS System Settings if you want system-wide sounds. macOS offers the request prompt only once; after that the button opens the Input Monitoring settings instead. After turning Board on, choose **Quit & Reopen** when macOS asks. Local previews work without permission.
 
-Board opens no window when it starts, so a login item or a background launch doesn't interrupt your work. It opens Settings by itself only until you choose **Got it — continue** on the first run, and while Input Monitoring is off. Opening Board again while it runs always opens Settings, including when both the menu and Dock icons are hidden. The default toggle shortcut is **Control–Option–Command–K**; its key and tap count can be changed in General.
+Board opens no window when it starts, so a login item or a background launch doesn't interrupt your work. It opens Settings by itself only until you choose **Got it — continue** on the first run, and while Input Monitoring is off. Opening Board again while it runs does nothing while its menu bar or Dock icon is showing; when both are hidden, it opens Settings. The default toggle shortcut is **Control–Option–Command–K**; its key and tap count can be changed in General.
 
 Choose **Sound → Switch → Classic · Typewriter** to use the new sound. The recordings contain complete strokes and play once per press.
 
