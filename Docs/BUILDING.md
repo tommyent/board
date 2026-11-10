@@ -59,6 +59,7 @@ bash Scripts/test.sh
 The tests cover:
 
 - input transitions and shortcuts, keyboard geometry, sample selection and held-release association, versioned settings, import validation;
+- settings encoded from the historical 0.4.1 and 0.4.7 models, missing fields at each settings level, and preservation of unreadable settings before fallback;
 - visualizer timing and the keystroke trail (15-key limit, repeat counts, expiry, afterglow, movement in every placement);
 - offline stereo and limiter output;
 - AI mode (key mapping, pacing, coding along only while an agent works, no event posting);
@@ -70,11 +71,22 @@ Practice's and Gaming's rendering tests write their screenshots to `/private/tmp
 
 Still checked by hand: window focus changes, the menu shortcut, a real Secure Input change, the overlay over full-screen games and audible playback in Practice. The test of Gaming's Start and Pause buttons through accessibility is skipped, because an off-screen window exposes no buttons.
 
+On a test Mac with Input Monitoring off and Board stopped, the optional lifecycle check launches a built test copy for first run and for completed onboarding with the permission missing:
+
+```sh
+swift Scripts/check-launch.swift --test-machine /path/to/test/Board.app
+```
+
+It temporarily replaces Board's preferences with muted synthetic settings, checks the actual window list and front app, quits its test processes, and restores the previous preferences and front app. It refuses `/Applications/Board.app` and refuses to run while another Board process exists. It does not reset or grant permissions. It cannot cover a permission-granted launch on a machine where access cannot be granted.
+
+`python3 Scripts/generate-settings-fixtures.py` prints the historical fixture JSON. It compiles `Models.swift` directly from commits `2debb8c` and `9dd875c` and encodes their default `AppSettings`; it reads no real preferences. The checked-in outputs are under `Tests/Fixtures/`.
+
 Results, measured idle CPU, remaining hardware checks and known limitations are in [VERIFICATION.md](VERIFICATION.md).
 
 ## Where Board keeps things
 
 - Settings: `UserDefaults` under `com.tommyent.Board`.
+- Last unreadable settings payload: the `appSettings.v1.unreadable` data key in that same preferences domain, saved before fallback. It can be exported with `defaults export com.tommyent.Board -`.
 - Imported sounds: copied to `~/Library/Application Support/Board/Imported Audio/`.
 - Practice and Gaming history: result summaries in `UserDefaults` (`practice.history.v1`, `gaming.history.v1`).
 - No key-event history is kept anywhere.

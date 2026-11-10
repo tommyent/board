@@ -4,6 +4,25 @@ Date: **2026-09-10**. Host: Apple Silicon MacBook Air, Xcode 27.0 (27A5252f), Sw
 
 **Current scope: 11 bundled sound profiles.** The user removed unavailable sounds and recording dependencies from the requested app. Hardware, permission, and performance verification remains limited as detailed below; earlier catalog counts describe historical builds.
 
+## After 0.4.8 — first run, permission guidance and settings recovery, 2026-11-10
+
+- **Changed:** Motion services stay untouched at startup until head tracking has been enabled and permission already answered. An explicit off-to-on setting change requests consent. Even stopping headphone-motion updates can request access, so the eager manager and unconditional startup stop were removed.
+- **Observed on the test Mac, macOS 26.5.1:** after a successful Board-only ListenEvent reset, **Request Input Monitoring** showed no prompt. **Open Input Monitoring Settings** opened the pane; it said **No Items**. **+** opened the account-password sheet, where testing stopped. Separate signed CG/IOHID request-order and passive-tap probes all returned denied/nil; tccd logged `Service kTCCServiceListenEvent does not allow prompting; returning denied.` This describes that test system, not every installation of that macOS version. Settings and README now explain the manual-add route.
+- **Observed on a macOS 27.0.1 VM:** clean launch showed no Motion prompt; enabling head tracking showed it. Cold launches after **Don't Allow**, after **Allow**, and with the saved feature enabled but its permission reset showed no new prompt. After that reset, explicitly switching off/on asked again. No supported headphones were available; actual tracking and sound output were not checked.
+- **Settings:** fixtures encoded from historical default models at `2debb8c` (0.4.1) and `9dd875c` (0.4.7), missing-field defaults, nested favorites and unreadable-payload preservation are tested. **Observed in the VM:** `broken JSON` showed the recovery alert; completing onboarding saved valid settings while `appSettings.v1.unreadable` still held those exact original bytes.
+- **Observed m1 launch logs**, read with `/usr/bin/log show --predicate 'subsystem == "com.tommyent.Board"'`:
+
+  ```text
+  Input Monitoring permission allowed=false
+  Input tap refused: Input Monitoring permission missing
+  Launch version=0.4.8 settingsOpened=true onboardingIncomplete=true inputPermissionMissing=true
+  ```
+
+  Permission transitions and successful tap installation have log calls but could not be observed without the grant. No key events, key codes or typed text are logged.
+- **Real lifecycle check:** `Scripts/check-launch.swift` on the test Mac reported `settingsOpened=true boardTookFront=true` for both first run and completed onboarding with permission missing. Preferences were restored to empty, both test processes ended, and Safari was restored as the front app. Permission-granted and login-item launches remain unchecked here.
+- **Validation:** `bash Scripts/test.sh`: **66 tests, 1 skipped, 0 failures**; unchanged skip `testNativeAccessibilityStartAndPauseActions`. `bash Scripts/build.sh` succeeded; Developer ID signature verified outside the restricted sandbox. Not notarized, released or installed on the working Mac.
+- **Documentation checked:** Apple's [CG request/preflight documentation](https://sosumi.ai/documentation/coregraphics/cgrequestlisteneventaccess()), [passive-tap creation](https://sosumi.ai/documentation/coregraphics/cgevent/tapcreate(tap:place:options:eventsofinterest:callback:userinfo:)), [Motion manager](https://sosumi.ai/documentation/coremotion/cmheadphonemotionmanager), and SDK `IOKit/hidsystem/IOHIDLib.h`. No documented request-order change established a fix for the test system's denial.
+
 ## Board 0.4.8 (build 12) — no Settings window at launch, 2026-11-10
 
 Until 0.4.7, `applicationDidFinishLaunching` ended with an unconditional `showSettings()`, so every launch, including a login item and `open -g`, put the Settings window in front of the user's work. Now a launch opens Settings only while onboarding is unfinished (**Got it — continue** not yet chosen) or Input Monitoring is not allowed (`CGPreflightListenEventAccess()` is false). The gaming overlay and the visualizers are separate and can still show after a launch. 0.4.7 (build 11, 9dd875c) remembered the gaming overlay setting and has no entry of its own.
