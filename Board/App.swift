@@ -42,7 +42,7 @@ final class ActionMenuItem: NSMenuItem {
         state.start(); applyPreferences()
         if Self.opensSettingsAtLaunch(onboardingComplete:state.settings.onboardingComplete,inputAllowed:CGPreflightListenEventAccess()) { showSettings() }
     }
-    // A launch opens no window (login items and `open -g` start Board in the background), except to finish onboarding or to ask for Input Monitoring.
+    // A launch does not open Settings (login items and `open -g` start Board in the background), except to finish onboarding or to ask for Input Monitoring.
     nonisolated static func opensSettingsAtLaunch(onboardingComplete:Bool,inputAllowed:Bool) -> Bool { !onboardingComplete || !inputAllowed }
     // Opening Board again while it runs is the way into Settings only when no icon offers one; otherwise it does nothing.
     nonisolated static func opensSettingsOnReopen(showMenu:Bool,showDock:Bool) -> Bool { !showMenu && !showDock }
