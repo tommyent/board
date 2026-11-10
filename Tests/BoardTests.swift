@@ -86,6 +86,12 @@ final class BoardTests: XCTestCase {
         try await Task.sleep(for:.seconds(2))
         XCTAssertEqual(app.visualTrail,VisualizerTrail(),"Cancelled expiry must not resurrect old input")
     }
+    func testLaunchOpensSettingsOnlyForOnboardingOrMissingPermission() {
+        XCTAssertFalse(AppDelegate.opensSettingsAtLaunch(onboardingComplete:true,inputAllowed:true),"A normal launch opens no window")
+        XCTAssertTrue(AppDelegate.opensSettingsAtLaunch(onboardingComplete:false,inputAllowed:true))
+        XCTAssertTrue(AppDelegate.opensSettingsAtLaunch(onboardingComplete:true,inputAllowed:false))
+        XCTAssertTrue(AppDelegate.opensSettingsAtLaunch(onboardingComplete:false,inputAllowed:false))
+    }
     func testPhysicalTransitionsAndShortcut() {
         var normalizer = InputNormalizer()
         XCTAssertNotNil(normalizer.accept(key:0,down:true,time:0))

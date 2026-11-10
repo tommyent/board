@@ -39,8 +39,11 @@ final class ActionMenuItem: NSMenuItem {
         overlays = OverlayController(app:state)
         state.showSettings = { [weak self] in self?.showSettings() }
         state.onPreferences = { [weak self] in self?.applyPreferences() }
-        state.start(); applyPreferences(); showSettings()
+        state.start(); applyPreferences()
+        if Self.opensSettingsAtLaunch(onboardingComplete:state.settings.onboardingComplete,inputAllowed:CGPreflightListenEventAccess()) { showSettings() }
     }
+    // A launch opens no window (login items and `open -g` start Board in the background), except to finish onboarding or to ask for Input Monitoring.
+    nonisolated static func opensSettingsAtLaunch(onboardingComplete:Bool,inputAllowed:Bool) -> Bool { !onboardingComplete || !inputAllowed }
     func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows:Bool) -> Bool { showSettings(); return true }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication) -> Bool { false }
     func applicationWillTerminate(_ notification:Notification) { state.audio.reset(); state.ai.stop() }
