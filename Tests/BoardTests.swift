@@ -98,6 +98,41 @@ final class BoardTests: XCTestCase {
         XCTAssertTrue(NSApp.delegate is AppDelegate)
         XCTAssertNil(NSApp.mainMenu,"Something other than AppDelegate installed a main menu")
     }
+    @MainActor func testStandardMenusAndResponderShortcuts() throws {
+        let delegate = try XCTUnwrap(NSApp.delegate as? AppDelegate)
+        let oldMain = NSApp.mainMenu, oldWindows = NSApp.windowsMenu, oldServices = NSApp.servicesMenu
+        defer { NSApp.windowsMenu = oldWindows; NSApp.servicesMenu = oldServices; NSApp.mainMenu = oldMain }
+        delegate.buildMainMenu()
+        let menu = try XCTUnwrap(NSApp.mainMenu)
+        XCTAssertEqual(menu.items.compactMap { $0.submenu?.title },["Board","File","Edit","Window"])
+        let app = try XCTUnwrap(menu.items.first?.submenu)
+        XCTAssertEqual(app.items.filter { !$0.isSeparatorItem }.map(\.title),["About Board","Practice…","Settings…","Services","Hide Board","Hide Others","Show All","Quit Board"])
+        XCTAssertTrue(app.item(withTitle:"Services")?.submenu === NSApp.servicesMenu)
+        let windows = try XCTUnwrap(menu.item(withTitle:"Window")?.submenu)
+        XCTAssertTrue(windows === NSApp.windowsMenu)
+        XCTAssertEqual(windows.items.filter { !$0.isSeparatorItem }.prefix(3).map(\.title),["Minimize","Zoom","Bring All to Front"])
+        let edit = try XCTUnwrap(menu.item(withTitle:"Edit")?.submenu)
+        XCTAssertEqual(edit.items.filter { !$0.isSeparatorItem }.prefix(6).map(\.title),["Undo","Redo","Cut","Copy","Paste","Select All"])
+        for (parent, title, action, key, modifiers) in [
+            (app,"Hide Board","hide:","h",NSEvent.ModifierFlags.command),
+            (app,"Hide Others","hideOtherApplications:","h",[.command,.option]),
+            (app,"Show All","unhideAllApplications:","",.command),
+            (app,"Quit Board","terminate:","q",.command),
+            (try XCTUnwrap(menu.item(withTitle:"File")?.submenu),"Close Window","performClose:","w",.command),
+            (edit,"Undo","undo:","z",.command), (edit,"Redo","redo:","z",[.command,.shift]),
+            (windows,"Minimize","performMiniaturize:","m",.command),
+            (windows,"Zoom","performZoom:","",.command),
+            (windows,"Bring All to Front","arrangeInFront:","",.command)
+        ] {
+            let item = try XCTUnwrap(parent.item(withTitle:title))
+            XCTAssertEqual(item.action,Selector(action),title)
+            XCTAssertNil(item.target,title + " must use the responder chain")
+            XCTAssertEqual(item.keyEquivalent,key,title)
+            XCTAssertEqual(item.keyEquivalentModifierMask,modifiers,title)
+        }
+        XCTAssertEqual(app.item(withTitle:"Settings…")?.keyEquivalent,",")
+        XCTAssertEqual(app.item(withTitle:"Practice…")?.keyEquivalentModifierMask,[.command,.shift])
+    }
     func testPhysicalTransitionsAndShortcut() {
         var normalizer = InputNormalizer()
         XCTAssertNotNil(normalizer.accept(key:0,down:true,time:0))

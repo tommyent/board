@@ -29,22 +29,48 @@ final class ActionMenuItem: NSMenuItem {
     func applicationDidFinishLaunching(_ notification:Notification) {
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil { return }
         NSApp.setActivationPolicy(.accessory)
-        let appMenu = NSMenu(); let appItem = NSMenuItem(); appMenu.addItem(appItem)
-        let main = NSMenu(); main.addItem(practiceMenuItem()); main.addItem(ActionMenuItem("Settings…",key:",") { [weak self] in self?.showSettings() }); main.addItem(.separator()); main.addItem(ActionMenuItem("Quit Board",key:"q") { NSApp.terminate(nil) }); appItem.submenu = main
-        let fileItem = NSMenuItem(title:"File",action:nil,keyEquivalent:"")
-        let fileMenu = NSMenu(title:"File")
-        fileMenu.addItem(NSMenuItem(title:"Close Window",action:#selector(NSWindow.performClose(_:)),keyEquivalent:"w"))
-        fileItem.submenu = fileMenu; appMenu.addItem(fileItem); NSApp.mainMenu = appMenu
-        let edit = NSMenu(title:"Edit"), editItem = NSMenuItem(title:"Edit",action:nil,keyEquivalent:"")
-        for (title, action, key) in [("Cut",#selector(NSText.cut(_:)),"x"),("Copy",#selector(NSText.copy(_:)),"c"),("Paste",#selector(NSText.paste(_:)),"v"),("Select All",#selector(NSText.selectAll(_:)),"a")] {
-            edit.addItem(NSMenuItem(title:title,action:action,keyEquivalent:key))
-        }
-        editItem.submenu = edit; appMenu.addItem(editItem)
+        buildMainMenu()
         overlays = OverlayController(app:state)
         state.showSettings = { [weak self] in self?.showSettings() }
         state.onPreferences = { [weak self] in self?.applyPreferences() }
         state.start(); applyPreferences()
         if Self.opensSettingsAtLaunch(onboardingComplete:state.settings.onboardingComplete,inputAllowed:CGPreflightListenEventAccess()) { showSettings() }
+    }
+    func buildMainMenu() {
+        let appMenu = NSMenu(); let appItem = NSMenuItem(); appMenu.addItem(appItem)
+        let main = NSMenu(title:"Board"); appItem.submenu = main
+        main.addItem(ActionMenuItem("About Board") { [weak self] in self?.state.selectedSettingsSection = .about; self?.showSettings() })
+        main.addItem(.separator())
+        main.addItem(practiceMenuItem())
+        main.addItem(ActionMenuItem("Settings…",key:",") { [weak self] in self?.showSettings() })
+        main.addItem(.separator())
+        let services = NSMenu(title:"Services"), servicesItem = NSMenuItem(title:"Services",action:nil,keyEquivalent:"")
+        servicesItem.submenu = services; main.addItem(servicesItem); NSApp.servicesMenu = services
+        main.addItem(.separator())
+        main.addItem(NSMenuItem(title:"Hide Board",action:#selector(NSApplication.hide(_:)),keyEquivalent:"h"))
+        let hideOthers = NSMenuItem(title:"Hide Others",action:#selector(NSApplication.hideOtherApplications(_:)),keyEquivalent:"h")
+        hideOthers.keyEquivalentModifierMask = [.command,.option]; main.addItem(hideOthers)
+        main.addItem(NSMenuItem(title:"Show All",action:#selector(NSApplication.unhideAllApplications(_:)),keyEquivalent:""))
+        main.addItem(.separator())
+        main.addItem(NSMenuItem(title:"Quit Board",action:#selector(NSApplication.terminate(_:)),keyEquivalent:"q"))
+        let fileItem = NSMenuItem(title:"File",action:nil,keyEquivalent:"")
+        let fileMenu = NSMenu(title:"File")
+        fileMenu.addItem(NSMenuItem(title:"Close Window",action:#selector(NSWindow.performClose(_:)),keyEquivalent:"w"))
+        fileItem.submenu = fileMenu; appMenu.addItem(fileItem); NSApp.mainMenu = appMenu
+        let edit = NSMenu(title:"Edit"), editItem = NSMenuItem(title:"Edit",action:nil,keyEquivalent:"")
+        edit.addItem(NSMenuItem(title:"Undo",action:Selector(("undo:")),keyEquivalent:"z"))
+        let redo = NSMenuItem(title:"Redo",action:Selector(("redo:")),keyEquivalent:"z")
+        redo.keyEquivalentModifierMask = [.command,.shift]; edit.addItem(redo); edit.addItem(.separator())
+        for (title, action, key) in [("Cut",#selector(NSText.cut(_:)),"x"),("Copy",#selector(NSText.copy(_:)),"c"),("Paste",#selector(NSText.paste(_:)),"v"),("Select All",#selector(NSText.selectAll(_:)),"a")] {
+            edit.addItem(NSMenuItem(title:title,action:action,keyEquivalent:key))
+        }
+        editItem.submenu = edit; appMenu.addItem(editItem)
+        let windows = NSMenu(title:"Window"), windowItem = NSMenuItem(title:"Window",action:nil,keyEquivalent:"")
+        windows.addItem(NSMenuItem(title:"Minimize",action:#selector(NSWindow.performMiniaturize(_:)),keyEquivalent:"m"))
+        windows.addItem(NSMenuItem(title:"Zoom",action:#selector(NSWindow.performZoom(_:)),keyEquivalent:""))
+        windows.addItem(.separator())
+        windows.addItem(NSMenuItem(title:"Bring All to Front",action:#selector(NSApplication.arrangeInFront(_:)),keyEquivalent:""))
+        windowItem.submenu = windows; appMenu.addItem(windowItem); NSApp.windowsMenu = windows
     }
     // A launch does not open Settings (login items and `open -g` start Board in the background), except to finish onboarding or to ask for Input Monitoring.
     nonisolated static func opensSettingsAtLaunch(onboardingComplete:Bool,inputAllowed:Bool) -> Bool { !onboardingComplete || !inputAllowed }

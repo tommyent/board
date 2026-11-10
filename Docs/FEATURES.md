@@ -30,6 +30,12 @@ Four styles: Keyboard, Keystrokes, Combo and Bezel. ANSI, ISO and JIS layouts; p
 
 Five colors from the Board Keycap brand package: Porcelain (the bundled icon), Sage, Blue, Lilac and Graphite. **Settings › General › App icon** changes Board's Dock icon while it runs; Finder and Launchpad keep Porcelain. The keyboard in **Settings › Your Keyboard** and Practice's key trail use the chosen color; the visualizer uses switch colors. Settings uses the standard macOS sidebar, forms and controls, in your system accent color.
 
+## Mac menus
+
+With **Show in Dock and Command–Tab** on, Board uses AppKit menus: **Board** (About, Practice, Settings, Services, Hide, Hide Others, Show All and Quit), **File** (Close Window), **Edit** (Undo, Redo, Cut, Copy, Paste and Select All) and **Window** (Minimize, Zoom, Bring All to Front and the open windows). About selects Settings' existing About section. There is no Help menu because Board has no bundled help or public help address yet.
+
+Standard shortcuts use the responder chain: Command-H hides Board, Option-Command-H hides other apps, Command-M minimizes the front window, and Command-Z / Shift-Command-Z undo and redo in editable text fields. Practice's scored input keeps its own editing rules. Command-comma opens the real Settings window, including with the Dock icon off; Command-Shift-P opens Practice. The status menu is unchanged.
+
 ## AI mode
 
 AI mode is a sound cue for your coding agents. Turn on **Settings › Extras › AI mode**, and while a coding agent works, Board types along, so you can hear when it's busy and when it stops. It only plays key sounds and drives the visualizer. It never posts key events, so nothing is typed into your apps.
