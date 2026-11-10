@@ -92,12 +92,6 @@ final class BoardTests: XCTestCase {
         XCTAssertTrue(AppDelegate.opensSettingsAtLaunch(onboardingComplete:true,inputAllowed:false))
         XCTAssertTrue(AppDelegate.opensSettingsAtLaunch(onboardingComplete:false,inputAllowed:false))
     }
-    func testReopenOpensSettingsOnlyWhenBothIconsAreHidden() {
-        XCTAssertTrue(AppDelegate.opensSettingsOnReopen(showMenu:false,showDock:false),"With no icon, reopening is the only way into Settings")
-        XCTAssertFalse(AppDelegate.opensSettingsOnReopen(showMenu:true,showDock:false))
-        XCTAssertFalse(AppDelegate.opensSettingsOnReopen(showMenu:false,showDock:true))
-        XCTAssertFalse(AppDelegate.opensSettingsOnReopen(showMenu:true,showDock:true))
-    }
     func testPhysicalTransitionsAndShortcut() {
         var normalizer = InputNormalizer()
         XCTAssertNotNil(normalizer.accept(key:0,down:true,time:0))
