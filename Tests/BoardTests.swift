@@ -92,6 +92,12 @@ final class BoardTests: XCTestCase {
         XCTAssertTrue(AppDelegate.opensSettingsAtLaunch(onboardingComplete:true,inputAllowed:false))
         XCTAssertTrue(AppDelegate.opensSettingsAtLaunch(onboardingComplete:false,inputAllowed:false))
     }
+    func testNothingButBoardBuildsTheMainMenu() {
+        // The test host skips Board's own menu, so a main menu here would be one a SwiftUI scene installed over it,
+        // whose Settings… opens that scene's empty window instead of Board's Settings.
+        XCTAssertTrue(NSApp.delegate is AppDelegate)
+        XCTAssertNil(NSApp.mainMenu,"Something other than AppDelegate installed a main menu")
+    }
     func testPhysicalTransitionsAndShortcut() {
         var normalizer = InputNormalizer()
         XCTAssertNotNil(normalizer.accept(key:0,down:true,time:0))

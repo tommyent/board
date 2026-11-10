@@ -1,8 +1,12 @@
 import SwiftUI
 
-@main struct BoardApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    var body: some Scene { Settings { EmptyView() } }
+// A plain AppKit start: a SwiftUI App replaces the main menu AppDelegate builds, and its Settings… opened an empty window.
+@main enum BoardApp {
+    @MainActor static func main() {
+        let delegate = AppDelegate()
+        NSApplication.shared.delegate = delegate
+        NSApplication.shared.run()
+    }
 }
 final class ActionMenuItem: NSMenuItem {
     var handler: (() -> Void)?
