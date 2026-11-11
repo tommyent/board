@@ -4,6 +4,18 @@ Date: **2026-09-10**. Host: Apple Silicon MacBook Air, Xcode 27.0 (27A5252f), Sw
 
 **Current scope: 11 bundled sound profiles.** The user removed unavailable sounds and recording dependencies from the requested app. Hardware, permission, and performance verification remains limited as detailed below; earlier catalog counts describe historical builds.
 
+## Board 0.4.10 (build 14) — the same app without build paths, 2026-11-11
+
+No Swift file changed. The Release build was not stripped, so the 0.4.8 and 0.4.9 binaries carried the build folder's absolute path, home folder included, 43 times in their debug symbols. `Scripts/build.sh` now runs `strip -S` on the packaged binary before signing and stops if `/Users/` is still in it. `LICENSE` (MIT) is new.
+
+- `bash Scripts/test.sh` at aab43b5 (the tree merged as 3851f49): **68 tests, 1 skipped, 0 failures**.
+- `bash Scripts/build.sh --notarize` at 3851f49: notarization accepted (submission `ca608dbc-af45-464f-8469-47da9b5547e3`), stapled, `spctl`: accepted, Notarized Developer ID. 0.4.10 (14), CDHash `977af5ff58ab793b1bf6ec7cdd5fadd269ea0e95`. `Board-0.4.10.zip` SHA-256 `a7452ce061a46c2917d0de0529d9d8a06905e245a00d7bcb2bc55da5d241eeda`.
+- `/usr/bin/grep -a -c '/Users/'` on the binary: **0** (0.4.9: 43).
+- **Same program as 0.4.9, observed by comparison:** the `__TEXT,__text` and `__TEXT,__cstring` sections of the two binaries are byte-identical, `nm -u` lists the same 1,311 imported symbols, and the bundles hold the same files.
+- **The release's own zip on the test Mac** (M1 MacBook Air, macOS 26.5.1): downloaded back with `gh release download`, checksum equal, quarantined by hand as a Safari download, `/Users/` count 0, Gatekeeper accepted it, the first-open dialog was answered with Open, and Board opened Settings with the Input Monitoring onboarding. Log: `Launch version=0.4.10 settingsOpened=true onboardingIncomplete=true inputPermissionMissing=true`. No Motion request, no crash report.
+- **Not observed for 0.4.10:** a launch with Input Monitoring granted, a key press, sound. It is not installed on the Macs that run Board daily; they stay on 0.4.9. That those work is inferred from the identical code sections.
+- Cost of stripping: crash reports show fewer local names, and no dSYM is kept.
+
 ## Board 0.4.9 (build 13) — Mac menus, quieter first run, safer settings, 2026-11-10
 
 Two branches written after 0.4.8 (`fix/menus`, `fix/first-run`), reviewed by a second model and merged on `release/0.4.9`. What changed:
