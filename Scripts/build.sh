@@ -9,6 +9,12 @@ case "${1:-}" in
 esac
 xcodebuild -project Board.xcodeproj -scheme Board -configuration Release -derivedDataPath build/DerivedData build
 python3 Scripts/package_app.py
+# Debug symbols carry the build folder's absolute path, home folder included. Remove them before signing.
+strip -S dist/Board.app/Contents/MacOS/Board
+if /usr/bin/grep -a -q '/Users/' dist/Board.app/Contents/MacOS/Board; then
+  echo "error: the binary still contains a /Users/ path" >&2
+  exit 1
+fi
 # Board only listens, AI mode included: fail if the app links any API that posts events into other apps.
 if nm -u dist/Board.app/Contents/MacOS/Board | grep -E '^_(CGEventPost|CGEventPostToPid|CGEventPostToPSN|CGEventTapPostEvent|CGPostKeyboardEvent|CGPostMouseEvent|AXUIElementPostKeyboardEvent)$'; then
   echo "error: Board links an event-posting API" >&2

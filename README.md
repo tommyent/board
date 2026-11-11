@@ -15,9 +15,9 @@ It comes with eleven recorded sounds, on-screen visualizers that show your keyst
 
 Board needs a Mac with Apple silicon. It is built for macOS 15 or later. It has been run on macOS 26.5.1 and on macOS 27.0.1 to 27.3, and not on macOS 15 itself.
 
-The current release is [Board 0.4.9](https://github.com/tommyent/board/releases/tag/v0.4.9). You can also [build Board from source](#build-from-source).
+The current release is [Board 0.4.10](https://github.com/tommyent/board/releases/tag/v0.4.10). You can also [build Board from source](#build-from-source).
 
-1. Download [`Board-0.4.9.zip`](https://github.com/tommyent/board/releases/download/v0.4.9/Board-0.4.9.zip) and open it.
+1. Download [`Board-0.4.10.zip`](https://github.com/tommyent/board/releases/download/v0.4.10/Board-0.4.10.zip) and open it.
 2. Move `Board.app` to your Applications folder.
 3. Open Board. The first time, macOS asks whether you want to open an app downloaded from the internet; choose **Open**. The release is signed with Developer ID and notarized by Apple.
 4. Board opens its Settings window. To hear sounds in other apps, Board needs the **Input Monitoring** permission:
