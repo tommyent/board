@@ -41,7 +41,7 @@ struct AudioDevice: Identifiable, Equatable {
     static func requestBuffer(_ id: AudioDeviceID) -> UInt32 {
         var a = address(kAudioDevicePropertyBufferFrameSize), size = UInt32(MemoryLayout<UInt32>.size), frames: UInt32 = 128
         // The HAL keeps this per process: with Board-style 128 frames set, another process still read 512 and got its usual
-        // callback size, and nothing persisted after exit (m1, macOS 26.5.1, built-in speakers, 2026-10-25). So no restore is needed.
+        // callback size, and nothing persisted after exit (an M1 MacBook Air, macOS 26.5.1, built-in speakers, 2026-10-25). So no restore is needed.
         // A device may reject the request; report the read-back, never the requested value.
         _ = AudioObjectSetPropertyData(id,&a,0,nil,size,&frames)
         _ = AudioObjectGetPropertyData(id,&a,0,nil,&size,&frames)
