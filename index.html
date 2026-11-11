@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en" data-theme="blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Board: keyboard sounds for your Mac</title>
+<meta name="description" content="Board plays real keyboard and typewriter recordings as you type on your Mac. Eleven sounds, keystroke visualizers and typing practice. Offline, with no account.">
+
+<link rel="canonical" href="https://tommyent.github.io/board/">
+
+<!-- The download link and the version live here, in this one place. While "url" is empty, every
+     Download button shows the placeholder note and scrolls to the bottom of the page instead of downloading. -->
+<script type="application/json" id="release">{ "version": "0.4.10", "url": "https://github.com/tommyent/board/releases/download/v0.4.10/Board-0.4.10.zip" }</script>
+
+<meta name="theme-color" content="#C4D7E9">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Board">
+<meta property="og:title" content="Board: keyboard sounds for your Mac">
+<meta property="og:description" content="Real keyboard and typewriter recordings as you type on your Mac. Eleven sounds, offline, with no account.">
+<meta property="og:url" content="https://tommyent.github.io/board/">
+<meta property="og:image" content="https://tommyent.github.io/board/assets/img/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Board: eleven sounds for the keys you already have. A keyboard with porcelain keycaps beside Board's blue app icon.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/img/board-mark.svg" type="image/svg+xml">
+<link rel="icon" href="assets/img/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/Geist.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face { font-family: "Geist"; src: url(assets/fonts/Geist.woff2) format("woff2"); font-weight: 100 900; font-display: swap; }
+
+/* Brand constants (Board Keycap package) */
+:root { --ink: #262826; --paper: #FAF8F4; --porcelain: #F3EFE8; --porcelain-base: #B9B2A7; --case: #424743; --case-base: #202421;
+  --u: 58px; --gap: 5px; --r: 8px; }
+[data-theme="blue"] { --ground: #C4D7E9; --hi: #E9F2FA; --base: #839FB8; --face: #25394A; --strong: #35566F; --rule: #BCD0E3; --muted: #405A70; --shade: 28, 48, 66; }
+
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--ground); color: var(--face); font: 400 18px/1.55 "Geist", -apple-system, system-ui, sans-serif; overflow-x: clip;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; caret-color: var(--strong); }
+::selection { background: var(--strong); color: #fff; }
+:focus-visible { outline: 3px solid var(--strong); outline-offset: 3px; border-radius: 6px; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+img { display: block; max-width: 100%; height: auto; }
+h1, h2, h3 { font-weight: 600; color: var(--ink); text-wrap: balance; }
+h2 { font-size: 46px; line-height: 1.08; letter-spacing: -0.03em; }
+h3 { font-size: 19px; letter-spacing: -0.01em; line-height: 1.3; }
+p { text-wrap: pretty; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip { position: absolute; left: 16px; top: -60px; background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: var(--r); z-index: 9; }
+.skip:focus { top: 12px; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+.btn { display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 22px; border-radius: var(--r); border: 0; cursor: pointer;
+  background: var(--ink); color: var(--paper); font: 600 17px "Geist", sans-serif; text-decoration: none; white-space: nowrap; }
+.btn:hover { background: #3a3c39; }
+.btn.quiet { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.btn.quiet:hover { background: rgba(38, 40, 38, .06); }
+.btn svg { flex: none; }
+.placeholder { font-size: 13px; font-weight: 500; color: #6E4512; background: #F6E7CF; border: 1px dashed #B9853C; border-radius: 6px; padding: 4px 9px; }
+.badge { display: inline-block; font-size: 14px; font-weight: 600; letter-spacing: 0; color: #fff; background: var(--strong); border-radius: 999px; padding: 4px 12px; vertical-align: middle; }
+
+/* Header */
+.top { display: flex; align-items: center; justify-content: space-between; padding-block: 26px; }
+.top img { height: 40px; width: auto; }
+.top ul { list-style: none; display: flex; gap: 30px; padding: 0; }
+.top a { text-decoration: none; font-weight: 500; font-size: 16px; color: var(--face); white-space: nowrap; }
+.top li a { display: inline-block; padding-block: 12px; }
+.top a:hover { color: var(--ink); text-decoration: underline; }
+
+/* Stage: the sleeve, with the keyboard sliding out of it */
+.stage { position: relative; max-width: 1280px; margin: 0 auto; padding: 20px 40px 0; }
+.sleeve { margin-left: auto; width: min(1000px, 100% - 240px); position: relative; z-index: 1; }
+.gatefold { display: grid; grid-template-columns: 1fr 1fr; border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(var(--shade), .14), 0 40px 70px -24px rgba(var(--shade), .55); }
+.cover { background: var(--strong); color: #fff; border-radius: 6px 0 0 6px; padding: 44px 46px 46px; min-height: 580px;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
+.cover img { width: 172px; align-self: flex-end; filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .28)); }
+.cover h1 { color: #fff; font-size: 54px; line-height: 1.03; letter-spacing: -0.035em; }
+.cover p { margin-top: 16px; font-size: 19px; line-height: 1.5; color: rgba(255, 255, 255, .88); max-width: 30ch; }
+.back { background: var(--hi); border-radius: 0 6px 6px 0; box-shadow: inset 1px 0 0 var(--rule); padding: 38px 40px 36px; display: flex; flex-direction: column; }
+.tracks { border: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+.tracks legend { padding: 0; margin-bottom: 14px; font-size: 15px; font-weight: 600; color: var(--strong); }
+.side { font-size: 14px; font-weight: 600; color: var(--strong); padding-bottom: 7px; border-bottom: 1.5px solid var(--face); }
+.tracks ol { list-style: none; padding: 0; }
+.track { display: grid; grid-template-columns: 22px 1fr auto; gap: 2px 8px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--rule);
+  font-size: 15.5px; line-height: 1.25; color: var(--ink); }
+.track input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.track .n { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+.track small { grid-column: 2; font-size: 13px; color: var(--muted); }
+.track .state { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.track.ready { cursor: pointer; border-radius: var(--r); padding: 9px 10px; margin: 3px -10px; border: 0; background: rgba(var(--shade), .07); }
+.track.ready:hover { background: rgba(var(--shade), .12); }
+.track.ready:has(input:checked) { background: var(--ink); color: var(--paper); }
+.track.ready:has(input:checked) .n, .track.ready:has(input:checked) small, .track.ready:has(input:checked) .state { color: #CFC9D3; }
+.track:has(input:focus-visible) { outline: 3px solid var(--strong); outline-offset: 2px; }
+.back .note { margin-top: 14px; font-size: 13.5px; color: var(--muted); }
+.get { margin-top: auto; padding-top: 22px; }
+.get .row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.get .sys { margin-top: 12px; font-size: 14px; color: var(--muted); }
+
+/* The keyboard: Porcelain keycaps on a graphite case */
+.kb { position: absolute; z-index: 0; left: -70px; top: 92px; transform: rotate(-7deg); transform-origin: 100% 50%;
+  padding: 16px 16px 20px; border-radius: 22px; background: linear-gradient(180deg, #4b514c, var(--case) 40%, #3a3f3b);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), inset 0 -6px 0 var(--case-base), 0 26px 50px -12px rgba(0, 0, 0, .5), 0 4px 10px rgba(0, 0, 0, .2); }
+.kb-keys { position: relative; width: calc(15 * var(--u)); height: calc(5.8 * var(--u)); }
+.key { position: absolute; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u));
+  width: calc(var(--w) * var(--u) - var(--gap)); height: calc(var(--h) * var(--u) - var(--gap));
+  border-radius: 9px; background: var(--porcelain-base); box-shadow: 0 2px 1.5px #8f887d, 0 4px 6px rgba(0, 0, 0, .3);
+  transition: transform .08s ease-out, box-shadow .08s ease-out; font-weight: 500; color: var(--ink); }
+.key::before { content: ""; position: absolute; inset: 2px 4px 7px; border-radius: 7px;
+  background: linear-gradient(170deg, #fff, var(--porcelain) 70%); box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0, 0, 0, .12); transition: background .08s; }
+.key span, .key i { position: absolute; z-index: 1; font-style: normal; }
+.key span { left: 0; right: 0; top: 2px; bottom: 7px; display: grid; place-items: center; font-size: calc(var(--u) * .28); }
+.key.fn span, .key.half span, .key.mod span { font-size: calc(var(--u) * .19); }
+.key.mod span { place-items: end start; padding: 0 0 7px 10px; }
+.key.mod.right span { place-items: end end; padding: 0 10px 7px 0; }
+.key.mod i { top: 6px; right: 10px; font-size: calc(var(--u) * .22); }
+.key.mod.right i { right: auto; left: 10px; }
+.key.half { border-radius: 6px; } .key.half::before { inset: 1px 3px 4px; border-radius: 5px; }
+.key.accent { background: var(--base); box-shadow: 0 2px 1.5px rgba(var(--shade), .7), 0 4px 6px rgba(0, 0, 0, .3); }
+.key.accent::before { background: linear-gradient(170deg, var(--hi), var(--ground) 75%); }
+.key.accent-soft::before { background: linear-gradient(170deg, #fff, var(--hi) 75%); }
+.key.down { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0, 0, 0, .3); }
+.key.down::before { background: var(--strong); }
+.key.down span, .key.down i { color: #fff; }
+
+/* Type-along strip under the sleeve */
+.deck { margin-top: 22px; background: var(--paper); border-radius: 16px; padding: 18px 20px 18px 18px; display: grid;
+  grid-template-columns: auto 1fr; gap: 6px 22px; align-items: center; box-shadow: 0 12px 30px -18px rgba(var(--shade), .6); }
+.deck label { display: block; font-size: 14px; font-weight: 500; color: var(--muted); }
+.deck input { width: 100%; border: 0; border-bottom: 2px solid var(--ink); background: transparent; color: var(--ink);
+  font: 500 24px/1.3 "Geist", sans-serif; padding: 4px 0 6px; letter-spacing: -0.01em; }
+.deck input:focus { outline: none; border-bottom-color: var(--strong); }
+.deck input:focus-visible { box-shadow: 0 3px 0 var(--strong); }
+.deck input::placeholder, .test textarea::placeholder { color: var(--muted); opacity: 1; }
+.deck .status { grid-column: 1 / -1; font-size: 14px; color: var(--muted); min-height: 1.55em; }
+
+section.band { padding-top: 132px; }
+.lede { margin-top: 14px; font-size: 20px; max-width: 54ch; }
+
+/* Typing test */
+.test { margin-top: 32px; background: var(--hi); border-radius: 16px; padding: 34px 36px 30px; }
+.passage { font-size: 27px; line-height: 1.55; letter-spacing: -0.01em; color: var(--muted); max-width: 44ch; font-weight: 400; }
+.passage .ok { color: var(--ink); }
+.passage .bad { color: #fff; background: var(--strong); border-radius: 3px; }
+.passage .at { box-shadow: inset 0 -3px 0 var(--strong); color: var(--ink); }
+.test textarea { margin-top: 22px; width: 100%; resize: none; height: 3.4em; border: 0; border-radius: var(--r); padding: 12px 14px;
+  background: var(--paper); color: var(--ink); font: 400 19px/1.45 "Geist", sans-serif; box-shadow: inset 0 0 0 1.5px var(--rule); }
+.test textarea:focus { outline: none; box-shadow: inset 0 0 0 2px var(--strong); }
+.score { margin-top: 22px; display: flex; flex-wrap: wrap; align-items: end; gap: 12px 44px; }
+.score div { display: grid; }
+.score b { font-size: 40px; font-weight: 600; color: var(--ink); line-height: 1.05; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.score span { font-size: 14px; color: var(--muted); }
+.score .btn { margin-left: auto; }
+.test .fine { margin-top: 16px; font-size: 14px; color: var(--muted); }
+
+/* Practice (screenshots from the app) */
+.shots { margin-top: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.shots figure, .overlay-shot { border-radius: 16px; overflow: hidden; background: #fff; box-shadow: inset 0 0 0 1.5px var(--rule); }
+.shots figure img { width: 100%; }
+.shots figcaption { padding: 12px 18px 14px; font-size: 14px; color: var(--muted); border-top: 1.5px solid var(--rule); background: var(--hi); text-wrap: balance; }
+.shots + .notes { margin-top: 44px; }
+.overlay-shot { margin-top: 16px; max-width: 310px; padding: 4px; }
+
+/* Soundscapes (coming) */
+.places { margin-top: 30px; border: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.place { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: 2px 14px; align-items: center; padding: 18px; border-radius: 16px;
+  background: rgba(255, 255, 255, .45); box-shadow: inset 0 0 0 1.5px var(--rule); cursor: pointer; color: var(--ink); }
+.place:hover { background: rgba(255, 255, 255, .7); }
+.place input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.place svg { grid-row: span 2; width: 40px; height: 40px; color: var(--strong);
+  fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.place b { font-weight: 600; font-size: 17px; }
+.place small { font-size: 14px; color: var(--muted); }
+.place:has(input:checked) { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); }
+.place:has(input:focus-visible) { outline: 3px solid var(--strong); outline-offset: 2px; }
+.places + .status { margin-top: 14px; font-size: 15px; color: var(--muted); min-height: 1.55em; }
+
+/* AI mode */
+.ai { display: grid; grid-template-columns: 1.15fr 1fr; gap: 56px; align-items: center; }
+.ai .lede { font-size: 19px; }
+.ai-card { background: var(--ink); color: var(--paper); border-radius: 16px; padding: 10px 26px; }
+.ai-card p { display: flex; justify-content: space-between; gap: 18px; padding: 16px 0; border-bottom: 1px solid #3c3f3b; font-size: 16px; }
+.ai-card p:last-child { border: 0; }
+.ai-card span { color: #C9C4BA; display: flex; align-items: center; gap: 10px; }
+.ai-card b { font-weight: 600; text-align: right; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ground); flex: none; }
+.dot.off { background: #6b6f6a; }
+
+/* Liner notes */
+.vis { margin-top: 32px; display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; }
+.vis figure { border-radius: 16px; overflow: hidden; background: var(--hi); }
+.vis figure img { width: 100%; }
+.vis .stack { display: grid; gap: 18px; align-content: start; }
+.vis .stack.fill { align-content: stretch; grid-template-rows: auto 1fr; }
+.vis .stack.fill figure:last-child { display: grid; place-items: center; }
+.vis .pair { display: grid; grid-template-columns: .8fr 1.2fr; gap: 18px; }
+.vis .pair figure { background: var(--case-base); display: grid; place-items: center; }
+.vis-cap { margin-top: 12px; font-size: 14px; color: var(--muted); }
+.notes { margin-top: 64px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 44px; }
+.notes + .notes { margin-top: 44px; }
+.notes p { margin-top: 8px; font-size: 16.5px; }
+.icons { display: flex; gap: 8px; margin-top: 16px; }
+.icons img { width: 48px; }
+
+/* Close */
+.close { margin-top: 140px; background: var(--strong); color: #fff; border-radius: 16px; padding: 56px; display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; }
+.close img { width: 132px; filter: drop-shadow(0 14px 20px rgba(0, 0, 0, .25)); }
+.close h2 { color: #fff; font-size: 44px; }
+.close .row { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.close .btn { background: var(--paper); color: var(--ink); }
+/* The usual outline color is this panel's own background, so focus is drawn in the paper color here. */
+.close .btn:focus-visible { outline-color: var(--paper); }
+.close .sys { margin-top: 12px; font-size: 15px; color: rgba(255, 255, 255, .85); }
+footer.wrap { padding-top: 40px; padding-bottom: 56px; font-size: 14px; color: var(--muted); display: grid; gap: 6px; }
+
+/* Narrower desktops: the keyboard peeks out of the top instead */
+@media (max-width: 1099px) {
+  .stage { padding-top: 150px; overflow: hidden; }
+  .sleeve { width: 100%; }
+  /* only the part above the sleeve shows, so no keys appear beside it */
+  .kb { left: 50%; top: 18px; transform: translateX(-50%); --u: 50px; --peek: 132px; clip-path: inset(-40px -40px calc(100% - var(--peek)) -40px); }
+}
+@media (max-width: 760px) {
+  body { font-size: 17px; }
+  .wrap { padding: 0 16px; }
+  .top { padding-block: 16px; } .top ul { display: none; }
+  .stage { padding: 104px 12px 0; }
+  .kb { --u: 34px; --gap: 3px; --peek: 90px; left: 18px; transform: none; top: 14px; padding: 10px 10px 13px; border-radius: 16px; }
+  .key { border-radius: 6px; } .key::before { inset: 1px 3px 5px; border-radius: 5px; }
+  .key.mod span { padding: 0 0 5px 6px; } .key.mod.right span { padding: 0 6px 5px 0; } .key.mod i { top: 3px; right: 6px; }
+  .gatefold { grid-template-columns: 1fr; }
+  .cover { border-radius: 6px 6px 0 0; min-height: 0; padding: 28px 24px 30px; }
+  .cover img { width: 120px; }
+  .cover h1 { font-size: 40px; }
+  .back { border-radius: 0 0 6px 6px; box-shadow: inset 0 1px 0 var(--rule); padding: 26px 22px 28px; }
+  .tracks { grid-template-columns: 1fr; }
+  .tracks ol + .side { margin-top: 18px; }
+  .deck { grid-template-columns: 1fr; padding: 16px; }
+  .deck .btn { justify-self: start; }
+  section.band { padding-top: 88px; }
+  h2 { font-size: 34px; }
+  .lede { font-size: 18px; }
+  .test { padding: 22px 18px; }
+  .passage { font-size: 21px; }
+  .score { gap: 12px 28px; } .score b { font-size: 32px; } .score .btn { margin-left: 0; }
+  .places { grid-template-columns: 1fr; }
+  .ai { grid-template-columns: 1fr; gap: 28px; }
+  .vis, .vis .pair, .notes, .shots { grid-template-columns: 1fr; }
+  .notes { gap: 30px; margin-top: 44px; }
+  .notes + .notes, .shots + .notes { margin-top: 30px; }
+  .close { grid-template-columns: 1fr; padding: 32px 24px; gap: 20px; margin-top: 96px; }
+  .close img { width: 96px; } .close h2 { font-size: 34px; }
+}
+@media (max-width: 1099px) and (min-width: 761px) { .tracks { gap: 0 22px; } .top ul { gap: 18px; } }
+/* Tablet widths: the sleeve's two halves get narrow, so the sound list runs in one column and the headline steps down. */
+@media (max-width: 960px) and (min-width: 761px) {
+  .cover { padding: 36px 34px 38px; } .cover h1 { font-size: 44px; }
+  .back { padding: 34px 30px 32px; }
+  .tracks { grid-template-columns: 1fr; } .tracks ol + .side, .tracks div + div .side { margin-top: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .key, .key::before { transition: none; }
+  .key.down { transform: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-sound" viewBox="0 0 20 20"><path d="M3 7.5h3l4-3.5v12l-4-3.5H3z" fill="currentColor"/><path d="M13 7a4 4 0 0 1 0 6M15.5 4.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 20 20"><path d="M3 7.5h3l4-3.5v12l-4-3.5H3z" fill="currentColor"/><path d="M13.5 7.5l5 5m0-5l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <!-- place pictograms: stroke and fill come from .place svg -->
+    <symbol id="i-typewriter" viewBox="0 0 32 32"><path d="M10 12V5h12v7"/><rect x="4" y="12" width="24" height="13" rx="3"/><path d="M9 17h2m3 0h2m3 0h2m3 0h0M9 21h14"/></symbol>
+    <symbol id="i-crt" viewBox="0 0 32 32"><rect x="4" y="5" width="24" height="18" rx="3"/><rect x="8" y="9" width="16" height="10" rx="1.5"/><path d="M12 23l-1 4h10l-1-4"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 32 32"><rect x="7" y="7" width="18" height="13" rx="2"/><path d="M3 24h26l-2 2H5z"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 32 32"><path d="M6 13h17v6a7 7 0 0 1-7 7h-3a7 7 0 0 1-7-7z"/><path d="M23 15h2a3 3 0 0 1 0 6h-2.5M11 4c-1 1.5 1 2.5 0 4m5-4c-1 1.5 1 2.5 0 4"/></symbol>
+    <symbol id="i-tree" viewBox="0 0 32 32"><path d="M16 28V17m0 0l-4-3m4 3l4-4"/><path d="M9 20a7 7 0 1 1 5-12 7 7 0 0 1 11 6 6 6 0 0 1-4 6z"/></symbol>
+    <symbol id="i-beach" viewBox="0 0 32 32"><circle cx="24" cy="8" r="3"/><path d="M13 26c1-5 1-10-1-14m0 0c-3-1-6 0-8 2m8-2c1-3 4-4 7-4m-7 4c3 0 5 2 6 4M3 27c2.5-1.5 5-1.5 7.5 0s5 1.5 7.5 0 5-1.5 7.5 0 3 1 4 1"/></symbol>
+</svg>
+
+<header class="wrap top">
+  <a href="#main"><img src="assets/img/board-logo.svg" alt="Board" width="128" height="40"></a>
+  <nav aria-label="Sections"><ul>
+    <li><a href="#sounds">Sounds</a></li><li><a href="#test">Typing test</a></li><li><a href="#practice">Practice</a></li><li><a href="#places">Soundscapes</a></li>
+    <li><a href="#ai">AI mode</a></li><li><a href="#notes">Liner notes</a></li>
+  </ul></nav>
+</header>
+
+<main id="main">
+<div class="stage">
+<div class="kb" aria-hidden="true"><div class="kb-keys">
+<b class="key accent" data-code="Escape" style="--x:0;--y:0;--w:1.5;--h:0.7"><span>esc</span></b>
+<b class="key fn" data-code="F1" style="--x:1.5;--y:0;--w:1;--h:0.7"><span>F1</span></b>
+<b class="key fn" data-code="F2" style="--x:2.5;--y:0;--w:1;--h:0.7"><span>F2</span></b>
+<b class="key fn" data-code="F3" style="--x:3.5;--y:0;--w:1;--h:0.7"><span>F3</span></b>
+<b class="key fn" data-code="F4" style="--x:4.5;--y:0;--w:1;--h:0.7"><span>F4</span></b>
+<b class="key fn" data-code="F5" style="--x:5.5;--y:0;--w:1;--h:0.7"><span>F5</span></b>
+<b class="key fn" data-code="F6" style="--x:6.5;--y:0;--w:1;--h:0.7"><span>F6</span></b>
+<b class="key fn" data-code="F7" style="--x:7.5;--y:0;--w:1;--h:0.7"><span>F7</span></b>
+<b class="key fn" data-code="F8" style="--x:8.5;--y:0;--w:1;--h:0.7"><span>F8</span></b>
+<b class="key fn" data-code="F9" style="--x:9.5;--y:0;--w:1;--h:0.7"><span>F9</span></b>
+<b class="key fn" data-code="F10" style="--x:10.5;--y:0;--w:1;--h:0.7"><span>F10</span></b>
+<b class="key fn" data-code="F11" style="--x:11.5;--y:0;--w:1;--h:0.7"><span>F11</span></b>
+<b class="key fn" data-code="F12" style="--x:12.5;--y:0;--w:1;--h:0.7"><span>F12</span></b>
+<b class="key fn" style="--x:13.5;--y:0;--w:1.5;--h:0.7"></b>
+<b class="key" data-code="Backquote" data-char="`" style="--x:0;--y:0.8;--w:1;--h:1"><span>`</span></b>
+<b class="key" data-code="Digit1" data-char="1" style="--x:1;--y:0.8;--w:1;--h:1"><span>1</span></b>
+<b class="key" data-code="Digit2" data-char="2" style="--x:2;--y:0.8;--w:1;--h:1"><span>2</span></b>
+<b class="key" data-code="Digit3" data-char="3" style="--x:3;--y:0.8;--w:1;--h:1"><span>3</span></b>
+<b class="key" data-code="Digit4" data-char="4" style="--x:4;--y:0.8;--w:1;--h:1"><span>4</span></b>
+<b class="key" data-code="Digit5" data-char="5" style="--x:5;--y:0.8;--w:1;--h:1"><span>5</span></b>
+<b class="key" data-code="Digit6" data-char="6" style="--x:6;--y:0.8;--w:1;--h:1"><span>6</span></b>
+<b class="key" data-code="Digit7" data-char="7" style="--x:7;--y:0.8;--w:1;--h:1"><span>7</span></b>
+<b class="key" data-code="Digit8" data-char="8" style="--x:8;--y:0.8;--w:1;--h:1"><span>8</span></b>
+<b class="key" data-code="Digit9" data-char="9" style="--x:9;--y:0.8;--w:1;--h:1"><span>9</span></b>
+<b class="key" data-code="Digit0" data-char="0" style="--x:10;--y:0.8;--w:1;--h:1"><span>0</span></b>
+<b class="key" data-code="Minus" data-char="-" style="--x:11;--y:0.8;--w:1;--h:1"><span>-</span></b>
+<b class="key" data-code="Equal" data-char="=" style="--x:12;--y:0.8;--w:1;--h:1"><span>=</span></b>
+<b class="key mod right" data-code="Backspace" style="--x:13;--y:0.8;--w:2;--h:1"><i>⌫</i><span>delete</span></b>
+<b class="key mod" data-code="Tab" style="--x:0;--y:1.8;--w:1.5;--h:1"><i>⇥</i><span>tab</span></b>
+<b class="key" data-code="KeyQ" data-char="q" style="--x:1.5;--y:1.8;--w:1;--h:1"><span>Q</span></b>
+<b class="key" data-code="KeyW" data-char="w" style="--x:2.5;--y:1.8;--w:1;--h:1"><span>W</span></b>
+<b class="key" data-code="KeyE" data-char="e" style="--x:3.5;--y:1.8;--w:1;--h:1"><span>E</span></b>
+<b class="key" data-code="KeyR" data-char="r" style="--x:4.5;--y:1.8;--w:1;--h:1"><span>R</span></b>
+<b class="key" data-code="KeyT" data-char="t" style="--x:5.5;--y:1.8;--w:1;--h:1"><span>T</span></b>
+<b class="key" data-code="KeyY" data-char="y" style="--x:6.5;--y:1.8;--w:1;--h:1"><span>Y</span></b>
+<b class="key" data-code="KeyU" data-char="u" style="--x:7.5;--y:1.8;--w:1;--h:1"><span>U</span></b>
+<b class="key" data-code="KeyI" data-char="i" style="--x:8.5;--y:1.8;--w:1;--h:1"><span>I</span></b>
+<b class="key" data-code="KeyO" data-char="o" style="--x:9.5;--y:1.8;--w:1;--h:1"><span>O</span></b>
+<b class="key" data-code="KeyP" data-char="p" style="--x:10.5;--y:1.8;--w:1;--h:1"><span>P</span></b>
+<b class="key" data-code="BracketLeft" data-char="[" style="--x:11.5;--y:1.8;--w:1;--h:1"><span>[</span></b>
+<b class="key" data-code="BracketRight" data-char="]" style="--x:12.5;--y:1.8;--w:1;--h:1"><span>]</span></b>
+<b class="key" data-code="Backslash" data-char="\" style="--x:13.5;--y:1.8;--w:1.5;--h:1"><span>\</span></b>
+<b class="key mod" data-code="CapsLock" style="--x:0;--y:2.8;--w:1.75;--h:1"><i>⇪</i><span>caps lock</span></b>
+<b class="key" data-code="KeyA" data-char="a" style="--x:1.75;--y:2.8;--w:1;--h:1"><span>A</span></b>
+<b class="key" data-code="KeyS" data-char="s" style="--x:2.75;--y:2.8;--w:1;--h:1"><span>S</span></b>
+<b class="key" data-code="KeyD" data-char="d" style="--x:3.75;--y:2.8;--w:1;--h:1"><span>D</span></b>
+<b class="key" data-code="KeyF" data-char="f" style="--x:4.75;--y:2.8;--w:1;--h:1"><span>F</span></b>
+<b class="key" data-code="KeyG" data-char="g" style="--x:5.75;--y:2.8;--w:1;--h:1"><span>G</span></b>
+<b class="key" data-code="KeyH" data-char="h" style="--x:6.75;--y:2.8;--w:1;--h:1"><span>H</span></b>
+<b class="key" data-code="KeyJ" data-char="j" style="--x:7.75;--y:2.8;--w:1;--h:1"><span>J</span></b>
+<b class="key" data-code="KeyK" data-char="k" style="--x:8.75;--y:2.8;--w:1;--h:1"><span>K</span></b>
+<b class="key" data-code="KeyL" data-char="l" style="--x:9.75;--y:2.8;--w:1;--h:1"><span>L</span></b>
+<b class="key" data-code="Semicolon" data-char=";" style="--x:10.75;--y:2.8;--w:1;--h:1"><span>;</span></b>
+<b class="key" data-code="Quote" data-char="&#x27;" style="--x:11.75;--y:2.8;--w:1;--h:1"><span>&#x27;</span></b>
+<b class="key mod right accent-soft" data-code="Enter" style="--x:12.75;--y:2.8;--w:2.25;--h:1"><i>↩</i><span>return</span></b>
+<b class="key mod" data-code="ShiftLeft" style="--x:0;--y:3.8;--w:2.25;--h:1"><i>⇧</i><span>shift</span></b>
+<b class="key" data-code="KeyZ" data-char="z" style="--x:2.25;--y:3.8;--w:1;--h:1"><span>Z</span></b>
+<b class="key" data-code="KeyX" data-char="x" style="--x:3.25;--y:3.8;--w:1;--h:1"><span>X</span></b>
+<b class="key" data-code="KeyC" data-char="c" style="--x:4.25;--y:3.8;--w:1;--h:1"><span>C</span></b>
+<b class="key" data-code="KeyV" data-char="v" style="--x:5.25;--y:3.8;--w:1;--h:1"><span>V</span></b>
+<b class="key" data-code="KeyB" data-char="b" style="--x:6.25;--y:3.8;--w:1;--h:1"><span>B</span></b>
+<b class="key" data-code="KeyN" data-char="n" style="--x:7.25;--y:3.8;--w:1;--h:1"><span>N</span></b>
+<b class="key" data-code="KeyM" data-char="m" style="--x:8.25;--y:3.8;--w:1;--h:1"><span>M</span></b>
+<b class="key" data-code="Comma" data-char="," style="--x:9.25;--y:3.8;--w:1;--h:1"><span>,</span></b>
+<b class="key" data-code="Period" data-char="." style="--x:10.25;--y:3.8;--w:1;--h:1"><span>.</span></b>
+<b class="key" data-code="Slash" data-char="/" style="--x:11.25;--y:3.8;--w:1;--h:1"><span>/</span></b>
+<b class="key mod right" data-code="ShiftRight" style="--x:12.25;--y:3.8;--w:2.75;--h:1"><i>⇧</i><span>shift</span></b>
+<b class="key mod" data-code="Fn" style="--x:0;--y:4.8;--w:1;--h:1"><i></i><span>fn</span></b>
+<b class="key mod" data-code="ControlLeft" style="--x:1;--y:4.8;--w:1;--h:1"><i>⌃</i><span>control</span></b>
+<b class="key mod" data-code="AltLeft" style="--x:2;--y:4.8;--w:1;--h:1"><i>⌥</i><span>option</span></b>
+<b class="key mod" data-code="MetaLeft" style="--x:3;--y:4.8;--w:1.25;--h:1"><i>⌘</i><span>command</span></b>
+<b class="key space" data-code="Space" data-char=" " style="--x:4.25;--y:4.8;--w:5.5;--h:1"></b>
+<b class="key mod right" data-code="MetaRight" style="--x:9.75;--y:4.8;--w:1.25;--h:1"><i>⌘</i><span>command</span></b>
+<b class="key mod right" data-code="AltRight" style="--x:11;--y:4.8;--w:1;--h:1"><i>⌥</i><span>option</span></b>
+<b class="key arrow" data-code="ArrowLeft" style="--x:12;--y:4.8;--w:1;--h:1"><span>←</span></b>
+<b class="key arrow half" data-code="ArrowUp" style="--x:13;--y:4.8;--w:1;--h:0.5"><span>↑</span></b>
+<b class="key arrow half" data-code="ArrowDown" style="--x:13;--y:5.3;--w:1;--h:0.5"><span>↓</span></b>
+<b class="key arrow" data-code="ArrowRight" style="--x:14;--y:4.8;--w:1;--h:1"><span>→</span></b>
+</div></div>
+<div class="sleeve">
+  <section class="gatefold" aria-labelledby="title">
+    <div class="cover">
+      <img src="assets/img/icon-blue.webp" width="440" height="440" fetchpriority="high" alt="Board's app icon in Blue: a keycap with a smiling face">
+      <div>
+        <h1 id="title">Eleven sounds for the keys you already have.</h1>
+        <p>Board plays real keyboard and typewriter recordings as you type on your Mac.</p>
+      </div>
+    </div>
+    <div class="back" id="sounds">
+      <!-- The sound list: each entry's data-files are its key-press recordings. All eleven play here. -->
+      <fieldset class="tracks">
+        <legend>Choose a sound</legend>
+        <div>
+          <p class="side" aria-hidden="true">Side A</p>
+          <ol>
+            <li><label class="track ready"><input type="radio" name="sound" value="Typewriter" checked
+              data-files="assets/sound/typewriter-1.m4a assets/sound/typewriter-2.m4a assets/sound/typewriter-3.m4a assets/sound/typewriter-4.m4a">
+              <span class="n">1</span><span>Typewriter</span><span class="state">Plays here</span><small>Classic</small></label></li>
+            <li><label class="track ready"><input type="radio" name="sound" value="Durock Alpaca"
+              data-files="assets/sound/alpaca-1.m4a assets/sound/alpaca-2.m4a assets/sound/alpaca-3.m4a assets/sound/alpaca-4.m4a assets/sound/alpaca-5.m4a">
+              <span class="n">2</span><span>Alpaca</span><span class="state">Plays here</span><small>Durock</small></label></li>
+            <li><label class="track ready"><input type="radio" name="sound" value="Gateron Ink Black"
+              data-files="assets/sound/blackink-1.m4a assets/sound/blackink-2.m4a assets/sound/blackink-3.m4a assets/sound/blackink-4.m4a assets/sound/blackink-5.m4a">
+              <span class="n">3</span><span>Ink Black</span><span class="state">Plays here</span><small>Gateron</small></label></li>
+            <li><label class="track ready"><input type="radio" name="sound" value="Gateron Ink Red"
+              data-files="assets/sound/redink-1.m4a assets/sound/redink-2.m4a assets/sound/redink-3.m4a assets/sound/redink-4.m4a assets/sound/redink-5.m4a">
+              <span class="n">4</span><span>Ink Red</span><span class="state">Plays here</span><small>Gateron</small></label></li>
+            <li><label class="track ready"><input type="radio" name="sound" value="Gateron Turquoise Tealios"
+              data-files="assets/sound/turquoise-1.m4a assets/sound/turquoise-2.m4a assets/sound/turquoise-3.m4a assets/sound/turquoise-4.m4a assets/sound/turquoise-5.m4a">
+              <span class="n">5</span><span>Turquoise Tealios</span><span class="state">Plays here</span><small>Gateron</small></label></li>
+            <li><label class="track ready"><input type="radio" name="sound" value="NovelKeys Cream"
+              data-files="assets/sound/cream-1.m4a assets/sound/cream-2.m4a assets/sound/cream-3.m4a assets/sound/cream-4.m4a assets/sound/cream-5.m4a">
+              <span class="n">6</span><span>Cream</span><span class="state">Plays here</span><small>NovelKeys</small></label></li>
+          </ol>
+        </div>
+        <div>
+          <p class="side" aria-hidden="true">Side B</p>
+          <ol start="7">
+            <li><label class="track ready"><input type="radio" name="sound" value="Drop Holy Panda"
+              data-files="assets/sound/holypanda-1.m4a assets/sound/holypanda-2.m4a assets/sound/holypanda-3.m4a assets/sound/holypanda-4.m4a assets/sound/holypanda-5.m4a">
+              <span class="n">7</span><span>Holy Panda</span><span class="state">Plays here</span><small>Drop</small></label></li>
+            <li><label class="track ready"><input type="radio" name="sound" value="Kailh Box Navy"
+              data-files="assets/sound/boxnavy-1.m4a assets/sound/boxnavy-2.m4a assets/sound/boxnavy-3.m4a assets/sound/boxnavy-4.m4a assets/sound/boxnavy-5.m4a">
+              <span class="n">8</span><span>Box Navy</span><span class="state">Plays here</span><small>Kailh</small></label></li>
+            <li><label class="track ready"><input type="radio" name="sound" value="IBM Buckling Spring"
+              data-files="assets/sound/buckling-1.m4a assets/sound/buckling-2.m4a assets/sound/buckling-3.m4a assets/sound/buckling-4.m4a assets/sound/buckling-5.m4a">
+              <span class="n">9</span><span>Buckling Spring</span><span class="state">Plays here</span><small>IBM</small></label></li>
+            <li><label class="track ready"><input type="radio" name="sound" value="Topre Classic"
+              data-files="assets/sound/topre-1.m4a assets/sound/topre-2.m4a assets/sound/topre-3.m4a assets/sound/topre-4.m4a assets/sound/topre-5.m4a">
+              <span class="n">10</span><span>Classic</span><span class="state">Plays here</span><small>Topre</small></label></li>
+            <li><label class="track ready"><input type="radio" name="sound" value="Alps SKCM Blue"
+              data-files="assets/sound/bluealps-1.m4a assets/sound/bluealps-2.m4a assets/sound/bluealps-3.m4a assets/sound/bluealps-4.m4a assets/sound/bluealps-5.m4a">
+              <span class="n">11</span><span>SKCM Blue</span><span class="state">Plays here</span><small>Alps</small></label></li>
+          </ol>
+          <p class="note">All eleven play here and in the app.</p>
+        </div>
+      </fieldset>
+      <div class="get">
+        <div class="row"><a class="btn" href="#get" data-download>Download for Mac</a><span class="placeholder" data-placeholder>Placeholder: no public release yet</span></div>
+        <p class="sys">Built for macOS 15 or later, Apple silicon. Tested on macOS 26 and 27. Works offline: no account, no server, no network.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="deck">
+    <button class="btn quiet" type="button" id="sound-toggle"><svg width="20" height="20" aria-hidden="true"><use href="#i-mute"/></svg><span>Turn sound on</span></button>
+    <div>
+      <label for="pad">Type here to hear it</label>
+      <input id="pad" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="the quick brown fox…" data-type-along>
+    </div>
+    <p class="status" id="sound-status" aria-live="polite">Sound is off. Turn it on, then type.</p>
+  </div>
+</div>
+</div>
+
+<div class="wrap">
+  <section class="band" id="test" aria-labelledby="test-title">
+    <h2 id="test-title">Take a typing test.</h2>
+    <p class="lede">Type the passage and hear every key. You get your words per minute and accuracy at the end.</p>
+    <div class="test">
+      <p class="passage" id="passage" aria-hidden="true">Every key you press makes a small sound. Board picks the sound, and your fingers pick the rhythm.</p>
+      <p class="sr" id="passage-text">Every key you press makes a small sound. Board picks the sound, and your fingers pick the rhythm.</p>
+      <label class="sr" for="test-input">Type the passage</label>
+      <textarea id="test-input" rows="2" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
+        aria-describedby="passage-text" placeholder="Start typing the passage above…" data-type-along></textarea>
+      <div class="score">
+        <div><b id="wpm">0</b><span>words per minute</span></div>
+        <div><b id="acc">100%</b><span>accuracy</span></div>
+        <div><b id="secs">0 s</b><span>time</span></div>
+        <button class="btn quiet" type="button" id="test-new">New passage</button>
+      </div>
+      <p class="sr" id="test-result" aria-live="polite"></p>
+      <p class="fine">Nothing you type here is saved or sent anywhere.</p>
+    </div>
+  </section>
+
+  <section class="band" id="practice" aria-labelledby="practice-title">
+    <h2 id="practice-title">Practice in the app.</h2>
+    <p class="lede">The test above runs on this page. Board has a Practice window of its own, for typing and for the keys games use. Your results stay on your Mac.</p>
+    <div class="shots">
+      <figure>
+        <img src="assets/app/practice-typing.webp" width="1400" height="1096" loading="lazy" alt="Board's Practice window during an English passage: 30 words per minute, 96.8% accuracy, 48 seconds left, one mistake marked in red, and a key trail showing T, H, E, Space, R">
+        <figcaption>Typing practice, with a marked mistake and the key trail.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/app/gaming-reaction.webp" width="1400" height="1096" loading="lazy" alt="Board's Gaming tab during a Reaction drill: one large key to press, with median reaction, accuracy and APM above it and the gaming keys below">
+        <figcaption>Gaming practice: a Reaction drill asking for one key.</figcaption>
+      </figure>
+    </div>
+    <div class="notes">
+      <div><h3>Typing</h3><p>English, Swift, JavaScript or Python code, or your own text, for 30 seconds, 1 minute or 2 minutes. You get words per minute, accuracy, marked errors and a key trail. Board saves result summaries only, never what you typed.</p></div>
+      <div><h3>Gaming drills</h3><p>Reaction, Strafe rhythm, Key reversal and Hold + tap, for 30, 60 or 120 seconds. Timed drills run at 60 to 160 beats per minute (BPM) and say whether a press was early, late or missed. Reaction gives your median time, accuracy, consistency and actions per minute (APM).</p></div>
+      <div><h3>Gaming keys overlay</h3><p>A small floating window shows WASD, Shift, Ctrl, Space and the mouse buttons, with how long each is held. Clicks go through it. It's off until you turn it on.</p>
+        <div class="overlay-shot"><img src="assets/app/gaming-overlay.webp" width="616" height="396" loading="lazy" alt="Board's gaming keys overlay with W and the left mouse button held"></div></div>
+    </div>
+    <p class="vis-cap">Screenshots drawn off screen by Board's own code. Reaction times include the delays of your keyboard, Mac and display.</p>
+  </section>
+
+  <section class="band" id="places" aria-labelledby="places-title">
+    <h2 id="places-title">Soundscapes <span class="badge">Coming to Board</span></h2>
+    <p class="lede">Seven backgrounds coming to Board, from offices through the decades to a coffee shop, park and beach.</p>
+    <!-- Each place with data-loop plays that file on a loop; without one it's a placeholder. -->
+    <fieldset class="places">
+      <legend class="sr">Choose a place</legend>
+      <label class="place"><input type="radio" name="place" value="Office, 1950s"><svg aria-hidden="true"><use href="#i-typewriter"/></svg><b>Office, 1950s</b><small>Typewriters far off.</small></label>
+      <label class="place"><input type="radio" name="place" value="Office, 1980s"><svg aria-hidden="true"><use href="#i-crt"/></svg><b>Office, 1980s</b><small>Phones and printers far off.</small></label>
+      <label class="place"><input type="radio" name="place" value="Office, 2000s"><svg aria-hidden="true"><use href="#i-laptop"/></svg><b>Office, 2000s</b><small>Copier and desks far off.</small></label>
+      <label class="place"><input type="radio" name="place" value="Office, modern"><svg aria-hidden="true"><use href="#i-laptop"/></svg><b>Office, modern</b><small>Kitchen and chimes far off.</small></label>
+      <label class="place"><input type="radio" name="place" value="Coffee shop"><svg aria-hidden="true"><use href="#i-cup"/></svg><b>Coffee shop</b><small>Espresso machine.</small></label>
+      <label class="place"><input type="radio" name="place" value="Park"><svg aria-hidden="true"><use href="#i-tree"/></svg><b>Park</b><small>Breeze, far traffic and birds.</small></label>
+      <label class="place"><input type="radio" name="place" value="Beach"><svg aria-hidden="true"><use href="#i-beach"/></svg><b>Beach</b><small>Waves and steel pan.</small></label>
+    </fieldset>
+    <p class="status" id="place-status" aria-live="polite">Not in Board yet. The places and their recordings are still being made.</p>
+  </section>
+
+  <section class="band ai" id="ai" aria-labelledby="ai-title">
+    <div>
+      <h2 id="ai-title">Your agent does the work. You sound busy.</h2>
+      <p class="lede">Turn on AI mode and Board types along while a coding agent works, so you hear a busy keyboard, and you hear it stop when the agent is done. Board gets the agent's status from Rex, the terminal your agents run in, so AI mode needs Rex. What you hear isn't the code your agent is writing: Board types real source files from a folder you choose. It only plays sounds and shows keys: nothing is ever typed into your apps.</p>
+    </div>
+    <div class="ai-card" role="group" aria-label="What AI mode does">
+      <p><span><i class="dot"></i>A coding agent is working</span><b>Board types along</b></p>
+      <p><span><i class="dot off"></i>No agent is working</span><b>Board goes quiet</b></p>
+      <p><span>What Board types</span><b>Real source files, not your agent's code</b></p>
+      <p><span>Speed</span><b>Human to Machine gun</b></p>
+      <p><span>Keys typed into your apps</span><b>None, ever</b></p>
+    </div>
+  </section>
+
+  <section class="band" id="notes" aria-labelledby="notes-title">
+    <h2 id="notes-title">Liner notes</h2>
+    <p class="lede">See your keys, too. Board has four visualizers, and the keyboard comes in ANSI, ISO and JIS layouts. Highlights take the color of each key's switch.</p>
+    <div class="vis">
+      <div class="stack fill">
+        <figure>
+          <img src="assets/vis/keyboard-blue.webp" width="1232" height="566" loading="lazy" alt="Board's keyboard visualizer: B, O and A lit in the blue of the SKCM Blue switch, and R and D glowing in Holy Panda's color just after release">
+        </figure>
+        <figure>
+          <img src="assets/vis/trail-blue.webp" width="760" height="200" loading="lazy" alt="Board's keystroke trail: B, O, A, R, D fading from oldest to newest, then delete with a count of 3">
+        </figure>
+      </div>
+      <div class="stack">
+        <figure>
+          <img src="assets/vis/float-blue.webp" width="800" height="380" loading="lazy" alt="The same keystrokes with Float: each key lifts along its keyboard column as it fades">
+        </figure>
+        <div class="pair">
+          <figure><img src="assets/vis/combo-blue.webp" width="532" height="452" loading="lazy" alt="Board's combo counter at 42"></figure>
+          <figure>
+            <img src="assets/vis/bezel-blue.webp" width="1152" height="712" loading="lazy" alt="Board's bezel visualizer: a border around the edge of the screen in the selected switch's color">
+          </figure>
+        </div>
+      </div>
+    </div>
+    <p class="vis-cap">Keyboard, keystroke trail (in a row, and with Float), combo and bezel, drawn by Board's own code. The switch here is Alps SKCM Blue, with R and D set to Holy Panda.</p>
+    <div class="notes">
+      <div><h3>Keystroke trail</h3><p>Your last 15 keys, in a row or a column. Each one fades over 1.9 seconds, and quick taps of the same key merge into a count, such as ⌫ ×3.</p></div>
+      <div><h3>Switch colors</h3><p>Keyboard highlights and keystroke caps take the color of each key's switch, per-key sounds included. Bezel takes the selected switch's color. Released keys glow for 1.4 seconds.</p></div>
+      <div><h3>Movement</h3><p>Pop, Slide, Bounce and Pulse, plus Float for keystrokes. With Reduce Motion on, keys only fade.</p></div>
+    </div>
+    <div class="notes">
+      <div><h3>Make it yours</h3><p>Give single keys their own sound, or import your own recordings.</p></div>
+      <div><h3>Five colors</h3><p>Pick Board's icon color. The keyboard in Settings and Practice's key trail follow it.</p>
+        <div class="icons"><img src="assets/img/icon-porcelain-96.webp" width="96" height="96" loading="lazy" alt="Porcelain"><img src="assets/img/icon-sage-96.webp" width="96" height="96" loading="lazy" alt="Sage"><img src="assets/img/icon-blue-96.webp" width="96" height="96" loading="lazy" alt="Blue"><img src="assets/img/icon-lilac-96.webp" width="96" height="96" loading="lazy" alt="Lilac"><img src="assets/img/icon-graphite-96.webp" width="96" height="96" loading="lazy" alt="Graphite"></div></div>
+      <div><h3>Stays on your Mac</h3><p>No account, no server, no network. Board keeps no history of your keys.</p></div>
+    </div>
+  </section>
+
+  <section class="close" id="get" aria-labelledby="get-title">
+    <img src="assets/img/icon-blue.webp" width="440" height="440" loading="lazy" alt="">
+    <div>
+      <h2 id="get-title">Hear every key you press.</h2>
+      <div class="row"><a class="btn" href="#get" data-download>Download for Mac</a><span class="placeholder" data-placeholder>Placeholder: no public release yet</span></div>
+      <p class="sys"><span data-version hidden></span>Built for macOS 15 or later, Apple silicon. Tested on macOS 26 and 27. No account, no server, no network.</p>
+    </div>
+  </section>
+</div>
+</main>
+
+<footer class="wrap">
+  <p>Keyboard recordings from <a href="https://github.com/tplai/kbsim">kbsim</a> by Thomas Lai, <a href="assets/sound/MIT-kbsim.txt">MIT license</a>. Typewriter recordings by Cassie-OrbitGames, <a href="https://opengameart.org/content/typewriter-sounds">CC0 1.0</a>. Geist under the <a href="assets/fonts/OFL-Geist.txt">SIL Open Font License</a>.</p>
+  <p>This page stores nothing and sends nothing. Sound loads only when you turn it on.</p>
+</footer>
+<script type="module" src="assets/board.js"></script>
+</body>
+</html>
