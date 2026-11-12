@@ -4,6 +4,8 @@
 
 Eleven recorded profiles are bundled. Board starts on Durock Alpaca; choose another in **Settings › Sound** or the menu bar menu.
 
+![Board Sound settings with the eleven switch and typewriter choices open](images/settings-sound.png)
+
 | Brand | Sound |
 |---|---|
 | Classic | Typewriter |
@@ -26,6 +28,8 @@ Eleven recorded profiles are bundled. Board starts on Durock Alpaca; choose anot
 - The default profile is Durock Alpaca.
 - Sounds are placed left to right by where the key sits on the keyboard; you can choose the output device.
 - The Motion manager is created only for enabled head tracking. An explicit opt-in requests Motion & Fitness access; a background launch with an unanswered permission does not. Already answered permissions continue through the existing playback path. Supported headphones are still required for actual motion playback.
+
+![The Your Keyboard settings with one key selected for its own switch and volume](images/your-keyboard.png)
 
 ## Input
 
@@ -59,6 +63,8 @@ Five colors from the Board Keycap brand package: Porcelain (the bundled icon), S
 
 ## Mac menus
 
+![Board's status menu with sound, switch, visualizer and Practice controls](images/status-menu.png)
+
 With **Show in Dock and Command–Tab** on, Board uses AppKit menus: **Board** (About, Practice, Settings, Services, Hide, Hide Others, Show All and Quit), **File** (Close Window), **Edit** (Undo, Redo, Cut, Copy, Paste and Select All) and **Window** (Minimize, Zoom, Bring All to Front and the open windows). About selects Settings' existing About section. There is no Help menu because Board has no bundled help or public help address yet.
 
 The shortcuts are the standard ones: Command-H hides Board, Option-Command-H hides other apps, Command-M minimizes the front window, and Command-Z / Shift-Command-Z undo and redo in editable text fields. Practice's scored input keeps its own editing rules. Command-comma opens the real Settings window; Command-Shift-P opens Practice. The status menu is unchanged.
@@ -68,6 +74,8 @@ With the Dock icon off, macOS shows no menu bar for Board, but the shortcuts sti
 Known issue: if you minimize the Settings window, bring it back by opening Board again, and then switch **Show in Dock and Command–Tab** on, Board's menus do not open until you switch to another app and back. The shortcuts work meanwhile.
 
 ## AI mode
+
+![AI mode enabled in Board's Extras settings](images/ai-mode.png)
 
 AI mode is a sound cue for your coding agents. Turn on **Settings › Extras › AI mode**, and while a coding agent works, Board types along, so you can hear when it's busy and when it stops. It only plays key sounds and drives the visualizer. It never posts key events, so nothing is typed into your apps.
 
