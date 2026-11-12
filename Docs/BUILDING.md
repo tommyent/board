@@ -101,6 +101,6 @@ The app itself runs offline: no application code opens a network connection. Bui
 - `Assets/Source/`: editable artwork sources.
 - `Board-Keycap-Brand-Package.zip`: the brand package (icons, logos, guide, fonts). The app uses its Porcelain `.icon`, five Dock ICNS files and the menu bar glyph.
 - `Docs/References/`: source notices and reference material, separate from shipped resources.
-- `Docs/images/`: the README's pictures, rendered off screen from the app's own views.
+- `Docs/images/`: the README and feature guide's pictures, rendered off screen from the app's own views; `thumbs/` holds crops for the README grid.
 
 `Scripts/fetch_assets.py` is an optional development script that uses the network, pinned to a specific kbsim revision. It is not bundled with or run by the app. Every asset the app needs is already checked in, so compiling needs no network. Developer ID signing and notarization do, as described above.

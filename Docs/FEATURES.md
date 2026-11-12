@@ -1,8 +1,22 @@
-# Board in detail
-
-The [README](../README.md) describes each feature in a few lines. This page keeps the exact rules: what counts, what is saved, and when things pause.
+# Board features
 
 ## Sound
+
+Eleven recorded profiles are bundled. Board starts on Durock Alpaca; choose another in **Settings › Sound** or the menu bar menu.
+
+| Brand | Sound |
+|---|---|
+| Classic | Typewriter |
+| Durock | Alpaca |
+| Gateron | Ink Black |
+| Gateron | Ink Red |
+| Gateron | Turquoise Tealios |
+| NovelKeys | Cream |
+| Drop | Holy Panda |
+| Kailh | Box Navy |
+| IBM | Buckling Spring |
+| Topre | Classic |
+| Alps | SKCM Blue |
 
 - 32 playback voices are loaded in advance. Mechanical profiles play separate press and release samples; Typewriter plays one complete stroke per press.
 - Native spatial output, a limiter, offline tone preparation, gain and pitch variation, and softer home-row keys.
@@ -10,6 +24,7 @@ The [README](../README.md) describes each feature in a few lines. This page keep
 - Mouse and Enter sounds can be None, the selected keyboard profile, or an imported recording.
 - Typing, mouse and Enter each have their own volume, and a key with its own sound has its own volume too. Mute silences everything.
 - The default profile is Durock Alpaca.
+- Sounds are placed left to right by where the key sits on the keyboard; you can choose the output device.
 - The Motion manager is created only for enabled head tracking. An explicit opt-in requests Motion & Fitness access; a background launch with an unanswered permission does not. Already answered permissions continue through the existing playback path. Supported headphones are still required for actual motion playback.
 
 ## Input
@@ -26,7 +41,11 @@ Unified logs use subsystem `com.tommyent.Board`. They record the launch version,
 
 ## Visualizers
 
-Four styles: Keyboard, Keystrokes, Combo and Bezel. ANSI, ISO and JIS layouts; position, scale, theme and timing controls; six pins and random placement.
+![The keyboard visualizer with pressed keys in blue and released keys in tan](images/visualizer-keyboard.png)
+
+Four styles: Keyboard, Keystrokes, Combo and Bezel. **Keyboard** lights each key as you press it and gives released keys a brief glow. **Keystrokes** shows recent keys in a fading ribbon. **Combo** counts while you keep typing and starts again after a pause. **Bezel** draws a border around the screen in the selected switch's color. Choose an ANSI, ISO or JIS layout, position, scale, theme and timing; six pins and random placement are available.
+
+![The keystroke trail showing BOARD and a delete key repeated three times](images/visualizer-trail.png)
 
 - **Keystrokes** is a ribbon of your last 15 keys, in a row or a column. Each key fades, shrinks and blurs over 1.9 seconds, so the oldest trail off. Taps of the same key less than 0.3 seconds apart merge into one cap with a count, such as `⌫ ×3`. A held key doesn't count up, because Board ignores key repeat.
 - **Movement:** Pop, Slide, Bounce and Pulse work in every placement. Keystrokes also offers Float, which lifts each key along its keyboard column.
@@ -63,7 +82,9 @@ Code text stays on your Mac: Board never logs it or sends it anywhere.
 
 ## Practice
 
-Open **Practice…** from Board's menu, or press **Command–Shift–P** while Board is active. Passages are English, code (Swift, JavaScript or Python) or your own text; attempts last 30 seconds, 1 minute or 2 minutes.
+![A typing practice attempt showing speed, accuracy, passage, and key trail](images/practice.png)
+
+Open **Practice…** from Board's menu, or press **Command–Shift–P** while Board is active. Passages are English, code (Swift, JavaScript or Python) or your own text; attempts last 30 seconds, 1 minute or 2 minutes. The window shows words per minute, accuracy, marked mistakes and a trail of keys, and Board keeps result summaries and personal bests.
 
 The first committed character starts the clock. WPM is correct characters currently entered divided by five, per minute of active typing time. Accuracy is correct insertion attempts divided by all insertion attempts; correcting a mistake does not erase it from accuracy. Editing earlier text does not recount its unchanged suffix. Return inserts a new line; in code passages Tab inserts four spaces and Control–Tab leaves the typing field. Paste and drop are disabled in a scored attempt; paste your passage in **Your text → Edit text…** instead.
 
@@ -72,6 +93,8 @@ Practice pauses when its window loses focus, the session sleeps or locks, or Sec
 History keeps the latest 200 completed result summaries in `UserDefaults` under `practice.history.v1`. It never saves passage text, typed text, or individual keys. Personal bests are separate for each mode, duration and code language; custom passages have no shared best. Custom text is limited to 10,000 characters, stays in memory, and is cleared when Practice closes. **History → Clear History…** removes saved results and bests. English and code passages repeat for the timed attempt; reaching the end of a custom passage finishes early. Unfinished attempts are not saved. Typing drills are not included.
 
 ## Gaming practice
+
+![A Reaction gaming drill with its cue and gaming keys](images/gaming.png)
 
 The Practice window's **Gaming** tab drills key presses for games. A drill starts with **Start** and a three-second countdown and lasts 30, 60 or 120 seconds. Keys are physical positions, labeled as on a US QWERTY keyboard.
 
